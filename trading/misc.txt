@@ -1,0 +1,57 @@
+https://stackoverflow.com/questions/5820397/how-to-group-a-time-series-by-interval-ohlc-bars-with-linq
+Unfortunately, you haven't specified:
+
+What the phase of the bar-series will be.
+Whether a bar's begin / end times are purely "natural-time" based (depend solely on a fixed schedule rather than on the timestamp of the first and last ticks in it) or not.
+Assuming natural-time intra-day bars, the phases are usually clamped to midnight. So hourly bars will be 00:00 - 01:00, 01:00 - 02:00, etc. In this case, the begin / end-time of a bar can serve as its unique-key.
+
+So then the problem becomes: To what bar- begin / end time does a tick's timestamp belong to? If we assume everything I've assumed above, that can be solved easily with some simple integer math. The query can then be something like (untested, algo only):
+
+var bars = from tick in ticks
+
+           // Calculate the chronological, natural-time, intra-day index 
+           // of the bar associated with a tick.
+           let barIndexForDay = tick.Timestamp.TimeOfDay.Ticks / barSizeInTicks
+
+           // Calculate the begin-time of the bar associated with a tick.
+           // For example, turn 2011/04/28 14:23.45 
+           // into 2011/04/28 14:20.00, assuming 5 min bars.
+           let barBeginDateTime = tick.Timestamp.Date.AddTicks
+                              (barIndexForDay * barSizeInTicks)
+
+           // Produce raw tick-data for each bar by grouping.
+           group tick by barBeginDateTime into tickGroup
+
+           // Order prices for a group chronologically.
+           let orderedPrices = tickGroup.OrderBy(t => t.Timestamp)
+                                        .Select(t => t.Price)
+
+           select new Bar
+           {
+                Open = orderedPrices.First(),
+                Close = orderedPrices.Last(),
+                High = orderedPrices.Max(),
+                Low = orderedPrices.Min(),
+                BeginTime = tickGroup.Key,
+                EndTime = tickGroup.Key.AddTicks(barSizeInTicks)
+           };
+It's common to want to locate a bar by index / date-time as well as to enumerate all bars in a series chronologically. In this case, you might want to consider storing the bars in a collection such as a SortedList<DateTime, Bar> (where the key is a bar's begin or end time), which will fill all these roles nicely.
+
+I also need to find an efficient way to sort new "ticks" into the list, as they may arrive at high rate (3-5 ticks per second).
+
+It depends on what you mean.
+
+If these ticks are coming off a live price-feed (chronologically), you don't need a look-up at all - just store the current, incomplete, "partial" bar. When a new tick arrives, inspect its timestamp. If it is still part of the current "partial" bar, just update the bar with the new information (i.e. Close = tick.Price, High = Max(oldHigh, tick.Price) etc.). Otherwise, the "partial" bar is done - push it into your bar-collection. Do note that if you are using "natural-time" bars, the end of a bar could also be brought on by the passage of time rather than by a price-event (e.g. an hourly bar completes on the hour).
+
+EDIT:
+
+Otherwise, you'll need to do a lookup. If you're storing in the bars in a sorted-list (keyed by begin-time / end-time) as I've mentioned above, then you'll just need to calculate the bar begin-time / end-time associated with a tick. That should be easy enough; I've already given you a sample of how you might accomplish that in the LINQ query above.
+
+For example:
+
+myBars[GetBeginTime(tick.Timestamp)].Update(tick);
+------------------------------------------------------------
+https://www.statsmodels.org/stable/examples/notebooks/generated/markov_regression.html
+------------------------------------------------------------
+https://www.tensorflow.org/tutorials/structured_data/time_series#performance_3
+------------------------------------------------------------

@@ -1,0 +1,53 @@
+{
+    "go.formatTool": "gofumpt",
+    "go.toolsManagement.autoUpdate": true,
+    "go.alternateTools": {
+    },
+    "go.lintTool":"golangci-lint",
+    "go.lintFlags": [
+      "--fast"
+    ],
+    "gopls": {
+        "formatting.gofumpt": true
+    },
+    "editor.renderWhitespace": "all",
+    "editor.fontFamily": "'Cascadia Code PL', 'Fira Code Sans', 'JetBrains Mono', Consolas, 'Courier New', monospace",
+    "editor.fontLigatures": true,
+    "editor.fontWeight": 300,
+    "editor.fontSize": 16,
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+          {
+            "scope": [
+              // Following will be in italic
+              // "comment",
+              "entity.name.type.class", // class names
+              "constant", // String, Number, Boolean…, this, super
+              "storage.modifier", // static keyword
+              "storage.type.class.js", // class keyword
+              "keyword", // import, export, return…
+              "keyword.storage",
+              "keyword.control",
+            ],
+            "settings": {
+              "fontStyle": "italic"
+            }
+          },
+          {
+            "scope": [
+              // Following will be excluded from italics (VSCode has some defaults for italics)
+              "invalid",
+              "keyword.operator",
+              "constant.numeric.css",
+              "keyword.other.unit.px.css",
+              "constant.numeric.decimal.js",
+              "constant.numeric.json"
+            ],
+            "settings": {
+              "fontStyle": ""
+            }
+          }
+        ]
+      },
+      "workbench.colorTheme": "Zenburn"
+}
