@@ -21,3 +21,12 @@ func BenchmarkIsHolidayEuroNext(b *testing.B) {
 		}
 	}
 }
+
+func BenchmarkIsHolidayEuroNextWorkday(b *testing.B) {
+	c := EuroNext{}
+	d := date(2021, 10, 5)
+
+	for i := 0; i < b.N; i++ {
+		_ = c.IsHoliday(d)
+	}
+}

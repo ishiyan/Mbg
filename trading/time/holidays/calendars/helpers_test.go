@@ -10,25 +10,33 @@ import (
 )
 
 const (
-	testYearStart   = 1581
-	testYearEnd     = 2100
-	testDays        = (testYearEnd - testYearStart) * 365
-	maundyThursday  = "Maundy (Holy) Thursday"
-	ascensionDay    = "Ascension Day"
-	whitMonday      = "Whit (Pentecost) Monday"
-	weekend         = "Weekend"
-	workday         = "Workday"
-	goodFriday      = "Good Friday"
-	easterMonday    = "Easter Monday"
-	labourDay       = "Labour Day"
-	christmasEve    = "Christmas Eve"
-	christmasDay    = "Christmas Day"
-	boxingDay       = "Boxing Day"
-	newYearsEve     = "New Year's Eve"
-	newYearsDay     = "New Year's Day"
-	noHolidays      = "No holidays"
-	constitutionDay = "Constitution (National Independence) Day"
-	dateFmt         = "Mon, Jan 2, 2006"
+	testYearStart        = 1581
+	testYearEnd          = 2100
+	testDays             = (testYearEnd - testYearStart) * 365
+	maundyThursday       = "Maundy (Holy) Thursday"
+	ascensionDay         = "Ascension Day"
+	dayAfterAscensionDay = "Day after Ascension Day"
+	whitMonday           = "Whit (Pentecost) Monday"
+	weekend              = "Weekend"
+	workday              = "Workday"
+	goodFriday           = "Good Friday"
+	easterMonday         = "Easter Monday"
+	labourDay            = "Labour Day"
+	firstSummerDay       = "First day of Summer"
+	midsummerEve         = "Midsummer Eve"
+	nationalDay          = "National Day"
+	independenceDay      = "Independence Day"
+	commerceDay          = "Commerce Day"
+	christmasEve         = "Christmas Eve"
+	christmasDay         = "Christmas Day"
+	boxingDay            = "Boxing Day"
+	newYearsEve          = "New Year's Eve"
+	newYearsDay          = "New Year's Day"
+	epiphanyDay          = "Epiphany Day (Twelfth Night)"
+	noHolidays           = "No holidays"
+	constitutionDay      = "Constitution Day"
+	commonPrayerDay      = "Common Prayer Day"
+	dateFmt              = "Mon, Jan 2, 2006"
 )
 
 // Creates a date from a year, a month and a day.

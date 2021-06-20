@@ -5,11 +5,11 @@ import (
 	"testing"
 )
 
-func BenchmarkIsHolidayTARGET(b *testing.B) {
+func BenchmarkIsHolidayNorway(b *testing.B) {
 	minDate := date(1980, 1, 1)
 	maxDate := date(2050, 1, 1)
 	d := minDate
-	c := TARGET{}
+	c := Norway{}
 
 	for i := 0; i < b.N; i++ {
 		_ = c.IsHoliday(d)
@@ -22,8 +22,8 @@ func BenchmarkIsHolidayTARGET(b *testing.B) {
 	}
 }
 
-func BenchmarkIsHolidayTARGETWorkday(b *testing.B) {
-	c := TARGET{}
+func BenchmarkIsHolidayNorwayWorkday(b *testing.B) {
+	c := Norway{}
 	d := date(2021, 10, 5)
 
 	for i := 0; i < b.N; i++ {

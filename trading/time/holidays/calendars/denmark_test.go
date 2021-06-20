@@ -7,10 +7,10 @@ import (
 )
 
 //nolint:funlen
-func TestIsHolidayNorway(t *testing.T) {
+func TestIsHolidayDenmark(t *testing.T) {
 	t.Parallel()
 
-	c := Norway{}
+	c := Denmark{}
 
 	wellKnown := []struct {
 		t time.Time
@@ -20,7 +20,7 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(1993, 4, 8), maundyThursday},
 		{date(1993, 4, 9), goodFriday},
 		{date(1993, 4, 12), easterMonday},
-		{date(1993, 5, 17), constitutionDay},
+		{date(1993, 5, 7), commonPrayerDay},
 		{date(1993, 5, 20), ascensionDay},
 		{date(1993, 5, 31), whitMonday},
 		{date(1993, 12, 24), christmasEve},
@@ -29,18 +29,17 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(1994, 3, 31), maundyThursday},
 		{date(1994, 4, 1), goodFriday},
 		{date(1994, 4, 4), easterMonday},
+		{date(1994, 4, 29), commonPrayerDay},
 		{date(1994, 5, 12), ascensionDay},
-		{date(1994, 5, 17), constitutionDay},
 		{date(1994, 5, 23), whitMonday},
 		{date(1994, 12, 26), boxingDay},
 
 		{date(1995, 4, 13), maundyThursday},
 		{date(1995, 4, 14), goodFriday},
 		{date(1995, 4, 17), easterMonday},
-		{date(1995, 5, 1), labourDay},
-		{date(1995, 5, 17), constitutionDay},
+		{date(1995, 5, 12), commonPrayerDay},
 		{date(1995, 5, 25), ascensionDay},
-		{date(1995, 6, 5), whitMonday},
+		{date(1995, 6, 5), constitutionDay},
 		{date(1995, 12, 25), christmasDay},
 		{date(1995, 12, 26), boxingDay},
 
@@ -48,10 +47,10 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(1996, 4, 4), maundyThursday},
 		{date(1996, 4, 5), goodFriday},
 		{date(1996, 4, 8), easterMonday},
-		{date(1996, 5, 1), labourDay},
+		{date(1996, 5, 3), commonPrayerDay},
 		{date(1996, 5, 16), ascensionDay},
-		{date(1996, 5, 17), constitutionDay},
 		{date(1996, 5, 27), whitMonday},
+		{date(1996, 6, 5), constitutionDay},
 		{date(1996, 12, 24), christmasEve},
 		{date(1996, 12, 25), christmasDay},
 		{date(1996, 12, 26), boxingDay},
@@ -61,9 +60,10 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(1997, 3, 27), maundyThursday},
 		{date(1997, 3, 28), goodFriday},
 		{date(1997, 3, 31), easterMonday},
-		{date(1997, 5, 1), labourDay},
+		{date(1997, 4, 25), commonPrayerDay},
 		{date(1997, 5, 8), ascensionDay},
 		{date(1997, 5, 19), whitMonday},
+		{date(1997, 6, 5), constitutionDay},
 		{date(1997, 12, 24), christmasEve},
 		{date(1997, 12, 25), christmasDay},
 		{date(1997, 12, 26), boxingDay},
@@ -73,9 +73,10 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(1998, 4, 9), maundyThursday},
 		{date(1998, 4, 10), goodFriday},
 		{date(1998, 4, 13), easterMonday},
-		{date(1998, 5, 1), labourDay},
+		{date(1998, 5, 8), commonPrayerDay},
 		{date(1998, 5, 21), ascensionDay},
 		{date(1998, 6, 1), whitMonday},
+		{date(1998, 6, 5), constitutionDay},
 		{date(1998, 12, 24), christmasEve},
 		{date(1998, 12, 25), christmasDay},
 		{date(1998, 12, 31), newYearsEve},
@@ -84,8 +85,8 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(1999, 4, 1), maundyThursday},
 		{date(1999, 4, 2), goodFriday},
 		{date(1999, 4, 5), easterMonday},
+		{date(1999, 4, 30), commonPrayerDay},
 		{date(1999, 5, 13), ascensionDay},
-		{date(1999, 5, 17), constitutionDay},
 		{date(1999, 5, 24), whitMonday},
 		{date(1999, 12, 24), christmasEve},
 		{date(1999, 12, 31), newYearsEve},
@@ -93,9 +94,9 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2000, 4, 20), maundyThursday},
 		{date(2000, 4, 21), goodFriday},
 		{date(2000, 4, 24), easterMonday},
-		{date(2000, 5, 1), labourDay},
-		{date(2000, 5, 17), constitutionDay},
+		{date(2000, 5, 19), commonPrayerDay},
 		{date(2000, 6, 1), ascensionDay},
+		{date(2000, 6, 5), constitutionDay},
 		{date(2000, 6, 12), whitMonday},
 		{date(2000, 12, 25), christmasDay},
 		{date(2000, 12, 26), boxingDay},
@@ -104,10 +105,10 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2001, 4, 12), maundyThursday},
 		{date(2001, 4, 13), goodFriday},
 		{date(2001, 4, 16), easterMonday},
-		{date(2001, 5, 1), labourDay},
-		{date(2001, 5, 17), constitutionDay},
+		{date(2001, 5, 11), commonPrayerDay},
 		{date(2001, 5, 24), ascensionDay},
 		{date(2001, 6, 4), whitMonday},
+		{date(2001, 6, 5), constitutionDay},
 		{date(2001, 12, 24), christmasEve},
 		{date(2001, 12, 25), christmasDay},
 		{date(2001, 12, 26), boxingDay},
@@ -117,10 +118,10 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2002, 3, 28), maundyThursday},
 		{date(2002, 3, 29), goodFriday},
 		{date(2002, 4, 1), easterMonday},
-		{date(2002, 5, 1), labourDay},
+		{date(2002, 4, 26), commonPrayerDay},
 		{date(2002, 5, 9), ascensionDay},
-		{date(2002, 5, 17), constitutionDay},
 		{date(2002, 5, 20), whitMonday},
+		{date(2002, 6, 5), constitutionDay},
 		{date(2002, 12, 24), christmasEve},
 		{date(2002, 12, 25), christmasDay},
 		{date(2002, 12, 26), boxingDay},
@@ -130,8 +131,9 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2003, 4, 17), maundyThursday},
 		{date(2003, 4, 18), goodFriday},
 		{date(2003, 4, 21), easterMonday},
-		{date(2003, 5, 1), labourDay},
+		{date(2003, 5, 16), commonPrayerDay},
 		{date(2003, 5, 29), ascensionDay},
+		{date(2003, 6, 5), constitutionDay},
 		{date(2003, 6, 9), whitMonday},
 		{date(2003, 12, 24), christmasEve},
 		{date(2003, 12, 25), christmasDay},
@@ -142,7 +144,7 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2004, 4, 8), maundyThursday},
 		{date(2004, 4, 9), goodFriday},
 		{date(2004, 4, 12), easterMonday},
-		{date(2004, 5, 17), constitutionDay},
+		{date(2004, 5, 7), commonPrayerDay},
 		{date(2004, 5, 20), ascensionDay},
 		{date(2004, 5, 31), whitMonday},
 		{date(2004, 12, 24), christmasEve},
@@ -151,18 +153,17 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2005, 3, 24), maundyThursday},
 		{date(2005, 3, 25), goodFriday},
 		{date(2005, 3, 28), easterMonday},
+		{date(2005, 4, 22), commonPrayerDay},
 		{date(2005, 5, 5), ascensionDay},
 		{date(2005, 5, 16), whitMonday},
-		{date(2005, 5, 17), constitutionDay},
 		{date(2005, 12, 26), boxingDay},
 
 		{date(2006, 4, 13), maundyThursday},
 		{date(2006, 4, 14), goodFriday},
 		{date(2006, 4, 17), easterMonday},
-		{date(2006, 5, 1), labourDay},
-		{date(2006, 5, 17), constitutionDay},
+		{date(2006, 5, 12), commonPrayerDay},
 		{date(2006, 5, 25), ascensionDay},
-		{date(2006, 6, 5), whitMonday},
+		{date(2006, 6, 5), constitutionDay},
 		{date(2006, 12, 25), christmasDay},
 		{date(2006, 12, 26), boxingDay},
 
@@ -170,9 +171,10 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2007, 4, 5), maundyThursday},
 		{date(2007, 4, 6), goodFriday},
 		{date(2007, 4, 9), easterMonday},
-		{date(2007, 5, 1), labourDay},
+		{date(2007, 5, 4), commonPrayerDay},
 		{date(2007, 5, 17), ascensionDay},
 		{date(2007, 5, 28), whitMonday},
+		{date(2007, 6, 5), constitutionDay},
 		{date(2007, 12, 24), christmasEve},
 		{date(2007, 12, 25), christmasDay},
 		{date(2007, 12, 26), boxingDay},
@@ -182,8 +184,10 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2008, 3, 20), maundyThursday},
 		{date(2008, 3, 21), goodFriday},
 		{date(2008, 3, 24), easterMonday},
-		{date(2008, 5, 1), labourDay},
+		{date(2008, 4, 18), commonPrayerDay},
+		{date(2008, 5, 1), ascensionDay},
 		{date(2008, 5, 12), whitMonday},
+		{date(2008, 6, 5), constitutionDay},
 		{date(2008, 12, 24), christmasEve},
 		{date(2008, 12, 25), christmasDay},
 		{date(2008, 12, 26), boxingDay},
@@ -193,9 +197,11 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2009, 4, 9), maundyThursday},
 		{date(2009, 4, 10), goodFriday},
 		{date(2009, 4, 13), easterMonday},
-		{date(2009, 5, 1), labourDay},
+		{date(2009, 5, 8), commonPrayerDay},
 		{date(2009, 5, 21), ascensionDay},
+		{date(2009, 5, 22), dayAfterAscensionDay},
 		{date(2009, 6, 1), whitMonday},
+		{date(2009, 6, 5), constitutionDay},
 		{date(2009, 12, 24), christmasEve},
 		{date(2009, 12, 25), christmasDay},
 		{date(2009, 12, 31), newYearsEve},
@@ -204,26 +210,30 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2010, 4, 1), maundyThursday},
 		{date(2010, 4, 2), goodFriday},
 		{date(2010, 4, 5), easterMonday},
+		{date(2010, 4, 30), commonPrayerDay},
 		{date(2010, 5, 13), ascensionDay},
-		{date(2010, 5, 17), constitutionDay},
+		{date(2010, 5, 14), dayAfterAscensionDay},
 		{date(2010, 5, 24), whitMonday},
-		{date(2010, 12, 24), christmasDay},
+		{date(2010, 12, 24), christmasEve},
 		{date(2010, 12, 31), newYearsEve},
 
 		{date(2011, 4, 21), maundyThursday},
 		{date(2011, 4, 22), goodFriday},
 		{date(2011, 4, 25), easterMonday},
-		{date(2011, 5, 17), constitutionDay},
+		{date(2011, 5, 20), commonPrayerDay},
 		{date(2011, 6, 2), ascensionDay},
+		{date(2011, 6, 3), dayAfterAscensionDay},
 		{date(2011, 6, 13), whitMonday},
 		{date(2011, 12, 26), boxingDay},
 
 		{date(2012, 4, 5), maundyThursday},
 		{date(2012, 4, 6), goodFriday},
 		{date(2012, 4, 9), easterMonday},
-		{date(2012, 5, 1), labourDay},
-		{date(2012, 5, 17), constitutionDay},
+		{date(2012, 5, 4), commonPrayerDay},
+		{date(2012, 5, 17), ascensionDay},
+		{date(2012, 5, 18), dayAfterAscensionDay},
 		{date(2012, 5, 28), whitMonday},
+		{date(2012, 6, 5), constitutionDay},
 		{date(2012, 12, 24), christmasEve},
 		{date(2012, 12, 25), christmasDay},
 		{date(2012, 12, 26), boxingDay},
@@ -233,10 +243,11 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2013, 3, 28), maundyThursday},
 		{date(2013, 3, 29), goodFriday},
 		{date(2013, 4, 1), easterMonday},
-		{date(2013, 5, 1), labourDay},
+		{date(2013, 4, 26), commonPrayerDay},
 		{date(2013, 5, 9), ascensionDay},
-		{date(2013, 5, 17), constitutionDay},
+		{date(2013, 5, 10), dayAfterAscensionDay},
 		{date(2013, 5, 20), whitMonday},
+		{date(2013, 6, 5), constitutionDay},
 		{date(2013, 12, 24), christmasEve},
 		{date(2013, 12, 25), christmasDay},
 		{date(2013, 12, 26), boxingDay},
@@ -246,8 +257,10 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2014, 4, 17), maundyThursday},
 		{date(2014, 4, 18), goodFriday},
 		{date(2014, 4, 21), easterMonday},
-		{date(2014, 5, 1), labourDay},
+		{date(2014, 5, 16), commonPrayerDay},
 		{date(2014, 5, 29), ascensionDay},
+		{date(2014, 5, 30), dayAfterAscensionDay},
+		{date(2014, 6, 5), constitutionDay},
 		{date(2014, 6, 9), whitMonday},
 		{date(2014, 12, 24), christmasEve},
 		{date(2014, 12, 25), christmasDay},
@@ -258,9 +271,11 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2015, 4, 2), maundyThursday},
 		{date(2015, 4, 3), goodFriday},
 		{date(2015, 4, 6), easterMonday},
-		{date(2015, 5, 1), labourDay},
+		{date(2015, 5, 1), commonPrayerDay},
 		{date(2015, 5, 14), ascensionDay},
+		{date(2015, 5, 15), dayAfterAscensionDay},
 		{date(2015, 5, 25), whitMonday},
+		{date(2015, 6, 5), constitutionDay},
 		{date(2015, 12, 24), christmasEve},
 		{date(2015, 12, 25), christmasDay},
 		{date(2015, 12, 31), newYearsEve},
@@ -269,17 +284,18 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2016, 3, 24), maundyThursday},
 		{date(2016, 3, 25), goodFriday},
 		{date(2016, 3, 28), easterMonday},
+		{date(2016, 4, 22), commonPrayerDay},
 		{date(2016, 5, 5), ascensionDay},
+		{date(2016, 5, 6), dayAfterAscensionDay},
 		{date(2016, 5, 16), whitMonday},
-		{date(2016, 5, 17), constitutionDay},
 		{date(2016, 12, 26), boxingDay},
 
 		{date(2017, 4, 13), maundyThursday},
 		{date(2017, 4, 14), goodFriday},
 		{date(2017, 4, 17), easterMonday},
-		{date(2017, 5, 1), labourDay},
-		{date(2017, 5, 17), constitutionDay},
+		{date(2017, 5, 12), commonPrayerDay},
 		{date(2017, 5, 25), ascensionDay},
+		{date(2017, 5, 26), dayAfterAscensionDay},
 		{date(2017, 6, 5), whitMonday},
 		{date(2017, 12, 25), christmasDay},
 		{date(2017, 12, 26), boxingDay},
@@ -288,10 +304,11 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2018, 3, 29), maundyThursday},
 		{date(2018, 3, 30), goodFriday},
 		{date(2018, 4, 2), easterMonday},
-		{date(2018, 5, 1), labourDay},
+		{date(2018, 4, 27), commonPrayerDay},
 		{date(2018, 5, 10), ascensionDay},
-		{date(2018, 5, 17), constitutionDay},
+		{date(2018, 5, 11), dayAfterAscensionDay},
 		{date(2018, 5, 21), whitMonday},
+		{date(2018, 6, 5), constitutionDay},
 		{date(2018, 12, 24), christmasEve},
 		{date(2018, 12, 25), christmasDay},
 		{date(2018, 12, 26), boxingDay},
@@ -301,9 +318,10 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2019, 4, 18), maundyThursday},
 		{date(2019, 4, 19), goodFriday},
 		{date(2019, 4, 22), easterMonday},
-		{date(2019, 5, 1), labourDay},
-		{date(2019, 5, 17), constitutionDay},
+		{date(2019, 5, 17), commonPrayerDay},
 		{date(2019, 5, 30), ascensionDay},
+		{date(2019, 5, 31), dayAfterAscensionDay},
+		{date(2019, 6, 5), constitutionDay},
 		{date(2019, 6, 10), whitMonday},
 		{date(2019, 12, 24), christmasEve},
 		{date(2019, 12, 25), christmasDay},
@@ -314,9 +332,11 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2020, 4, 9), maundyThursday},
 		{date(2020, 4, 10), goodFriday},
 		{date(2020, 4, 13), easterMonday},
-		{date(2020, 5, 1), labourDay},
+		{date(2020, 5, 8), commonPrayerDay},
 		{date(2020, 5, 21), ascensionDay},
+		{date(2020, 5, 22), dayAfterAscensionDay},
 		{date(2020, 6, 1), whitMonday},
+		{date(2020, 6, 5), constitutionDay},
 		{date(2020, 12, 24), christmasEve},
 		{date(2020, 12, 25), christmasDay},
 		{date(2020, 12, 31), newYearsEve},
@@ -325,8 +345,9 @@ func TestIsHolidayNorway(t *testing.T) {
 		{date(2021, 4, 1), maundyThursday},
 		{date(2021, 4, 2), goodFriday},
 		{date(2021, 4, 5), easterMonday},
+		{date(2021, 4, 30), commonPrayerDay},
 		{date(2021, 5, 13), ascensionDay},
-		{date(2021, 5, 17), constitutionDay},
+		{date(2021, 5, 14), dayAfterAscensionDay},
 		{date(2021, 5, 24), whitMonday},
 		{date(2021, 12, 24), christmasEve},
 		{date(2021, 12, 31), newYearsEve},
@@ -337,20 +358,22 @@ func TestIsHolidayNorway(t *testing.T) {
 	}
 
 	// Fixed dates.
-	verifyFixedDateOrWeekend(t, c, 1, 1, newYearsDay, always)      // New Year's Day.
-	verifyFixedDateOrWeekend(t, c, 5, 1, labourDay, always)        // Labour Day.
-	verifyFixedDateOrWeekend(t, c, 5, 17, constitutionDay, always) // Constitution (National Independence) Day.
-	verifyFixedDateOrWeekend(t, c, 12, 24, christmasEve, always)   // Christmas Eve.
-	verifyFixedDateOrWeekend(t, c, 12, 25, christmasDay, always)   // Christmas Day.
-	verifyFixedDateOrWeekend(t, c, 12, 26, boxingDay, always)      // Boxing Day.
-	verifyFixedDateOrWeekend(t, c, 12, 31, newYearsEve, always)    // New Year's Eve.
+	verifyFixedDateOrWeekend(t, c, 1, 1, newYearsDay, always)     // New Year's Day.
+	verifyFixedDateOrWeekend(t, c, 6, 5, constitutionDay, always) // Constitution Day.
+	verifyFixedDateOrWeekend(t, c, 12, 24, christmasEve, always)  // Christmas Eve.
+	verifyFixedDateOrWeekend(t, c, 12, 25, christmasDay, always)  // Christmas Day.
+	verifyFixedDateOrWeekend(t, c, 12, 26, boxingDay, always)     // Boxing Day.
+	verifyFixedDateOrWeekend(t, c, 12, 31, newYearsEve, always)   // New Year's Eve.
 
 	// Computus.
-	verifyComputus(t, c, -3, maundyThursday, always)        // Maundy Thursday (Holy Thursday), 3 days before Easter.
-	verifyComputus(t, c, -2, goodFriday, always)            // Good Friday.
-	verifyComputus(t, c, 1, easterMonday, always)           // Easter Monday.
-	verifyComputusOrWeekend(t, c, 39, ascensionDay, always) // Ascension Day, 39 days after Easter.
-	verifyComputus(t, c, 50, whitMonday, always)            // Whit (Pentecost) Monday, 50 days after Easter.
+	verifyComputus(t, c, -3, maundyThursday, always)           // Maundy Thursday (Holy Thursday), 3 days before Easter.
+	verifyComputus(t, c, -2, goodFriday, always)               // Good Friday.
+	verifyComputus(t, c, 1, easterMonday, always)              // Easter Monday.
+	verifyComputusOrWeekend(t, c, 26, commonPrayerDay, always) // General Prayer Day, 26 days after Easter.
+	verifyComputusOrWeekend(t, c, 39, ascensionDay, always)    // Ascension Day, 39 days after Easter.
+	verifyComputusOrWeekend(t, c, 40, dayAfterAscensionDay,    // Day after Ascension Day, 40 days after Easter.
+		func(y int) bool { return y > 2008 })
+	verifyComputus(t, c, 50, whitMonday, always) // Whit (Pentecost) Monday, 50 days after Easter.
 
 	verifyWorkday(t, c, 10, 2)
 }
