@@ -55,3 +55,11 @@ https://www.statsmodels.org/stable/examples/notebooks/generated/markov_regressio
 ------------------------------------------------------------
 https://www.tensorflow.org/tutorials/structured_data/time_series#performance_3
 ------------------------------------------------------------
+accounting
+https://www.mscs.dal.ca/~selinger/accounting/tutorial.html
+
+orders
+http://www.smallake.kr/wp-content/uploads/2016/02/KCG_Demystifying-Order-Types_092414.pdf
+
+iterators
+https://ewencp.org/blog/golang-iterators/
