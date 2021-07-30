@@ -12,6 +12,34 @@ func BenchmarkString(b *testing.B) {
 	}
 }
 
+func BenchmarkIsKnown(b *testing.B) {
+	act := SellShortExempt
+	for i := 0; i < b.N; i++ {
+		_ = act.IsKnown()
+	}
+}
+
+func BenchmarkIsBuy(b *testing.B) {
+	act := SellShortExempt
+	for i := 0; i < b.N; i++ {
+		_ = act.IsBuy()
+	}
+}
+
+func BenchmarkIsSell(b *testing.B) {
+	act := SellShortExempt
+	for i := 0; i < b.N; i++ {
+		_ = act.IsSell()
+	}
+}
+
+func BenchmarkIsShort(b *testing.B) {
+	act := SellShortExempt
+	for i := 0; i < b.N; i++ {
+		_ = act.IsShort()
+	}
+}
+
 func BenchmarkMarshalJSON(b *testing.B) {
 	act := SellShortExempt
 	for i := 0; i < b.N; i++ {
@@ -20,10 +48,10 @@ func BenchmarkMarshalJSON(b *testing.B) {
 }
 
 func BenchmarkUnmarshalJSON(b *testing.B) {
-	var os OrderSide
+	var s Side
 
 	bs := []byte("\"sellShortExempt\"")
 	for i := 0; i < b.N; i++ {
-		_ = os.UnmarshalJSON(bs)
+		_ = s.UnmarshalJSON(bs)
 	}
 }

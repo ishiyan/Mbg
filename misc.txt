@@ -1,3 +1,148 @@
+intraday sharpe
+https://www.linkedin.com/pulse/intraday-trading-tan-zhen-tak-cfa?articleId=6644518419423199232
+https://www.linkedin.com/pulse/sharpe-mar-ratios-tan-zhen-tak-cfa/
+https://www.linkedin.com/pulse/non-normality-tan-zhen-tak-cfa?trk=public_profile_article_view
+https://www.linkedin.com/pulse/quant-trading-risk-i-forward-looking-bias-tan-zhen-tak-cfa?trk=portfolio_article-card_title
+https://www.linkedin.com/pulse/quant-trading-prelude-tan-zhen-tak-cfa?trk=portfolio_article-card_title
+
+https://www.cuemacro.com/
+https://quantstart.com/
+https://qoppac.blogspot.com/
+
+https://www.quora.com/In-day-trading-how-do-I-calculate-the-sharpe-ratio-and-what-sharpe-ratio-is-good
+Compute your daily return marked to market
+Then compute your average daily return and standard deviation of return
+Sharpe ratio is excess return over risk: average (less risk free, assumed zero) divided by standard deviation
+The issue is that this way you’ll be computing SR (daily) and annualizing is somewhat tricky. In theory, assuming no serial correlation, it is simple:
+annualized return is computed by compounding average
+annualized risk is SD x SQR(number of periods)
+In practice, I suggest you verify
+skewness and kurtosis
+autocorrelation of returns
+compute other risk measures SD of negative results (Sortino ratio), Worst drawdown, period under water, VaR …
+use monthly (if you enough) or weekly data to verify consistency of results
+In terms of unbiased Sharpe ratio results, anything above 0 after costs is already interesting but most risk premium for asset classes are around 0.5. So what is interesting is anything in that area with very low correlation to existing risk premiums.
+Many hedge funds recognize that Sharpe ratio are most often biased and that Standard Deviation does not capture their real risk and do not stress their Sharpe ratio results.
+
+https://www.quantstart.com/articles/Sharpe-Ratio-for-Algorithmic-Trading-Performance-Measurement/
+\begin{eqnarray}
+S = \frac{\mathbb{E}(R_a - R_b)}{\sqrt{\text{Var} (R_a - R_b)}}
+\end{eqnarray}
+R_a, R_b
+\begin{eqnarray*}
+S_A = \sqrt{N} \frac{\mathbb{E}(R_a - R_b)}{\sqrt{\text{Var} (R_a - R_b)}}
+\end{eqnarray*}
+
+https://www.daytradingbias.com/how-to-calculate-sharpe-ratio-and-sortino-ratio-correctly-on-day-trading-strategies/
+
+https://quant.stackexchange.com/questions/9476/how-do-i-calculate-sharpe-ratio-from-pl
+\vec{p} = (p_1,\dots,p_{252})
+Sharpe = S(\vec{p}) = \sqrt{252} \cdot \frac{\mathbb{E}[\vec{p}]}{\sqrt{\mathbb{V}[\vec{p}]}} = \sqrt{252} \cdot \frac{mean(p)}{sd(p)}
+--------------------------------------------------------
+https://www.tradingdiarypro.com/mae-mfe-explained/
+if (MarketPosition = 1) then
+. MAE = (LowestLow â EntryPrice)/EntryPrice // low/entry - 1
+else if (MarketPosition = -1) then
+. MAE = (EntryPrice - HighestHigh)/EntryPrice; // 1 - high/entry
+
+Entry Efficiency/Exit Efficiency
+Displays each trade's ability to capture the maximum profit potential entry point and exit point during the trading period of  the trade.
+The Entry Efficiency measures how close the entry price was to the best possible entry price during the trade.
+The Exit Efficiency measures how close the exit price was to the best possible exit price during the trade.
+100% is perfect efficiency, 0 is worst possible efficiency.
+
+Entry Efficiency is Calculated as:
+(maximum price seen - entry price) / (maximum price seen - minimum price seen)
+= The entry took 75% of the trade range
+Exit Efficiency is Calculated as:
+(exit price - minimum price seen) / (maximum price seen - minimum price seen)
+= The exit took 50% of the available trade range
+Total Efficiency is Calculated as:
+(exit price - entry price) / (maximum price seen - minimum price seen)
+= The trade represented only 25% of the trade range
+
+Efficiency is a measure of a trade quality.
+It measures the percent of the total trade potential taken by a trade during the trade period.
+Entry Efficiency measures the percent of the total trade potential taken by a trade given its entry and assuming the best possible exit during the trade period.
+Exit Efficiency measures the percent of the total trade potential taken by a trade given its exit and assuming the best possible entry during the trade period.
+Total Efficiency - Displays total efficiency for each trade number and an average total efficiency. The vertical and horizontal axes are total efficiency (%) and the trade number.
+Entry Efficiency - Displays entry efficiency for each trade number and an average entry efficiency. The vertical and horizontal axes are entry efficiency (%) and the trade number.
+Exit Efficiency - Displays exit efficiency for each trade number and average exit efficiency. The vertical and horizontal axes are exit efficiency (%) and the trade number.
+Max Adverse Excursion (MAE) / % - A measure of the adverse movement during a trade. This graph displays for each trade, the realized profit or loss along the vertical axis. The horizontal axis shows the level of drawdown during the trade. Trades that were closed at a profit are displayed as small upward pointing green arrows. Trades that were closed at a loss are displayed as downward pointing red arrows.
+Max Favorable Excursion (MFE) / % - A measure of the favorable movement during a trade. This graph displays for each trade, the realized profit or loss along the vertical axis. The horizontal axis shows the level of run-up during the trade. Trades that were closed at a profit are displayed as small upward pointing green arrows. Trades that were closed at a loss are displayed as downward pointing red arrows.
+
+https://ramblingquant.com/2018/12/14/entry-efficiency/
+
+Position MFE – the maximum interim profit during the trade. Usually referred to as Maximum Favorable Excursion, and sometimes referred to as runup.
+Position MAE – the maximum interim loss during the trade. Usually referred to as Maximum Adverse Excursion, and sometimes referred to as drawdown.
+Price MFE – the maximum favorable price movement during the trade, independent of position size.
+Price MAE – the maximum adverse price movement, independent of position size.
+
+For long trades: 
+MAEP: (MAE price – entry price) / (entry price – stop loss price)
+MFEP: (MFE price – entry price) / (entry price – stop loss price)
+For short trades: 
+MAEP: (entry price – MAE price) / (stop loss price – entry price)
+MFEP:  (entry price – MFE price) / (stop loss price – entry price)
+
+MAE - Maximum Adverse Excursion is the maximum draw down the trade had before the trade was closed.
+MFE - Maximum Favorable Excursion is the maximum paper profit the trade had before the trade was closed.
+
+MAE - Maximum Adverse Excursion is the maximum draw down the trade had before the trade was closed.
+MFE - Maximum Favorable Excursion is the maximum paper profit the trade had before the trade was closed.
+BSO: Best Scale Out. The closer your BSO is to the MFE, the better and more efficient your Exit strategy is… basically, not leaving too much money on the table.
+
+MFE:
+The Maximum Favorable Excursion is a term used to measure how much a trade moves in your favor, from your Entry.
+So, if your entry price on a long position is 34, and for as long as the trade lasted, the market moved in your favor to a price of 35.50, this represents an MFE of 1.50 (35.50 – 34).
+MAE:
+The Maximum Adverse Excursion is a term used to measure how much a trade moves against you, from your Entry.
+So, if your entry price on a long position is 34, and for as long as the trade lasted, the market moved against you to a low price of 33.25, this represents a MAE of .75 (34 – 33.25).
+
+BSO:MFE-MAE traders lab diagram
+Best Scale Out. The closer your BSO is to the MFE, the better and more efficient your Exit strategy is… basically, not leaving too much money on the table.
+If the gap between BSO and MFE is big, then you may have an issue taking your final target too soon and not letting your winners ‘run’.
+
+#trades
+This is the total number of trades that have been recorded in each of your Performance-tracking sections. The top header will display all Cumulative number of trades.
+
+P&L
+P&L lists the amount of Profit and Loss for each sub-category in your Performance-tracking sections.
+
+win%
+Some call this the “Batting Average” (Baseball terminology). This is simply taking all Winning trades, and then dividing by Total number of trades to come up with a % figure.
+This metric does not tell the story when used as a sole means of analysis, as many systems with a high Win % are net losers.
+e.g. If your Payoff Ratio is under (1.00), you’ll need to have a healthy Win % to compensate (and vice-versa)!
+
+payoff ratio (expectation)
+Payoff Ratio* is sometimes referred to as the “Win/Loss Size Ratio”, or “Expectation”.
+This ratio is simply the system’s average profit per trade divided by the average loss per trade. The higher the payoff ratio, the better the system.
+To explain further, this is a ratio used by many traders to compare the expected return, to the amount of Capital at Risk undertaken to achieve these returns. The first number in the ratio would represent the average amount of risk in the trade. The second number is the potential reward of the trade (referring to the Avg. profit, to the Avg. loss per trade).
+Example… if you risked an average of $100 per trade and your average profit is $175, then your Payoff Ratio would be, 1 to 1.75 (175 / 100), so the “expectation” in this scenario is — for every $1.00 Risked — a Reward of $0.75 would be earned in return.
+Since trading is all about Reward-to-Risk, it would not be advisable to trade a system with a Payoff Ratio near 1, unless it had a (Win %) greater than 50%.
+* Not to be confused with “Profit Factor”, which was present in TJS products prior to November, 2010. It is assumed, by the TJS creator and many feedback requests, that the “Payoff Ratio” best reflects the truer reality of a systems performance – moreso than Profit Factor.
+
+expectancy
+Since profitability cannot be determined from Win % alone, the Expectancy formula provides a means of quantifying your edge over a series of trades.
+(Win % * Avg Wins) – (Loss % * Avg Losses)
+A trading strategy that makes money over the trade “sample” will have an expectancy greater than zero. A losing strategy will have a result less than zero.
+This figure is important, as one can assume (given a proper data sample size) that they can expect to make this amount going forward as long as their performance remains consistent with prior results. When you find a positive expectancy situation, you’ll want to exploit it by looking for as many opportunities going forward as possible.
+For example, if you have a strategy that you often use on a specific time-frame (say, 60-minute chart), then why not look for that same setup/strategy on a lower or higher time-frame as well.
+At the heart of all trading is the simplest of all concepts – that the bottom-line results must show a positive mathematical expectation in order for the trading method to be profitable.” ~ Chuck Branscomb
+
+frequency
+Trade frequency represents an opportunity for profit. This figure tells what % of total trades fall in a specific category.
+It is important to remember that a high Expectancy system may not produce as much profit as a more active (higher frequency) system that has a lower overall Expectancy.
+
+@gain
+The gain is the difference between the proceeds of selling the shares (contracts, etc.) and the amount paid for them. Fee’s are not part of this calculation.
+Not all market sheets have this calculation.
+
+--------------------------------------------------------
+https://learningcenter.fxstreet.com/education/learning-center/unit-3/chapter-2/trade-statistics/index.html
+https://phemex.com/user-guides/profit-and-loss-2
+https://interactiveadvisors.com/learn-more/performance-metrics
+--------------------------------------------------------
 https://stackoverflow.com/questions/5820397/how-to-group-a-time-series-by-interval-ohlc-bars-with-linq
 Unfortunately, you haven't specified:
 
@@ -63,3 +208,596 @@ http://www.smallake.kr/wp-content/uploads/2016/02/KCG_Demystifying-Order-Types_0
 
 iterators
 https://ewencp.org/blog/golang-iterators/
+
+------------------------------------------------------------------------
+position --qdev
+        private double fDebt;
+        private int fId;
+        private SmartQuant.Instruments.Instrument fInstrument;
+        private double fMargin;
+        private int fPnLTransactionIndex;
+        private SmartQuant.Instruments.Portfolio fPortfolio;
+        private double fQtyBought;
+        private double fQtyLeft;
+        private double fQtySold;
+        private double fQtySoldShort;
+        private TransactionList fTransactions;
+
+        public void Add(Transaction transaction)
+        {
+            if (this.fInstrument != transaction.Instrument)
+            {
+                throw new ArgumentException("Can not add transaction. Transaction instrument : " + transaction.Instrument.Symbol + " does not match position instrument : " + this.fInstrument.Symbol);
+            }
+            double num = 0.0;
+            double num2 = 0.0;
+            int num3 = Math.Sign(transaction.Amount);//sign
+            if (this.fTransactions.Count == 0)
+            {
+                this.fPnLTransactionIndex = 0;
+                this.fQtyLeft = transaction.Qty;
+            }
+            else if (((this.Side == PositionSide.Long) && (num3 == -1)) || ((this.Side == PositionSide.Short) && (num3 == 1)))
+            {
+                int num4 = this.fPnLTransactionIndex + 1;
+                double qty = transaction.Qty;
+                double num6 = 0.0;
+                double num7 = Math.Min(qty, this.fQtyLeft);
+                num6 += this.fQtyLeft;
+                num2 += num7 * ((transaction.Cost / transaction.Qty) + (this.fTransactions[this.fPnLTransactionIndex].Cost / this.fTransactions[this.fPnLTransactionIndex].Qty));
+                num += ((transaction.Price - this.fTransactions[this.fPnLTransactionIndex].Price) * num7) * -num3;
+                while ((qty > num6) && (num4 < this.fTransactions.Count))
+                {
+                    Transaction transaction2 = this.fTransactions[num4];
+                    if (Math.Sign(transaction2.Amount) != num3)
+                    {
+                        num7 = Math.Min(qty - num6, transaction2.Qty);
+                        num2 += num7 * ((transaction.Cost / transaction.Qty) + (transaction2.Cost / transaction2.Qty));
+                        num += ((transaction.Price - transaction2.Price) * num7) * -num3;
+                        num6 += transaction2.Qty;
+                    }
+                    num4++;
+                }
+                this.fQtyLeft = Math.Abs((double) (qty - num6));
+                if (((qty == num6) && (num4 == this.fTransactions.Count)) || (qty > num6))
+                {
+                    this.fPnLTransactionIndex = this.fTransactions.Count;
+                }
+                else
+                {
+                    this.fPnLTransactionIndex = num4 - 1;
+                }
+            }
+            if (this.fInstrument.Factor != 0.0)
+            {
+                num *= this.fInstrument.Factor;
+            }
+            transaction.PnL = num - transaction.Cost;
+            transaction.RealizedPnL = num - num2;
+            switch (transaction.Side)
+            {
+                case SmartQuant.FIX.Side.Buy:
+                case SmartQuant.FIX.Side.BuyMinus:
+                    this.fQtyBought += transaction.Qty;
+                    break;
+
+                case SmartQuant.FIX.Side.Sell:
+                case SmartQuant.FIX.Side.SellPlus:
+                    this.fQtySold += transaction.Qty;
+                    break;
+
+                case SmartQuant.FIX.Side.SellShort:
+                case SmartQuant.FIX.Side.SellShortExempt:
+                    this.fQtySoldShort += transaction.Qty;
+                    break;
+
+                default:
+                    throw new Exception("Transaction Side is not supported : " + transaction.Side.ToString());
+            }
+            this.fTransactions.Add(transaction);
+        }
+        public double GetCashFlow()
+        {
+            double num = 0.0;
+            foreach (Transaction transaction in this.fTransactions)
+            {
+                num += transaction.CashFlow;
+            }
+            return num;
+        }
+
+        public double GetDebtValue()
+        {
+            return this.fDebt;
+        }
+        public double GetLeverage()
+        {
+            double marginValue = this.GetMarginValue();
+            if (marginValue == 0.0)
+            {
+                return 0.0;
+            }
+            return (this.GetValue() / marginValue);
+        }
+
+        public double GetMarginValue()
+        {
+            return this.fMargin;
+        }
+
+        public double GetNetCashFlow()
+        {
+            double num = 0.0;
+            foreach (Transaction transaction in this.fTransactions)
+            {
+                num += transaction.NetCashFlow;
+            }
+            return num;
+        }
+
+        public double GetNetPnL()
+        {
+            return (this.GetValue() + this.GetNetCashFlow());
+        }
+
+        public double GetNetPnLPercent()
+        {
+            return (this.GetNetPnL() / this.fTransactions[0].Value);
+        }
+
+        public double GetPnL()
+        {
+            return (this.GetValue() + this.GetCashFlow());
+        }
+
+        public double GetPnLPercent()
+        {
+            return (this.GetPnL() / this.fTransactions[0].Value);
+        }
+
+        public double GetUnrealizedPnL(price) // IN ACCOUNT CURRENCY !!!!!!
+        {
+            if (this.Qty == 0.0)
+            {
+                return 0.0;
+            }
+            double num = this.fInstrument.Price(); // PRICE() IS REALTIME IN ACCOUNT CURRENCY !!!!!!
+            double num2 = 0.0;
+            int num3 = (this.Side == PositionSide.Long) ? -1 : 1;
+            double fQtyLeft = this.fQtyLeft;
+            num2 += ((num - this.fTransactions[this.fPnLTransactionIndex].Price) * fQtyLeft) * -num3;
+            for (int i = this.fPnLTransactionIndex + 1; i < this.fTransactions.Count; i++)
+            {
+                Transaction transaction = this.fTransactions[i];
+                num2 += ((num - transaction.Price) * fQtyLeft) * -num3;
+            }
+            return (num2 * this.Instrument.Factor); // IF FACTOR == 0 ????
+        }
+
+        public double GetValue(price) // IN ACCOUNT CURRENCY !!!!!!
+        {
+            if (this.fInstrument.Factor != 0.0)
+            {
+                return ((this.Price() * this.Amount) * this.fInstrument.Factor);// PRICE() IS REALTIME IN ACCOUNT CURRENCY !!!!!!
+            }
+            return (this.Price() * this.Amount);
+        }
+
+        public double GetValue(DateTime datetime) // IN ACCOUNT CURRENCY !!!!!!
+        {
+            if (this.fInstrument.Factor != 0.0)
+            {
+                return ((this.Price(datetime) * this.Amount) * this.fInstrument.Factor);// PRICE() IS REALTIME IN ACCOUNT CURRENCY !!!!!!
+            }
+            return (this.Price(datetime) * this.Amount);
+        }
+        public double Price() // IN ACCOUNT CURRENCY !!!!
+        {
+            SmartQuant.Instruments.Currency currency = this.fInstrument.GetCurrency();
+            if ((currency != null) && (this.fPortfolio.Account.Currency != null))
+            {
+                return currency.Convert(PortfolioManager.Pricer.Price(this), this.fPortfolio.Account.Currency);
+            }
+            return PortfolioManager.Pricer.Price(this);
+        }
+
+        public double Price(DateTime datetime)
+        {
+            SmartQuant.Instruments.Currency currency = this.fInstrument.GetCurrency();
+            if ((currency != null) && (this.fPortfolio.Account.Currency != null))
+            {
+                return currency.Convert(this.fInstrument.Price(datetime), this.fPortfolio.Account.Currency, datetime);
+            }
+            return this.fInstrument.Price(datetime);
+        }
+        public double Amount
+        {
+            get
+            {
+                return ((this.fQtyBought - this.fQtySold) - this.fQtySoldShort);
+            }
+        }
+
+        [ReadOnly(true)]
+        public double Debt
+        {
+            get
+            {
+                return this.fDebt;
+            }
+            set
+            {
+                this.fDebt = value;
+            }
+        }
+
+        public DateTime EntryDate
+        {
+            get
+            {
+                return this.fTransactions[0].DateTime;
+            }
+        }
+
+        public double EntryPrice
+        {
+            get
+            {
+                return this.fTransactions[0].Price;
+            }
+        }
+
+        public double EntryQty
+        {
+            get
+            {
+                return this.fTransactions[0].Qty;
+            }
+        }
+
+        internal int Id
+        {
+            get
+            {
+                return this.fId;
+            }
+            set
+            {
+                this.fId = value;
+            }
+        }
+
+        public SmartQuant.Instruments.Instrument Instrument
+        {
+            get
+            {
+                return this.fInstrument;
+            }
+        }
+
+        [ReadOnly(true)]
+        public double Margin
+        {
+            get
+            {
+                return this.fMargin;
+            }
+            set
+            {
+                this.fMargin = value;
+            }
+        }
+        public double Qty
+        {
+            get
+            {
+                return Math.Abs(this.Amount);
+            }
+        }
+
+        public double QtyBought
+        {
+            get
+            {
+                return this.fQtyBought;
+            }
+        }
+
+        public double QtySold
+        {
+            get
+            {
+                return this.fQtySold;
+            }
+        }
+
+        public double QtySoldShort
+        {
+            get
+            {
+                return this.fQtySoldShort;
+            }
+        }
+
+        public PositionSide Side
+        {
+            get
+            {
+                if (this.Amount >= 0.0)
+                {
+                    return PositionSide.Long;
+                }
+                return PositionSide.Short;
+            }
+        }
+
+        [Browsable(false)]
+        public TransactionList Transactions
+        {
+            get
+            {
+                return this.fTransactions;
+            }
+        }
+--------------------
+        public void Add(Transaction transaction)
+        {
+            double num = 0.0;
+            double num2 = 0.0;
+            int num3 = Math.Sign(transaction.Amount);//sign
+
+                this.fPnLTransactionIndex = 0;
+                this.fQtyLeft = transaction.Qty;
+
+            //transaction.PnL = /*num*/ - transaction.Cost;
+            //transaction.RealizedPnL = 0 /*num - num2*/;
+            switch (transaction.Side)
+            {
+                case SmartQuant.FIX.Side.Buy:
+                case SmartQuant.FIX.Side.BuyMinus:
+                    this.fQtyBought = transaction.Qty;
+                    break;
+
+                case SmartQuant.FIX.Side.Sell:
+                case SmartQuant.FIX.Side.SellPlus:
+                    this.fQtySold = transaction.Qty;
+                    break;
+
+                case SmartQuant.FIX.Side.SellShort:
+                case SmartQuant.FIX.Side.SellShortExempt:
+                    this.fQtySoldShort = transaction.Qty;
+                    break;
+            }
+            this.fTransactions.Add(transaction);
+        }
+----------------------------------
+ExecType
+Describes the purpose of the execution report.
+Describes the specific ExecutionRpt (e.g. Pending Cancel) while OrdStatus(39) will always identify the current order status (e.g. Partially Filled).
+0	=	New
+3	=	Done for day
+4	=	Canceled
+5	=	Replaced
+6	=	Pending Cancel (e.g. result of Order Cancel Request)		[PendingCancel]
+7	=	Stopped
+8	=	Rejected
+9	=	Suspended
+A	=	Pending New
+B	=	Calculated
+C	=	Expired
+D	=	Restated (Execution Report sent unsolicited by sellside, with ExecRestatementReason (378) set)
+E	=	Pending Replace (e.g. result of Order Cancel/Replace Request)
+F	=	Trade (partial fill or fill)
+G	=	Trade Correct
+H	=	Trade Cancel
+I	=	Order Status
+J	=	Trade in a Clearing Hold
+K	=	Trade has been released to Clearing
+L	=	Triggered or Activated by System
+M	=	Locked
+N	=	Released
+
+ExecTypeReason
+Can be used to provide further detail for ExecType(150) field.
+The initiating event when an ExecutionReport(35=8) is sent.
+1	=	Order added upon request		[OrdAddedOnRequest]
+2	=	Order replaced upon request		[OrdReplacedOnRequest]
+3	=	Order cancelled upon request	[OrdCxldOnRequest]
+4	=	Unsolicited order cancellation	[UnsolicitedOrdCxl]
+5	=	Non-resting order added upon request	[NonRestingOrdAddedOnRequest]
+6	=	Order replaced with non-resting order upon request	[OrdReplacedWithNonRestingOrdOnRequest]
+7	=	Trigger order replaced upon request	[TriggerOrdReplacedOnRequest]
+8	=	Suspended order replaced upon request	[SuspendedOrdReplacedOnRequest]
+9	=	Suspended order canceled upon request	[SuspendedOrdCxldOnRequest]
+10	=	Order cancellation pending		[OrdCxlPending]
+11	=	Pending cancellation executed		[PendingCxlExecuted]
+12	=	Resting order triggered		[RestingOrdTriggered]
+13	=	Suspended order activated		[SuspendedOrdActivated]
+14	=	Active order suspended		[ActiveOrdSuspended]
+15	=	Order expired		[OrdExpired]
+
+OrdRejReason 	
+For optional use with ExecType = 8 (Rejected)
+Code to identify reason for order rejection. Note: Values 3, 4, and 5 will be used when rejecting an order due to pre-allocation information errors.
+0	=	Broker / Exchange option	[BrokerCredit]
+1	=	Unknown Symbol
+2	=	Exchange closed
+3	=	Order exceeds limit
+4	=	Too late to enter
+5	=	Unknown order
+6	=	Duplicate Order (e.g. dupe ClOrdID)
+7	=	Duplicate of a verbally communicated order
+8	=	Stale order
+9	=	Trade along required
+10	=	Invalid Investor ID
+11	=	Unsupported order characteristic
+12	=	Surveillance option
+13	=	Incorrect quantity
+14	=	Incorrect allocated quantity
+15	=	Unknown account(s)
+16	=	Price exceeds current price band
+18	=	Invalid price increment
+19	=	Reference price not available
+20	=	Notional value exceeds threshold
+21	=	Algorithm risk threshold breached
+A sell-side broker algorithm has detected that a risk limit has been breached which requires further communication with the client. Used in conjunction with Text(58) to convey the details of the specific event.
+22	=	Short sell not permitted
+23	=	Short sell rejected due to security pre-borrow restriction
+24	=	Short sell rejected due to account pre-borrow restriction
+25	=	Insufficient credit limit
+26	=	Exceeded clip size limit
+27	=	Exceeded maximum notional order amount
+28	=	Exceeded DV01/PV01 limit
+29	=	Exceeded CS01 limit
+99	=	Other
+
+ExecRestatementReason
+Required for ExecType = D (Restated).
+The reason for restatement when an ExecutionReport(35=8) or TradeCaptureReport(35=AE) message is sent with ExecType(150) = D (Restated) or used when communicating an unsolicited cancel.
+0	=	GT corporate action		[GTCorporateAction]
+1	=	GT renewal / restatement (no corporate action)		[GTRenewal]
+2	=	Verbal change		[VerbalChange]
+3	=	Repricing of order		[RepricingOfOrder]
+4	=	Broker option		[BrokerOption]
+5	=	Partial decline of OrderQty (e.g. exchange initiated partial cancel)		[PartialDeclineOfOrderQty]
+6	=	Cancel on Trading Halt		[CancelOnTradingHalt]
+7	=	Cancel on System Failure		[CancelOnSystemFailure]
+8	=	Market (Exchange) option		[Market]
+9	=	Canceled, not best		[Canceled]
+10	=	Warehouse Recap		[WarehouseRecap]
+11	=	Peg Refresh		[PegRefresh]
+12	=	Cancel On Connection Loss		[CancelOnConnectionLoss]
+13	=	Cancel On Logout		[CancelOnLogout]
+14	=	Assign Time Priority		[AssignTimePriority]
+15	=	Cancelled, Trade Price Violation		[CancelledForTradePriceViolation]
+16	=	Cancelled, Cross Imbalance		[CancelledForCrossImbalance]
+99	=	Other
+
+LastMkt
+If ExecType(150) = F (Trade), indicates the market where the trade was executed.
+If ExecType(150) = 0 (New (0), indicates the market where the order was routed.
+
+CxlQty
+Total quantity canceled for this order.
+Can be used to specify the remaining quantity that was cancelled prior to order reaching terminal state (i.e. when LeavesQty(151)=0). If specified, OrderQty(38) = CumQty(14) + CxlQty(84).
+
+----------------------------------
+https://towardsdatascience.com/backtesting-trading-strategies-less-sorcery-and-more-statistics-on-your-side-241ac41d18b0
+
+Total Trades / Profit Trades / Loss Trades
+
+Profit/Loss ratios
+
+Average Profitability Per Trade states how much money is made out of each trade on average. A positive number will reflect a profitable strategy, a negative number will reflect a non-profitable strategy:
+APPT = (Profit % · Average Win) − (Loss % · Average Loss)
+
+Profit/Loss Consecutive Trades
+
+Max profit trade / Min profit trade
+
+Average profit/average loss
+
+Max drawdown
+
+Profit factor = gross profits / gross loss
+
+Return %
+
+Restoration factor 
+It is basically a figure of merit which quantifies the relationship between the gross profit against the maximum drawdown experienced. The higher the restoration factor the better.
+Restoration Factor = (Gross profit — Gross loss) / Max drawdown
+
+Reliability factor
+The reliability factor relates the average monthly profit against the maximum drawdown:
+Reliability factor = Profit per month / Max drawdown
+
+https://www.investopedia.com/articles/fundamental-analysis/10/strategy-performance-reports.asp
+
+Total Net Profit
+The total net profit represents the bottom line for a trading system over a specified period of time. This metric is calculated by subtracting the gross loss of all losing trades (including commissions) from the gross profit of all winning trades.
+Total Net Profit = Gross Profit−Gross Loss
+
+Gross Profit
+Gross profit is the profit after deducting the associated costs.
+Gross Profit=Revenue−Cost of Goods Sold
+​
+Profit Factor
+The profit factor is defined as the gross profit divided by the gross loss (including commissions) for the entire trading period. This performance metric relates the amount of profit per unit of risk, with values greater than one indicating a profitable system.
+
+Percent Profitable
+%Profitable = Winning Trades / Total Trades
+
+Average Trade Net Profit
+The average trade net profit is the expectancy of the system: It represents the average amount of money that was won or lost per trade. The average trade net profit is calculated by dividing the total net profit by the total number of trades.
+Trade Net Profit = Total Net Profit / Total Trades
+
+Maximum Favorable Excursion
+Maximum Favorable Excursion is the peak profit before closing the trade. For example, you may have a closed trade which lost 25 pips but during the time the trade was open, it was making a 100 pips profit at some point - that was the Maximum Favorable Excursion for that particular trade.
+This statistical concept originally created by John Sweeney to measure the distinctive characteristics of profitable trades, can be used as part of an analytical process to enable traders to distinguish between average trades and those that offer substantially greater profit potential.
+
+Maximum Adverse Excursion
+This is the maximum potential loss that the trade had before the trade closed in profit. For example, a trade closed with 25 points in profit but during the time it was open, at one point, it was losing 100 points - that was the Maximum Adverse Excursion for that trade.
+
+
+​
+============================================================================
+https://courses.lumenlearning.com/finaccounting/chapter/effects-of-inventory-method-on-the-financial-statement/
+https://www.profitbooks.net/fifo-vs-lifo-best-inventory-valuation-method/
+https://www.accountingdepartment.com/blog/value-inventory-fifo-lifo-average
+https://www.interactivebrokers.com/en/software/ibto/ibto/abouttaxlotselection.htm
+https://www.toppr.com/guides/principles-and-practice-of-accounting/inventories/historical-cost-methods-fifo-lifo/
+
+The Private Securities Litigation Reform Act of 1995 (PSLRA) limits damages in securities-fraud actions.
+The PSLRA explicitly requires the analyst to match the opening and closing of each position.
+A “roundtrip transaction” is a matched pair of trades consisting of a purchase of securities and the sale of those securities.
+Thus, the PSLRA requires the evaluation of roundtrip transactions that takes into account the net effect of the investment.
+For example, if an investor purchases equity at a price that is artificially inflated by $2 due to the fraud and subsequently sells it at a price that is artificially inflated by $1 due to the fraud, then the maximum damage the PSLRA would allow is the net loss of $1 reflecting the $2 loss at purchase due to the fraud offset by a $1 gain at the time of sale due to the fraud.
+
+Generally, damages will be the lesser of
+(1) the price inflation due to the fraud at time of purchase less the price inflation due to the fraud at the time of sale, and
+(2) the share-price drop due to the fraud at the time of the disclosure of the fraud.
+
+See
+Frederick C. Dunbar & Arun Sen, “Counterfactual Keys to Causation and Damages in Shareholder Class-Action Lawsuits,” 2009 Wis. L. Rev. 199 (2009);
+Frank H. Easterbrook & Daniel R. Fischel, “Optimal Damages in Securities Cases,” 52 U. Chi. L. Rev. 611, 651–52 (1985).
+
+Purchase-Sale Matching Methodology Contested
+
+When an investor has engaged in multiple transactions, there is typically a dispute as to how to “match” the purchase and sale of particular securities.
+For example, consider the hypothetical example in Table 1 below in which an investor engages in four trades:
+(1) She purchases one share of Defendant Co. for $20 on January 1,
+(2) she purchases another share of Defendant Co. for $18 on March 1,
+(3) she sells one share of Defendant Co. on May 1 for $16, and
+(4) she sells one share of Defendant Co. on August 1 for $13.
+
+The purchase-sale methodology provides the algorithm for determining, for example, whether the third trade selling on May 1 for $16 is matched with the first trade in which the investor purchased a share for $20 on January 1 or whether it is matched with second trade in which she purchased a share for $18 on March 1.</p>
+Table 1: Hypothetical Investor Trades in Defendant Co.
+
+To identify the roundtrip transactions required by the PSLRA to compute an investor’s economic loss, it is necessary to select a purchase-sale methodology.
+The methodologies typically considered are LIFO and FIFO.
+LIFO matches the sale with the most recent unsold purchase.
+FIFO matches the sale with the earliest unsold purchase.
+See Zvi Bodie, Alex Kane &amp; Alan J. Marcus, Investments 658–59 (10th ed. 2014).
+
+Given a set of trades, the application of LIFO versus FIFO leads to different sets of roundtrip transactions.
+The net economic gain or loss due to the fraud associated with a particular roundtrip transaction depends in part on the price at purchase and the price at sale.
+Consequently, the choice between LIFO and FIFO has been strongly contested in private securities fraud class action matters.
+Both Samuel Francis and Raymund Wong highlight the view that LIFO tends to better measure current period economic profits than FIFO.
+See Samuel Francis, “Meet Two-Face: The Dualistic Rule 10b-5 and the Quandary of Offsetting Losses by Gains,” 77 Fordham L. Rev. 3045, 3046 (2009); Raymund Wong, NERA Econ. Consulting, <i><a href="http://www.nera.com/content/dam/nera/publications/archive1/PUB_Purchase_Sale_Matching_Wong_1008.pdf" target="_blank">Purchase-Sale Matching in Securities Litigation: FIFO, LIFO, and Offsets</a></i> 3 (2008).
+
+Wong identifies various cases that support, allow, or oppose the use of LIFO versus FIFO purchase-sale matching methods.
+
+Offsetting Reflects Investors’ Net Gains or Losses Due to Fraud Across Transactions
+
+In considering damages for investors with multiple roundtrip transactions during the class period, the courts have been divided as to whether all roundtrip transactions, regardless of whether they comprise gains or losses due to the fraud, should be incorporated into the damages estimate.
+Some courts have ruled that only the roundtrip transactions reflecting losses due to the fraud should be used in estimating damages, whereas other courts have ruled that every roundtrip transaction, whether it reflects a gain or a loss due to the fraud, should be incorporated.
+The latter, in essence, requires the analyst to offset an investor’s losses due to the fraud with the investor’s gains due to the fraud across transactions.
+
+The courts’ divergent rulings have been interpreted to derive from dual objectives of deterrence and compensation.
+Offsetting losses by gains is seen to serve the compensatory objective as it reflects the total economic outcome experienced by investors.
+In contrast, the decision not to offset losses by gains is seen to serve the deterrence objective by generally increasing the total damages estimates (sometimes generating a “windfall” to investors).
+Wong identifies various cases that support and oppose the use of offsets.
+
+This article examines the relationship between cross-transaction offsets and purchase-sale matching methods.
+The analysis shows that, for a given set of trades, when offsets are incorporated, LIFO, FIFO, and all purchase-sale matching methodologies will yield identical total-damages estimates.
+

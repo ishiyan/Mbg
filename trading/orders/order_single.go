@@ -10,28 +10,19 @@ import (
 	"time"
 )
 
-// SingleOrder is an order in a single instrument.
-type SingleOrder struct {
-	// Portfolio is a portfolio associated with this order.
-	// Portfolio Portfolio
-
-	// Account is an account associated with this order.
-	// Account Account
-
-	// Note is a free-format text with notes on the order.
-	Note string
+// OrderSingle is a request to place an order in a single instrument.
+type OrderSingle struct {
+	// Instrument specifies a single instrument associated with this order.
+	Instrument instruments.Instrument
 
 	// Type specifies an order type associated with this order.
 	Type types.OrderType
 
 	// Side specifies an order side associated with this order.
-	Side sides.OrderSide
+	Side sides.Side
 
 	// TimeInForce specifies a time in force associated with this order.
 	TimeInForce tif.OrderTimeInForce
-
-	// Instrument specifies a single instrument associated with this order.
-	Instrument instruments.Instrument
 
 	// Quantity is a total order quantity (in units) to execute.
 	// Zero if not set.
@@ -63,4 +54,7 @@ type SingleOrder struct {
 	// ExpirationTime is the order expiration date and time for the orders
 	// with the GoodTillDate TimeInForce value.
 	ExpirationTime time.Time
+
+	// Note is a free-format text with notes on the order.
+	Note string
 }

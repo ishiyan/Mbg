@@ -8,11 +8,11 @@ import (
 )
 
 // OrderSide enumerates sides of an order.
-type OrderSide int
+type Side int
 
 const (
 	// Buy order side refers to the buying of a security.
-	Buy OrderSide = iota + 1
+	Buy Side = iota + 1
 
 	// Sell order side refers to the selling of a security.
 	Sell
@@ -95,10 +95,40 @@ const (
 	sellShortExempt = "sellShortExempt"
 )
 
-var errUnknownOrderSide = errors.New("unknown order side")
+var errUnknownSide = errors.New("unknown order side")
 
-// String implements the Stringer interface.
-func (s OrderSide) String() string {
+// IsBuy indicates if this is a buying order.
+func (s Side) IsBuy() bool {
+	switch s {
+	case Buy, BuyMinus:
+		return true
+	default:
+		return false
+	}
+}
+
+// IsSell indicates if this is a selling order.
+func (s Side) IsSell() bool {
+	switch s {
+	case Sell, SellPlus, SellShort, SellShortExempt:
+		return true
+	default:
+		return false
+	}
+}
+
+// IsShort indicates if this is a short order.
+func (s Side) IsShort() bool {
+	switch s {
+	case SellPlus, SellShort, SellShortExempt:
+		return true
+	default:
+		return false
+	}
+}
+
+// String implements the fmt.Stringer interface.
+func (s Side) String() string {
 	switch s {
 	case Buy:
 		return buy
@@ -118,15 +148,15 @@ func (s OrderSide) String() string {
 }
 
 // IsKnown determines if this order side is known.
-func (s OrderSide) IsKnown() bool {
+func (s Side) IsKnown() bool {
 	return s >= Buy && s <= SellShortExempt
 }
 
 // MarshalJSON implements the Marshaler interface.
-func (s OrderSide) MarshalJSON() ([]byte, error) {
+func (s Side) MarshalJSON() ([]byte, error) {
 	str := s.String()
 	if str == unknown {
-		return nil, fmt.Errorf("cannot marshal '%s': %w", str, errUnknownOrderSide)
+		return nil, fmt.Errorf("cannot marshal '%s': %w", str, errUnknownSide)
 	}
 
 	const extra = 2 // Two bytes for quotes.
@@ -140,7 +170,7 @@ func (s OrderSide) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements the Unmarshaler interface.
-func (s *OrderSide) UnmarshalJSON(data []byte) error {
+func (s *Side) UnmarshalJSON(data []byte) error {
 	d := bytes.Trim(data, "\"")
 	str := string(d)
 
@@ -158,7 +188,7 @@ func (s *OrderSide) UnmarshalJSON(data []byte) error {
 	case sellShortExempt:
 		*s = SellShortExempt
 	default:
-		return fmt.Errorf("cannot unmarshal '%s': %w", str, errUnknownOrderSide)
+		return fmt.Errorf("cannot unmarshal '%s': %w", str, errUnknownSide)
 	}
 
 	return nil

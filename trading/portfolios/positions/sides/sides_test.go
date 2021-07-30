@@ -12,12 +12,8 @@ func TestString(t *testing.T) {
 		s    Side
 		text string
 	}{
-		{Buy, buy},
-		{Sell, sell},
-		{BuyMinus, buyMinus},
-		{SellPlus, sellPlus},
-		{SellShort, sellShort},
-		{SellShortExempt, sellShortExempt},
+		{Long, long},
+		{Short, short},
 		{Side(0), unknown},
 		{Side(9999), unknown},
 		{Side(-9999), unknown},
@@ -40,12 +36,8 @@ func TestIsKnown(t *testing.T) {
 		s       Side
 		boolean bool
 	}{
-		{Buy, true},
-		{Sell, true},
-		{BuyMinus, true},
-		{SellPlus, true},
-		{SellShort, true},
-		{SellShortExempt, true},
+		{Long, true},
+		{Short, true},
 		{Side(0), false},
 		{Side(9999), false},
 		{Side(-9999), false},
@@ -61,90 +53,6 @@ func TestIsKnown(t *testing.T) {
 	}
 }
 
-func TestIsBuy(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		s       Side
-		boolean bool
-	}{
-		{Buy, true},
-		{Sell, false},
-		{BuyMinus, true},
-		{SellPlus, false},
-		{SellShort, false},
-		{SellShortExempt, false},
-		{Side(0), false},
-		{Side(9999), false},
-		{Side(-9999), false},
-	}
-
-	for _, tt := range tests {
-		exp := tt.boolean
-		act := tt.s.IsBuy()
-
-		if exp != act {
-			t.Errorf("'%v'.IsBuy(): expected '%v', actual '%v'", tt.s, exp, act)
-		}
-	}
-}
-
-func TestIsSell(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		s       Side
-		boolean bool
-	}{
-		{Buy, false},
-		{Sell, true},
-		{BuyMinus, false},
-		{SellPlus, true},
-		{SellShort, true},
-		{SellShortExempt, true},
-		{Side(0), false},
-		{Side(9999), false},
-		{Side(-9999), false},
-	}
-
-	for _, tt := range tests {
-		exp := tt.boolean
-		act := tt.s.IsSell()
-
-		if exp != act {
-			t.Errorf("'%v'.IsSell(): expected '%v', actual '%v'", tt.s, exp, act)
-		}
-	}
-}
-
-func TestIsShort(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		s       Side
-		boolean bool
-	}{
-		{Buy, false},
-		{Sell, false},
-		{BuyMinus, false},
-		{SellPlus, true},
-		{SellShort, true},
-		{SellShortExempt, true},
-		{Side(0), false},
-		{Side(9999), false},
-		{Side(-9999), false},
-	}
-
-	for _, tt := range tests {
-		exp := tt.boolean
-		act := tt.s.IsShort()
-
-		if exp != act {
-			t.Errorf("'%v'.IsShort(): expected '%v', actual '%v'", tt.s, exp, act)
-		}
-	}
-}
-
 func TestMarshalJSON(t *testing.T) {
 	t.Parallel()
 
@@ -154,12 +62,8 @@ func TestMarshalJSON(t *testing.T) {
 		json      string
 		succeeded bool
 	}{
-		{Buy, "\"buy\"", true},
-		{Sell, "\"sell\"", true},
-		{BuyMinus, "\"buyMinus\"", true},
-		{SellPlus, "\"sellPlus\"", true},
-		{SellShort, "\"sellShort\"", true},
-		{SellShortExempt, "\"sellShortExempt\"", true},
+		{Long, "\"long\"", true},
+		{Short, "\"short\"", true},
 		{Side(9999), nilstr, false},
 		{Side(-9999), nilstr, false},
 		{Side(0), nilstr, false},
@@ -197,12 +101,8 @@ func TestUnmarshalJSON(t *testing.T) {
 		json      string
 		succeeded bool
 	}{
-		{Buy, "\"buy\"", true},
-		{Sell, "\"sell\"", true},
-		{BuyMinus, "\"buyMinus\"", true},
-		{SellPlus, "\"sellPlus\"", true},
-		{SellShort, "\"sellShort\"", true},
-		{SellShortExempt, "\"sellShortExempt\"", true},
+		{Long, "\"long\"", true},
+		{Short, "\"short\"", true},
 		{zero, "\"unknown\"", false},
 		{zero, "\"foobar\"", false},
 	}
