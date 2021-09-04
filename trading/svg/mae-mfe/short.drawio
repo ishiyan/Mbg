@@ -1,0 +1,116 @@
+<mxfile host="65bd71144e">
+    <diagram id="Lq7jL5g9zbGyamZe5513" name="Page-1">
+        <mxGraphModel dx="540" dy="686" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-1" value="" style="endArrow=none;html=1;strokeWidth=2.5;curved=1;endFill=0;shadow=0;sketch=0;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="153" y="153" as="sourcePoint"/>
+                        <mxPoint x="338" y="233" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="183" y="73"/>
+                            <mxPoint x="233" y="213"/>
+                            <mxPoint x="308" y="293"/>
+                            <mxPoint x="338" y="233"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-2" value="" style="endArrow=none;html=1;shadow=0;strokeWidth=1;dashed=1;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="123" y="110" as="sourcePoint"/>
+                        <mxPoint x="253" y="110" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-3" value="" style="endArrow=none;html=1;shadow=0;strokeWidth=1;dashed=1;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="213" y="270" as="sourcePoint"/>
+                        <mxPoint x="368" y="270" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-4" value="" style="endArrow=none;html=1;shadow=0;strokeWidth=1;dashed=1;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="128" y="141" as="sourcePoint"/>
+                        <mxPoint x="158" y="140.5" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-5" value="" style="endArrow=none;html=1;shadow=0;strokeWidth=1;dashed=1;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="338" y="239.5" as="sourcePoint"/>
+                        <mxPoint x="373" y="239" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-6" value="" style="endArrow=oval;html=1;shadow=0;strokeWidth=1;endFill=1;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="298" y="310" as="sourcePoint"/>
+                        <mxPoint x="298" y="269" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-7" value="" style="endArrow=oval;html=1;shadow=0;strokeWidth=1;endFill=1;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="183" y="310" as="sourcePoint"/>
+                        <mxPoint x="183" y="110" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-8" value="" style="endArrow=oval;html=1;shadow=0;strokeWidth=1;endFill=1;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="158" y="308" as="sourcePoint"/>
+                        <mxPoint x="158" y="140" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-9" value="" style="endArrow=classic;startArrow=classic;html=1;shadow=0;strokeWidth=1;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="146" y="140" as="sourcePoint"/>
+                        <mxPoint x="146" y="110" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-10" value="" style="endArrow=classic;startArrow=classic;html=1;shadow=0;strokeWidth=1;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="347" y="269" as="sourcePoint"/>
+                        <mxPoint x="347" y="239" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-11" value="" style="endArrow=oval;html=1;shadow=0;strokeWidth=1;endFill=1;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="334" y="310" as="sourcePoint"/>
+                        <mxPoint x="334" y="240" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-12" value="" style="endArrow=classic;startArrow=classic;html=1;shadow=0;strokeWidth=1;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="233" y="270" as="sourcePoint"/>
+                        <mxPoint x="233" y="110" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-13" value="entry" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="132" y="304" as="geometry"/>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-14" value="exit" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="315" y="304" as="geometry">
+                        <mxPoint y="-1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-15" value="low" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="282" y="301" as="geometry">
+                        <mxPoint x="-2" y="3" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-16" value="high" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="205" y="304" as="geometry"/>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-17" value="mae" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="120" y="124" as="geometry"/>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-18" value="mfe" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="368" y="252" as="geometry"/>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-19" value="high - low" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="274" y="144" as="geometry"/>
+                </mxCell>
+                <mxCell id="_TpF1-Zip_B5S_9fnCi5-20" value="short" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="358" y="120" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

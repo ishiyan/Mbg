@@ -1,0 +1,116 @@
+<mxfile host="65bd71144e">
+    <diagram id="8RVhm1ogPv1j47Bb_8R3" name="Page-1">
+        <mxGraphModel dx="540" dy="686" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-1" value="" style="endArrow=none;html=1;strokeWidth=2.5;curved=1;endFill=0;shadow=0;sketch=0;" parent="1" edge="1">
+                    <mxGeometry x="60" y="589" width="50" height="50" as="geometry">
+                        <mxPoint x="103" y="730" as="sourcePoint"/>
+                        <mxPoint x="323" y="680" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="133" y="790"/>
+                            <mxPoint x="183" y="790"/>
+                            <mxPoint x="233" y="680"/>
+                            <mxPoint x="283" y="609"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-2" value="" style="endArrow=none;html=1;shadow=0;strokeWidth=1;dashed=1;" parent="1" edge="1">
+                    <mxGeometry x="60" y="589" width="50" height="50" as="geometry">
+                        <mxPoint x="83" y="791" as="sourcePoint"/>
+                        <mxPoint x="232" y="791" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-3" value="" style="endArrow=none;html=1;shadow=0;strokeWidth=1;dashed=1;" parent="1" edge="1">
+                    <mxGeometry x="60" y="589" width="50" height="50" as="geometry">
+                        <mxPoint x="212" y="631" as="sourcePoint"/>
+                        <mxPoint x="343" y="631" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-4" value="" style="endArrow=none;html=1;shadow=0;strokeWidth=1;dashed=1;" parent="1" edge="1">
+                    <mxGeometry x="60" y="589" width="50" height="50" as="geometry">
+                        <mxPoint x="83" y="751" as="sourcePoint"/>
+                        <mxPoint x="113" y="751" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-5" value="" style="endArrow=none;html=1;shadow=0;strokeWidth=1;dashed=1;" parent="1" edge="1">
+                    <mxGeometry x="60" y="589" width="50" height="50" as="geometry">
+                        <mxPoint x="322" y="671" as="sourcePoint"/>
+                        <mxPoint x="343" y="671" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-6" value="" style="endArrow=classic;startArrow=classic;html=1;shadow=0;strokeWidth=1;" parent="1" edge="1">
+                    <mxGeometry x="60" y="589" width="50" height="50" as="geometry">
+                        <mxPoint x="329" y="671" as="sourcePoint"/>
+                        <mxPoint x="329" y="631" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-7" value="" style="endArrow=classic;startArrow=classic;html=1;shadow=0;strokeWidth=1;" parent="1" edge="1">
+                    <mxGeometry x="60" y="589" width="50" height="50" as="geometry">
+                        <mxPoint x="102" y="791" as="sourcePoint"/>
+                        <mxPoint x="102" y="751" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-8" value="" style="endArrow=classic;startArrow=classic;html=1;shadow=0;strokeWidth=1;" parent="1" edge="1">
+                    <mxGeometry x="60" y="589" width="50" height="50" as="geometry">
+                        <mxPoint x="222" y="789" as="sourcePoint"/>
+                        <mxPoint x="222" y="632" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-9" value="" style="endArrow=oval;html=1;shadow=0;strokeWidth=1;endFill=1;" parent="1" edge="1">
+                    <mxGeometry x="60" y="589" width="50" height="50" as="geometry">
+                        <mxPoint x="276" y="832" as="sourcePoint"/>
+                        <mxPoint x="276" y="632" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-10" value="" style="endArrow=oval;html=1;shadow=0;strokeWidth=1;endFill=1;" parent="1" edge="1">
+                    <mxGeometry x="60" y="589" width="50" height="50" as="geometry">
+                        <mxPoint x="157" y="830" as="sourcePoint"/>
+                        <mxPoint x="157" y="790" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-11" value="" style="endArrow=oval;html=1;shadow=0;strokeWidth=1;endFill=1;" parent="1" edge="1">
+                    <mxGeometry x="60" y="589" width="50" height="50" as="geometry">
+                        <mxPoint x="317" y="831" as="sourcePoint"/>
+                        <mxPoint x="317" y="671" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-12" value="" style="endArrow=oval;html=1;shadow=0;strokeWidth=1;endFill=1;" parent="1" edge="1">
+                    <mxGeometry x="60" y="589" width="50" height="50" as="geometry">
+                        <mxPoint x="114" y="831" as="sourcePoint"/>
+                        <mxPoint x="114" y="751" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-13" value="entry" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="90" y="825" as="geometry"/>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-14" value="exit" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="298" y="827" as="geometry">
+                        <mxPoint y="-1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-15" value="low" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="141" y="822" as="geometry">
+                        <mxPoint x="-2" y="3" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-16" value="high" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="254" y="825" as="geometry"/>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-17" value="mae" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="80" y="769" as="geometry"/>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-18" value="mfe" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="349" y="650" as="geometry"/>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-19" value="high - low" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="181" y="665" as="geometry"/>
+                </mxCell>
+                <mxCell id="ZHL7SiP10_N1SFR8rapa-20" value="long" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=16;" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="113" y="640" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

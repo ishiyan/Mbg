@@ -265,6 +265,7 @@ func (p *Position) updatePrice(t time.Time, price float64) {
 	p.pnl.add(t, p.entryAmount, amt, unr, p.cashFlow.Current(), p.cashFlowNet.Current())
 }
 
+/*
 // matchRoundtrips matches LIFO roundtrips
 // assuming the execution has not been appended to the history yet.
 func (p *Position) matchRoundtrips(exec *Execution) []*Roundtrip {
@@ -287,7 +288,7 @@ func (p *Position) matchRoundtrips(exec *Execution) []*Roundtrip {
 
 	return nil
 }
-
+*/
 func (p *Position) newRoundtrip(entry, exit *Execution, qty float64) *Roundtrip {
 	entry.roundtripQuantity += qty
 	exit.roundtripQuantity += qty

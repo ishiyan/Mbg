@@ -49,5 +49,6 @@
           }
         ]
       },
-      "workbench.colorTheme": "Zenburn"
+      "workbench.colorTheme": "Zenburn",
+      "svg.preview.background": "transparent"
 }

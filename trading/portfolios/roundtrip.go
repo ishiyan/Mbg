@@ -20,64 +20,47 @@ type Roundtrip struct {
 	exitPrice  float64
 	pnl        float64
 	commission float64
-	maePrice   float64
-	mfePrice   float64
-	mae        float64
-	mfe        float64
-	entryEff   float64
-	exitEff    float64
+	highPrice  float64
+	lowPrice   float64
 }
 
-func newRoundtrip(instrument instruments.Instrument, entry, exit *Execution, qty float64) *Roundtrip {
+func newRoundtrip(instr instruments.Instrument, entry, exit *Execution, qty float64) *Roundtrip {
+	var pnl, pf float64
+
+	if instr.PriceFactor != 0 {
+		pf = instr.PriceFactor
+	} else {
+		pf = 1
+	}
+
 	side := pos.Long
 	if entry.side.IsSell() {
 		side = pos.Short
+		pnl = qty * (entry.price - exit.price) * pf
+	} else {
+		pnl = qty * (exit.price - entry.price) * pf
 	}
 
-	high := math.Max(entry.roundtripPriceHigh, exit.roundtripPriceHigh)
-	low := math.Min(entry.roundtripPriceLow, exit.roundtripPriceLow)
-
-	var mae, mfe float64
-	var entryEff, exitEff, totalEff float64
-
-	switch side {
-	case pos.Short:
-		mae = high/entry.price - 1
-		if high != low {
-			entryEfficiency = (entry.price - low) / (high - low)
-			exitEfficiency = (high - exit.price) / (high - low)
-			totalEfficiency = (entry.price - exit.price) / (high - low)
-		}
-	case pos.Long:
-		mae = 1 - low/entry.price
-		if high != low {
-			entryEfficiency = (high - entry.price) / (high - low)
-			exitEfficiency = (exit.price - low) / (high - low)
-			totalEfficiency = (exit.price - entry.price) / (high - low)
-		}
-	}
+	commission := (entry.commissionConverted/entry.quantity + exit.commissionConverted/exit.quantity) * qty
 
 	return &Roundtrip{
-		instrument: instrument,
+		instrument: instr,
 		side:       side,
 		quantity:   qty,
 		entryTime:  entry.reportTime,
 		entryPrice: entry.price,
 		exitTime:   exit.reportTime,
 		exitPrice:  exit.price,
-		maePrice:   low,
-		mfePrice:   high,
+		highPrice:  math.Max(entry.roundtripPriceHigh, exit.roundtripPriceHigh),
+		lowPrice:   math.Min(entry.roundtripPriceLow, exit.roundtripPriceLow),
+		commission: commission,
+		pnl:        pnl,
 	}
 }
 
 // Duration returns a duration of this round-trip.
 func (r *Roundtrip) Duration() time.Duration {
 	return r.exitTime.Sub(r.entryTime)
-}
-
-// ExitDrawdown is the amount of profit given back before the position was closed.
-func (r *Roundtrip) ExitDrawdown() float64 {
-	return r.pnl - r.mfe
 }
 
 // Instrument is the traded instrument.
@@ -107,7 +90,7 @@ func (r *Roundtrip) EntryPrice() float64 {
 
 // ExitTime is the date and time the position was closed.
 func (r *Roundtrip) ExitTime() time.Time {
-	return r.entryTime
+	return r.exitTime
 }
 
 // ExitPrice is the (average) price at which the position was closed.
@@ -120,41 +103,79 @@ func (r *Roundtrip) PnL() float64 {
 	return r.pnl
 }
 
+// NetPnL is the net profit and loss of the round-trip in instrument's currency.
+func (r *Roundtrip) NetPnL() float64 {
+	return r.pnl - r.commission
+}
+
 // Commission is the total commission associated with the round-trip in instrument's currency.
 // This is always a positive value.
 func (r *Roundtrip) Commission() float64 {
 	return r.commission
 }
 
+// HighestPrice is the highest price in instrument's currency during the round-trip.
+func (r *Roundtrip) HighestPrice() float64 {
+	return r.highPrice
+}
+
+// LowestPrice is the lowest price in instrument's currency during the round-trip.
+func (r *Roundtrip) LowestPrice() float64 {
+	return r.lowPrice
+}
+
 // MaximumAdversePrice is the Maximum Adverse price in instrument's currency during the round-trip.
 func (r *Roundtrip) MaximumAdversePrice() float64 {
-	return r.maePrice
+	switch r.side {
+	case pos.Long:
+		return r.lowPrice
+	default:
+		return r.highPrice
+	}
 }
 
 // MaximumFavorablePrice is the Maximum Favorable price in instrument's currency during the round-trip.
 func (r *Roundtrip) MaximumFavorablePrice() float64 {
-	return r.mfePrice
+	switch r.side {
+	case pos.Long:
+		return r.highPrice
+	default:
+		return r.lowPrice
+	}
 }
 
-// MaximumAdverseExcursion is the Maximum Adverse Excursion (MAE) in instrument's currency.
-// It means the maximum potential loss taken during the round-trip period.
+// MAE is the percentage of the Maximum Adverse Excursion (MAE)
+// which measures the maximum potential loss per unit of quantity
+// taken during the round-trip period.
+//
+// 0% is the perfect MAE, 100% and higher is the worst possible MAE.
 func (r *Roundtrip) MaximumAdverseExcursion() float64 {
-	return r.mae
+	switch r.side {
+	case pos.Long:
+		return 100 * (1 - r.lowPrice/r.entryPrice) //nolint:gomnd
+	default:
+		return 100 * (r.highPrice/r.entryPrice - 1) //nolint:gomnd
+	}
 }
 
-// MaximumFavorableExcursion is the Maximum Favorable Excursion (MFE) in instrument's currency.
+// MFE is the percentage of the Maximum Favorable Excursion (MFE)
+// which measures the peak potential profit per unit of quantity
+// taken during the round-trip period.
+//
+// This statistical concept originally created by John Sweeney to measure
+// the distinctive characteristics of profitable trades, can be used as part of
+// an analytical process to distinguish between average trades and those
+// that offer substantially greater profit potential.
+//
+// 0% is the perfect MFE, 100% and higher is the worst possible MFE.
 func (r *Roundtrip) MaximumFavorableExcursion() float64 {
-	return r.mfe
+	switch r.side {
+	case pos.Long:
+		return 100 * (r.highPrice/r.exitPrice - 1) //nolint:gomnd
+	default:
+		return 100 * (1 - r.lowPrice/r.exitPrice) //nolint:gomnd
+	}
 }
-
-/*
-Maximum Favorable Excursion
-Maximum Favorable Excursion is the peak profit before closing the trade. For example, you may have a closed trade which lost 25 pips but during the time the trade was open, it was making a 100 pips profit at some point - that was the Maximum Favorable Excursion for that particular trade.
-This statistical concept originally created by John Sweeney to measure the distinctive characteristics of profitable trades, can be used as part of an analytical process to enable traders to distinguish between average trades and those that offer substantially greater profit potential.
-
-Maximum Adverse Excursion
-This is the maximum potential loss that the trade had before the trade closed in profit. For example, a trade closed with 25 points in profit but during the time it was open, at one point, it was losing 100 points - that was the Maximum Adverse Excursion for that trade.
-*/
 
 // EntryEfficiency is the Entry Efficiency which measures the percentage in range [0. 100] of
 // the total round-trip potential taken by a round-trip given its entry and assuming
@@ -164,13 +185,13 @@ This is the maximum potential loss that the trade had before the trade closed in
 //
 // 100% is the perfect efficiency, 0% is the worst possible efficiency.
 func (r *Roundtrip) EntryEfficiency() float64 {
-	delta := r.mfePrice - r.maePrice
+	delta := r.highPrice - r.lowPrice
 	if delta != 0 {
 		switch r.side {
 		case pos.Long:
-			return 100 * (r.mfePrice - r.entryPrice) / delta
+			return 100 * (r.highPrice - r.entryPrice) / delta
 		case pos.Short:
-			return 100 * (r.entryPrice - r.maePrice) / delta
+			return 100 * (r.entryPrice - r.lowPrice) / delta
 		}
 	}
 
@@ -186,13 +207,13 @@ func (r *Roundtrip) EntryEfficiency() float64 {
 //
 // 100% is the perfect efficiency, 0% is the worst possible efficiency.
 func (r *Roundtrip) ExitEfficiency() float64 {
-	delta := r.mfePrice - r.maePrice
+	delta := r.highPrice - r.lowPrice
 	if delta != 0 {
 		switch r.side {
 		case pos.Long:
-			return 100 * (r.exitPrice - r.maePrice) / delta
+			return 100 * (r.exitPrice - r.lowPrice) / delta
 		case pos.Short:
-			return 100 * (r.mfePrice - r.exitPrice) / delta
+			return 100 * (r.highPrice - r.exitPrice) / delta
 		}
 	}
 
@@ -209,7 +230,7 @@ func (r *Roundtrip) ExitEfficiency() float64 {
 //
 // 100% is the perfect efficiency, 0% is the worst possible efficiency.
 func (r *Roundtrip) TotalEfficiency() float64 {
-	delta := r.mfePrice - r.maePrice
+	delta := r.highPrice - r.lowPrice
 	if delta != 0 {
 		switch r.side {
 		case pos.Long:
