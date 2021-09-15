@@ -5,10 +5,10 @@ import (
 	"time"
 )
 
-// RoundtripPerformance is a roundtrip performance.
+// RoundtripPerformance calculates the roundtrip performance statistics.
 type RoundtripPerformance struct {
 	mu         sync.RWMutex
-	roundtrips []*Roundtrip
+	roundtrips []Roundtrip
 }
 
 // NewRoundtripPerformance creates a new round-trip portfolio performance.
@@ -18,7 +18,7 @@ func NewRoundtripPerformance() *RoundtripPerformance {
 }
 
 // Add adds a new round-trip.
-func (rp *RoundtripPerformance) Add(r *Roundtrip) {
+func (rp *RoundtripPerformance) Add(r Roundtrip) {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
 

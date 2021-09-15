@@ -36,91 +36,89 @@ type Position struct {
 	cashFlow          scalarHistory
 	cashFlowNet       scalarHistory
 	amounts           scalarHistory
-	pnl               *PnL
-	drawdown          *Drawdown
 	indexPnLExecution int
 	executions        []*Execution
+	perf              *Performance
 	mu                sync.RWMutex
 }
 
 // newPosition creates a new position in a given instrument.
 // This is the only correct way to create a position instance.
-func newPosition(instr instruments.Instrument, exec *Execution, account *Account) *Position {
-	t := exec.reportTime
+func newPosition(instr instruments.Instrument, ex *Execution, account *Account) *Position {
+	t := ex.reportTime
 	p := Position{
 		instrument:     instr,
-		margin:         exec.margin,
-		debt:           exec.debt,
+		margin:         ex.margin,
+		debt:           ex.debt,
 		priceFactor:    1,
-		price:          exec.price,
-		quantityPnL:    exec.quantity,
+		price:          ex.price,
+		quantityPnL:    ex.quantity,
 		executions:     make([]*Execution, 0),
-		entryAmount:    exec.amount,
-		quantity:       exec.quantity,
+		entryAmount:    ex.amount,
+		quantity:       ex.quantity,
 		quantitySigned: scalarHistory{},
 		cashFlow:       scalarHistory{},
 		cashFlowNet:    scalarHistory{},
 		amounts:        scalarHistory{},
-		pnl:            newPnL(),
-		drawdown:       &Drawdown{},
+		perf:           newPerformance(),
 	}
 
 	if instr.PriceFactor != 0 {
 		p.priceFactor = instr.PriceFactor
 	}
 
-	exec.pnl = -exec.commissionConverted
-	exec.realizedPnL = 0
-	p.updateSideAndQuantities(exec, 0)
-	p.executions = append(p.executions, exec)
+	ex.pnl = -ex.commissionConverted
+	ex.realizedPnL = 0
+	p.updateSideAndQuantities(ex, 0)
+	p.executions = append(p.executions, ex)
 
-	p.amounts.add(t, exec.amount)
-	p.cashFlow.accumulate(t, exec.cashFlow)
-	p.cashFlowNet.accumulate(t, exec.netCashFlow)
-	p.pnl.add(t, exec.amount, exec.amount, exec.amount, exec.cashFlow, exec.netCashFlow)
-	p.drawdown.add(t, exec.amount+exec.cashFlow)
-	account.addExecution(exec)
+	p.amounts.add(t, ex.amount)
+	p.cashFlow.accumulate(t, ex.cashFlow)
+	p.cashFlowNet.accumulate(t, ex.netCashFlow)
+	p.perf.addPnL(t, ex.amount, ex.amount, ex.amount, ex.cashFlow, ex.netCashFlow)
+	p.perf.addDrawdown(t, ex.amount+ex.cashFlow)
+	account.addExecution(ex)
 
 	return &p
 }
 
 // add adds an execution to the existing position.
-// This should only be called on position created by NewPosition.
+// This should only be called on position created by newPosition.
 // Instrument of the execution should match position instrument.
-func (p *Position) add(exec *Execution, account *Account) {
+func (p *Position) add(ex *Execution, account *Account) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
 	// debtIncrement := p.updateMarginAndDebt(exec)
 	qtySigned := p.quantitySigned.Current()
-	p.updateExecutionPnL(exec, qtySigned)
-	p.updateSideAndQuantities(exec, qtySigned)
-	p.executions = append(p.executions, exec)
-	p.cashFlow.accumulate(exec.reportTime, exec.cashFlow)
-	p.cashFlowNet.accumulate(exec.reportTime, exec.netCashFlow)
+	p.updateExecutionPnL(ex, qtySigned)
+	p.updateSideAndQuantities(ex, qtySigned)
+	p.executions = append(p.executions, ex)
+	p.cashFlow.accumulate(ex.reportTime, ex.cashFlow)
+	p.cashFlowNet.accumulate(ex.reportTime, ex.netCashFlow)
 
-	account.addExecution(exec)
+	account.addExecution(ex)
 
-	p.updatePrice(exec.reportTime, exec.price)
+	p.updatePrice(ex.reportTime, ex.price)
 }
 
 // updateSideAndQuantities updates p.side, p.quantity, p.quantitySigned,
 // p.quantityBought, p.quantitySold and p.quantitySoldShort
 // for the given execution and the given current signed quantity.
-func (p *Position) updateSideAndQuantities(exec *Execution, qtySigned float64) {
-	switch exec.side {
+func (p *Position) updateSideAndQuantities(ex *Execution, qtySigned float64) {
+	switch ex.side {
 	case sides.Buy, sides.BuyMinus:
-		p.quantityBought += exec.quantity
-		qtySigned += exec.quantity
+		p.quantityBought += ex.quantity
+		qtySigned += ex.quantity
 	case sides.Sell, sides.SellPlus:
-		p.quantitySold += exec.quantity
-		qtySigned -= exec.quantity
+		p.quantitySold += ex.quantity
+		qtySigned -= ex.quantity
 	case sides.SellShort, sides.SellShortExempt:
-		p.quantitySoldShort -= exec.quantity
-		qtySigned -= exec.quantity
+		p.quantitySoldShort -= ex.quantity
+		qtySigned -= ex.quantity
 	}
 
-	p.quantitySigned.add(exec.reportTime, qtySigned)
+	p.quantitySigned.add(ex.reportTime, qtySigned)
 	p.quantity = math.Abs(qtySigned)
 
 	if qtySigned < 0 {
@@ -133,39 +131,39 @@ func (p *Position) updateSideAndQuantities(exec *Execution, qtySigned float64) {
 // updateMarginAndDebt updates p.margin and p.debt and returns
 // a signed increment in debt caused by this execution.
 // Uses p.side and p.quantity updated by updateSideAndQuantities.
-func (p *Position) updateMarginAndDebt(exec *Execution) float64 {
-	if exec.margin == 0 {
+func (p *Position) updateMarginAndDebt(ex *Execution) float64 {
+	if ex.margin == 0 {
 		return 0
 	}
 
 	isLong := p.side == pos.Long
 	isShort := p.side == pos.Short
-	isBuy := exec.side.IsBuy()
-	isSell := exec.side.IsSell()
+	isBuy := ex.side.IsBuy()
+	isSell := ex.side.IsSell()
 
 	switch {
 	case (isLong && isBuy) || (isShort && isSell):
 		// Execution and updated position have the same directions.
 		// Long position and buy execution or short position and sell execution.
-		p.margin += exec.margin
-		p.debt += exec.debt
+		p.margin += ex.margin
+		p.debt += ex.debt
 
-		return exec.debt
+		return ex.debt
 	case (isLong && isSell) || (isShort && isBuy):
 		// Execution and updated position have opposite directions.
 		// Long position and sell execution or short position and buy execution.
-		qtyDiff := p.quantity - exec.quantity
+		qtyDiff := p.quantity - ex.quantity
 
 		switch {
 		case qtyDiff > 0: // Executed less than updated position quantity.
-			p.margin -= exec.margin
-			delta := -p.debt * exec.quantity / p.quantity
+			p.margin -= ex.margin
+			delta := -p.debt * ex.quantity / p.quantity
 			p.debt += delta
 
 			return delta
 		case qtyDiff < 0: // Executed more than updated position quantity.
 			p.margin = -qtyDiff * p.instrument.Margin
-			amtDiff := -qtyDiff*exec.price*p.priceFactor - p.margin
+			amtDiff := -qtyDiff*ex.price*p.priceFactor - p.margin
 			delta := amtDiff - p.debt
 			p.debt = amtDiff
 
@@ -174,7 +172,7 @@ func (p *Position) updateMarginAndDebt(exec *Execution) float64 {
 			p.margin = 0
 			p.debt = 0
 
-			return -exec.debt
+			return -ex.debt
 		}
 	default:
 		// Either order side or position side are unknown.
@@ -184,32 +182,32 @@ func (p *Position) updateMarginAndDebt(exec *Execution) float64 {
 
 // updateExecutionPnL updates exec.PnL, exec.RealizedPnL, p.quantity and p.indexPnLExecution,
 // assuming the execution has not been appended to the history yet.
-func (p *Position) updateExecutionPnL(exec *Execution, qtySigned float64) {
+func (p *Position) updateExecutionPnL(ex *Execution, qtySigned float64) {
 	commission := 0.
 	delta := qtySigned
 
-	execSign := exec.quantitySign()
-	qtyExec := exec.quantity
+	execSign := ex.quantitySign()
+	qtyExec := ex.quantity
 
 	if (delta >= 0 && execSign < 0) || (delta < 0 && execSign >= 0) {
 		// Execution and updated position have opposite directions.
 		// Long position and sell execution or short position and buy execution.
 		qtyPnL := p.quantityPnL
 		qtyMin := math.Min(qtyExec, qtyPnL)
-		execCommPerQtyUnit := exec.commissionConverted / exec.quantity
+		execCommPerQtyUnit := ex.commissionConverted / ex.quantity
 		lenExecutions := len(p.executions)
 		pnlExecution := p.executions[p.indexPnLExecution]
 		pnlIndexNext := p.indexPnLExecution + 1
 
 		commission = qtyMin * (execCommPerQtyUnit + pnlExecution.commissionConverted/pnlExecution.quantity)
-		delta = -execSign * qtyMin * (exec.price - pnlExecution.price)
+		delta = -execSign * qtyMin * (ex.price - pnlExecution.price)
 
 		for ; qtyExec > qtyPnL && pnlIndexNext < lenExecutions; pnlIndexNext++ {
 			pnlExecution = p.executions[pnlIndexNext]
 			if pnlExecution.quantitySign() != execSign {
 				qtyMin = math.Min(qtyExec-qtyPnL, pnlExecution.quantity)
 				commission += qtyMin * (execCommPerQtyUnit + pnlExecution.commissionConverted/pnlExecution.quantity)
-				delta += -execSign * qtyMin * (exec.price - pnlExecution.price)
+				delta += -execSign * qtyMin * (ex.price - pnlExecution.price)
 				qtyPnL += pnlExecution.quantity
 			}
 		}
@@ -224,8 +222,8 @@ func (p *Position) updateExecutionPnL(exec *Execution, qtySigned float64) {
 	}
 
 	delta *= p.priceFactor
-	exec.pnl = delta - exec.commissionConverted
-	exec.realizedPnL = delta - commission
+	ex.pnl = delta - ex.commissionConverted
+	ex.realizedPnL = delta - commission
 }
 
 // updatePrice adds p.price, p.amounts, p.drawdown, p.pnl, p.pnlNet,
@@ -243,7 +241,7 @@ func (p *Position) updatePrice(t time.Time, price float64) {
 	qty := p.quantitySigned.Current()
 	amt := price * p.priceFactor * qty
 	p.amounts.add(t, amt)
-	p.drawdown.add(t, amt+p.cashFlow.Current())
+	p.perf.addDrawdown(t, amt+p.cashFlow.Current())
 
 	switch {
 	case qty > 0:
@@ -251,7 +249,7 @@ func (p *Position) updatePrice(t time.Time, price float64) {
 	case qty < 0:
 		qty = -p.quantityPnL
 	default:
-		p.pnl.add(t, p.entryAmount, amt, 0, p.cashFlow.Current(), p.cashFlowNet.Current())
+		p.perf.addPnL(t, p.entryAmount, amt, 0, p.cashFlow.Current(), p.cashFlowNet.Current())
 
 		return
 	}
@@ -262,7 +260,7 @@ func (p *Position) updatePrice(t time.Time, price float64) {
 	}
 
 	unr *= p.priceFactor
-	p.pnl.add(t, p.entryAmount, amt, unr, p.cashFlow.Current(), p.cashFlowNet.Current())
+	p.perf.addPnL(t, p.entryAmount, amt, unr, p.cashFlow.Current(), p.cashFlowNet.Current())
 }
 
 /*
@@ -479,21 +477,7 @@ func (p *Position) AmountHistory() []entities.Scalar {
 	return p.amounts.History()
 }
 
-// PnL (Profit and Loss) contains the last values and time series
-// of the PnL, net PnL and unrealized PnL in instrument's currency,
-// and their percentages.
-func (p *Position) PnL() *PnL {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-
-	return p.pnl
-}
-
-// Drawdown contains the last values and time series of drawdown amount
-// in instrument's currency, percentage and their maximal values.
-func (p *Position) Drawdown() *Drawdown {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-
-	return p.drawdown
+// Performance tracks performance of this position in instrument's currency.
+func (p *Position) Performance() *Performance {
+	return p.perf
 }
