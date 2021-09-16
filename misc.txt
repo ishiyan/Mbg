@@ -729,3 +729,4 @@ Wong identifies various cases that support and oppose the use of offsets.
 This article examines the relationship between cross-transaction offsets and purchase-sale matching methods.
 The analysis shows that, for a given set of trades, when offsets are incorporated, LIFO, FIFO, and all purchase-sale matching methodologies will yield identical total-damages estimates.
 
+test
