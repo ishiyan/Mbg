@@ -18,7 +18,7 @@ func TestRoundtripPerformanceEmpty(t *testing.T) {
 		fmtVal = "%v(): expected 0, actual %v"
 	)
 
-	rp := NewRoundtripPerformance()
+	rp := newRoundtripPerformance()
 
 	if rp.TotalCount() != 0 {
 		t.Errorf(fmtVal, "TotalCount", rp.TotalCount())
@@ -329,7 +329,7 @@ func TestRoundtripPerformance(t *testing.T) {
 		},
 	}
 
-	rp := NewRoundtripPerformance()
+	rp := newRoundtripPerformance()
 
 	for _, tt := range tests {
 		var pnl float64
@@ -353,7 +353,7 @@ func TestRoundtripPerformance(t *testing.T) {
 			pnl:        pnl,
 		}
 
-		rp.Add(r)
+		rp.add(r)
 	}
 
 	if rp.TotalCount() != totalCount {

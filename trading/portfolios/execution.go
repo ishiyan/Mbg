@@ -11,37 +11,38 @@ import (
 
 // Execution contains properties of a fill or a partial fill of an order.
 type Execution struct {
-	reportID            string
-	reportTime          time.Time
-	side                sides.Side
-	quantity            float64
-	currency            currencies.Currency
-	commissionCurrency  currencies.Currency
-	conversionRate      float64
-	commission          float64
-	commissionConverted float64
-	price               float64
-	amount              float64
-	margin              float64
-	debt                float64
-	pnl                 float64
-	realizedPnL         float64
-	netCashFlow         float64
-	cashFlow            float64
-	roundtripQuantity   float64
-	roundtripPriceHigh  float64
-	roundtripPriceLow   float64
+	reportID                   string
+	reportTime                 time.Time
+	side                       sides.Side
+	quantity                   float64
+	quantitySign               float64
+	currency                   currencies.Currency
+	commissionCurrency         currencies.Currency
+	conversionRate             float64
+	commission                 float64
+	commissionConverted        float64
+	commissionConvertedPerUnit float64
+	price                      float64
+	amount                     float64
+	margin                     float64
+	debt                       float64
+	pnl                        float64
+	realizedPnL                float64
+	cashFlow                   float64
+	unrealizedQuantity         float64
+	unrealizedPriceHigh        float64
+	unrealizedPriceLow         float64
 }
 
 // newExecutionOrderSingle creates an execution from a Filled or PartiallyFilled
 // execution report of an order in a single instrument.
 func newExecutionOrderSingle(report orders.OrderSingleExecutionReport, converter currencies.Converter) *Execution {
 	qtyAbs := math.Abs(report.LastFillQuantity())
-	qtySigned := qtyAbs
-
 	side := report.Order().Side
+
+	qtySign := 1.
 	if side.IsSell() {
-		qtySigned = -qtyAbs
+		qtySign = -1. //nolint:gomnd
 	}
 
 	price := report.LastFillPrice()
@@ -54,7 +55,7 @@ func newExecutionOrderSingle(report orders.OrderSingleExecutionReport, converter
 
 	margin := instrument.Margin * qtyAbs
 	amount := priceFactored * qtyAbs
-	netCashFlow := -qtySigned * priceFactored
+	cashFlow := -qtySign * qtyAbs * priceFactored
 
 	debt := amount - margin
 	if margin == 0 {
@@ -69,35 +70,28 @@ func newExecutionOrderSingle(report orders.OrderSingleExecutionReport, converter
 	}
 
 	return &Execution{
-		reportID:            report.ID(),
-		reportTime:          report.TransactionTime(),
-		side:                side,
-		quantity:            qtyAbs,
-		currency:            instrument.Currency,
-		commissionCurrency:  report.CommissionCurrency(),
-		conversionRate:      rate,
-		commission:          report.LastFillCommission(),
-		commissionConverted: conv,
-		price:               price,
-		amount:              amount,
-		margin:              margin,
-		debt:                debt,
-		pnl:                 -conv, // Will be updated when added to position.
-		realizedPnL:         0,     // Will be updated when added to position.
-		netCashFlow:         netCashFlow,
-		cashFlow:            netCashFlow - conv,
-		roundtripQuantity:   qtyAbs,
-		roundtripPriceHigh:  price,
-		roundtripPriceLow:   price,
+		reportID:                   report.ID(),
+		reportTime:                 report.TransactionTime(),
+		side:                       side,
+		quantity:                   qtyAbs,
+		quantitySign:               qtySign,
+		currency:                   instrument.Currency,
+		commissionCurrency:         report.CommissionCurrency(),
+		conversionRate:             rate,
+		commission:                 report.LastFillCommission(),
+		commissionConverted:        conv,
+		commissionConvertedPerUnit: conv / qtyAbs,
+		price:                      price,
+		amount:                     amount,
+		margin:                     margin,
+		debt:                       debt,
+		pnl:                        -conv, // Will be updated when adding to position.
+		realizedPnL:                0,     // Will be updated when adding to position.
+		cashFlow:                   cashFlow,
+		unrealizedQuantity:         qtyAbs,
+		unrealizedPriceHigh:        price,
+		unrealizedPriceLow:         price,
 	}
-}
-
-func (e *Execution) quantitySign() float64 {
-	if e.side.IsSell() {
-		return -1
-	}
-
-	return 1
 }
 
 // ReportID is a unique transaction identifier of an associated
@@ -186,14 +180,8 @@ func (e *Execution) RealizedPnL() float64 {
 	return e.realizedPnL
 }
 
-// NetCashFlow is the execution net cash flow in instrument's currency
-// (factored price times negative signed quantity).
-func (e *Execution) NetCashFlow() float64 {
-	return e.netCashFlow
-}
-
 // CashFlow is the execution cash flow in instrument's currency
-// (net cash flow minus commission).
+// (factored price times negative signed quantity).
 func (e *Execution) CashFlow() float64 {
 	return e.cashFlow
 }

@@ -4,10 +4,12 @@ package portfolios
 import (
 	"math"
 	"mbg/trading/currencies"
+	"mbg/trading/data"
 	"mbg/trading/data/entities"
 	"mbg/trading/instruments"
 	"mbg/trading/orders/sides"
 	pos "mbg/trading/portfolios/positions/sides"
+	"mbg/trading/portfolios/roundtrips/matchings"
 	"sync"
 	"time"
 )
@@ -20,6 +22,8 @@ type Position struct {
 	// event Action<PortfolioPosition, DateTime> Changed
 	// PortfolioMonitors Monitors
 
+	mu                sync.RWMutex
+	roundtripMatching matchings.Matching
 	instrument        instruments.Instrument
 	entryAmount       float64
 	debt              float64
@@ -30,53 +34,46 @@ type Position struct {
 	quantitySold      float64
 	quantitySoldShort float64
 	quantity          float64
-	quantitySigned    scalarHistory
-	quantityPnL       float64
+	quantitySigned    float64
 	side              pos.Side
-	cashFlow          scalarHistory
-	cashFlowNet       scalarHistory
-	amounts           scalarHistory
-	indexPnLExecution int
+	cashFlow          float64
+	amounts           data.ScalarTimeSeries
 	executions        []*Execution
 	perf              *Performance
-	mu                sync.RWMutex
 }
 
 // newPosition creates a new position in a given instrument.
-// This is the only correct way to create a position instance.
-func newPosition(instr instruments.Instrument, ex *Execution, account *Account) *Position {
+func newPosition(instr instruments.Instrument, ex *Execution, account *Account, matching matchings.Matching) *Position {
 	t := ex.reportTime
 	p := Position{
-		instrument:     instr,
-		margin:         ex.margin,
-		debt:           ex.debt,
-		priceFactor:    1,
-		price:          ex.price,
-		quantityPnL:    ex.quantity,
-		executions:     make([]*Execution, 0),
-		entryAmount:    ex.amount,
-		quantity:       ex.quantity,
-		quantitySigned: scalarHistory{},
-		cashFlow:       scalarHistory{},
-		cashFlowNet:    scalarHistory{},
-		amounts:        scalarHistory{},
-		perf:           newPerformance(),
+		roundtripMatching: matching,
+		instrument:        instr,
+		margin:            ex.margin,
+		debt:              ex.debt,
+		priceFactor:       1,
+		price:             ex.price,
+		executions:        make([]*Execution, 0),
+		entryAmount:       ex.amount,
+		quantity:          ex.quantity,
+		amounts:           data.ScalarTimeSeries{},
+		perf:              newPerformance(),
 	}
 
 	if instr.PriceFactor != 0 {
 		p.priceFactor = instr.PriceFactor
 	}
 
-	ex.pnl = -ex.commissionConverted
-	ex.realizedPnL = 0
+	// the same as in execution
+	// ex.pnl = -ex.commissionConverted
+	// ex.realizedPnL = 0
 	p.updateSideAndQuantities(ex, 0)
 	p.executions = append(p.executions, ex)
 
-	p.amounts.add(t, ex.amount)
-	p.cashFlow.accumulate(t, ex.cashFlow)
-	p.cashFlowNet.accumulate(t, ex.netCashFlow)
-	p.perf.addPnL(t, ex.amount, ex.amount, ex.amount, ex.cashFlow, ex.netCashFlow)
-	p.perf.addDrawdown(t, ex.amount+ex.cashFlow)
+	cf := ex.cashFlow - ex.commissionConverted
+	p.amounts.Add(t, ex.amount)
+	p.cashFlow += cf
+	p.perf.addPnL(t, ex.amount, ex.amount, ex.amount, cf)
+	p.perf.addDrawdown(t, ex.amount+cf)
 	account.addExecution(ex)
 
 	return &p
@@ -85,21 +82,25 @@ func newPosition(instr instruments.Instrument, ex *Execution, account *Account) 
 // add adds an execution to the existing position.
 // This should only be called on position created by newPosition.
 // Instrument of the execution should match position instrument.
-func (p *Position) add(ex *Execution, account *Account) {
+func (p *Position) add(ex *Execution, account *Account) []*Roundtrip {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	// debtIncrement := p.updateMarginAndDebt(exec)
-	qtySigned := p.quantitySigned.Current()
-	p.updateExecutionPnL(ex, qtySigned)
+	// debtIncrement := p.updateMarginAndDebt(ex)
+	qtySigned := p.quantitySigned
+	rts := p.updateExecutionPnLAndMatchRoundtrips(ex, qtySigned)
 	p.updateSideAndQuantities(ex, qtySigned)
 	p.executions = append(p.executions, ex)
-	p.cashFlow.accumulate(ex.reportTime, ex.cashFlow)
-	p.cashFlowNet.accumulate(ex.reportTime, ex.netCashFlow)
+	p.cashFlow += ex.cashFlow - ex.commissionConverted
+
+	for _, rt := range rts {
+		p.perf.addRoundtrip(*rt)
+	}
 
 	account.addExecution(ex)
-
 	p.updatePrice(ex.reportTime, ex.price)
+
+	return rts
 }
 
 // updateSideAndQuantities updates p.side, p.quantity, p.quantitySigned,
@@ -109,16 +110,14 @@ func (p *Position) updateSideAndQuantities(ex *Execution, qtySigned float64) {
 	switch ex.side {
 	case sides.Buy, sides.BuyMinus:
 		p.quantityBought += ex.quantity
-		qtySigned += ex.quantity
 	case sides.Sell, sides.SellPlus:
 		p.quantitySold += ex.quantity
-		qtySigned -= ex.quantity
 	case sides.SellShort, sides.SellShortExempt:
 		p.quantitySoldShort -= ex.quantity
-		qtySigned -= ex.quantity
 	}
 
-	p.quantitySigned.add(ex.reportTime, qtySigned)
+	qtySigned += ex.quantitySign * ex.quantity
+	p.quantitySigned = qtySigned
 	p.quantity = math.Abs(qtySigned)
 
 	if qtySigned < 0 {
@@ -130,7 +129,7 @@ func (p *Position) updateSideAndQuantities(ex *Execution, qtySigned float64) {
 
 // updateMarginAndDebt updates p.margin and p.debt and returns
 // a signed increment in debt caused by this execution.
-// Uses p.side and p.quantity updated by updateSideAndQuantities.
+// Uses p.side and p.quantity updated by p.updateSideAndQuantities().
 func (p *Position) updateMarginAndDebt(ex *Execution) float64 {
 	if ex.margin == 0 {
 		return 0
@@ -180,120 +179,91 @@ func (p *Position) updateMarginAndDebt(ex *Execution) float64 {
 	}
 }
 
-// updateExecutionPnL updates exec.PnL, exec.RealizedPnL, p.quantity and p.indexPnLExecution,
+// updateExecutionPnLAndMatchRoundtrips updates ex.PnL and ex.RealizedPnL, and matches roundtrips
 // assuming the execution has not been appended to the history yet.
-func (p *Position) updateExecutionPnL(ex *Execution, qtySigned float64) {
-	commission := 0.
-	delta := qtySigned
+//nolint:gocognit
+func (p *Position) updateExecutionPnLAndMatchRoundtrips(ex *Execution, qtySigned float64) []*Roundtrip {
+	var commissionMatched, amountMatched float64
 
-	execSign := ex.quantitySign()
-	qtyExec := ex.quantity
+	rts := make([]*Roundtrip, 0)
+	exSign := ex.quantitySign
+	exQtyLeft := ex.quantity
 
-	if (delta >= 0 && execSign < 0) || (delta < 0 && execSign >= 0) {
-		// Execution and updated position have opposite directions.
+	if (qtySigned >= 0 && exSign < 0) || (qtySigned < 0 && exSign >= 0) {
+		// Execution and previous position have opposite sides.
 		// Long position and sell execution or short position and buy execution.
-		qtyPnL := p.quantityPnL
-		qtyMin := math.Min(qtyExec, qtyPnL)
-		execCommPerQtyUnit := ex.commissionConverted / ex.quantity
-		lenExecutions := len(p.executions)
-		pnlExecution := p.executions[p.indexPnLExecution]
-		pnlIndexNext := p.indexPnLExecution + 1
 
-		commission = qtyMin * (execCommPerQtyUnit + pnlExecution.commissionConverted/pnlExecution.quantity)
-		delta = -execSign * qtyMin * (ex.price - pnlExecution.price)
+		switch p.roundtripMatching {
+		case matchings.FirstInFirstOut:
+			for _, x := range p.executions {
+				if exQtyLeft <= 0 {
+					break
+				}
 
-		for ; qtyExec > qtyPnL && pnlIndexNext < lenExecutions; pnlIndexNext++ {
-			pnlExecution = p.executions[pnlIndexNext]
-			if pnlExecution.quantitySign() != execSign {
-				qtyMin = math.Min(qtyExec-qtyPnL, pnlExecution.quantity)
-				commission += qtyMin * (execCommPerQtyUnit + pnlExecution.commissionConverted/pnlExecution.quantity)
-				delta += -execSign * qtyMin * (ex.price - pnlExecution.price)
-				qtyPnL += pnlExecution.quantity
+				// Skip if the full quantity has already been matched or execution sides are the same.
+				if x.unrealizedQuantity > 0 && exSign != x.quantitySign {
+					// Execution sides are opposite and there is an unmatched quantity.
+					minQty := math.Min(exQtyLeft, x.unrealizedQuantity)
+					commissionMatched += minQty * (ex.commissionConvertedPerUnit + x.commissionConvertedPerUnit)
+					amountMatched += -exSign * minQty * (ex.price - x.price)
+					exQtyLeft -= minQty
+					rts = append(rts, p.newRoundtrip(x, ex, minQty))
+				}
 			}
-		}
+		case matchings.LastInFirstOut:
+			for i := len(p.executions) - 1; i >= 0; i-- {
+				if exQtyLeft <= 0 {
+					break
+				}
 
-		p.quantity = math.Abs(qtyExec - qtyPnL)
-
-		if (qtyExec == qtyPnL && pnlIndexNext == lenExecutions) || (qtyExec > qtyPnL) {
-			p.indexPnLExecution = lenExecutions
-		} else {
-			p.indexPnLExecution = pnlIndexNext - 1
+				// Skip if the full quantity has already been matched or execution sides are the same.
+				x := p.executions[i]
+				if x.unrealizedQuantity > 0 && exSign != x.quantitySign {
+					// Execution sides are opposite and there is an unmatched quantity.
+					minQty := math.Min(exQtyLeft, x.unrealizedQuantity)
+					commissionMatched += minQty * (ex.commissionConvertedPerUnit + x.commissionConvertedPerUnit)
+					amountMatched += -exSign * minQty * (ex.price - x.price)
+					exQtyLeft -= minQty
+					rts = append(rts, p.newRoundtrip(x, ex, minQty))
+				}
+			}
 		}
 	}
 
-	delta *= p.priceFactor
-	ex.pnl = delta - ex.commissionConverted
-	ex.realizedPnL = delta - commission
+	amountMatched *= p.priceFactor
+	ex.pnl += amountMatched
+	ex.realizedPnL = amountMatched - commissionMatched
+
+	return rts
 }
 
-// updatePrice adds p.price, p.amounts, p.drawdown, p.pnl, p.pnlNet,
-// p.pnlPercent, p.pnlNetPercent, p.pnlUnrealized based on new price
-// assuming updatePnl() has been called.
+// updatePrice updates p.price, p.amounts and p.performance based on new price
+// assuming p.updateExecutionPnLAndMatchRoundtrips() has been called.
 func (p *Position) updatePrice(t time.Time, price float64) {
+	var unrealizedAmt float64
+
 	for _, e := range p.executions {
-		if e.quantity != e.roundtripQuantity {
-			e.roundtripPriceHigh = math.Max(e.roundtripPriceHigh, price)
-			e.roundtripPriceLow = math.Min(e.roundtripPriceLow, price)
+		qty := e.unrealizedQuantity
+		if qty > 0 {
+			unrealizedAmt += (price - e.price) * qty * e.quantitySign
+			e.unrealizedPriceHigh = math.Max(e.unrealizedPriceHigh, price)
+			e.unrealizedPriceLow = math.Min(e.unrealizedPriceLow, price)
 		}
 	}
 
 	p.price = price
-	qty := p.quantitySigned.Current()
-	amt := price * p.priceFactor * qty
-	p.amounts.add(t, amt)
-	p.perf.addDrawdown(t, amt+p.cashFlow.Current())
-
-	switch {
-	case qty > 0:
-		qty = p.quantityPnL
-	case qty < 0:
-		qty = -p.quantityPnL
-	default:
-		p.perf.addPnL(t, p.entryAmount, amt, 0, p.cashFlow.Current(), p.cashFlowNet.Current())
-
-		return
-	}
-
-	var unr float64
-	for i := p.indexPnLExecution; i < len(p.executions); i++ {
-		unr += (price - p.executions[i].price) * qty
-	}
-
-	unr *= p.priceFactor
-	p.perf.addPnL(t, p.entryAmount, amt, unr, p.cashFlow.Current(), p.cashFlowNet.Current())
+	amt := price * p.priceFactor * p.quantitySigned
+	p.amounts.Add(t, amt)
+	p.perf.addDrawdown(t, amt+p.cashFlow)
+	p.perf.addPnL(t, p.entryAmount, amt, unrealizedAmt*p.priceFactor, p.cashFlow)
 }
 
-/*
-// matchRoundtrips matches LIFO roundtrips
-// assuming the execution has not been appended to the history yet.
-func (p *Position) matchRoundtrips(exec *Execution) []*Roundtrip {
-	eq := exec.quantity
-	es := exec.quantitySign()
-
-	for _, e := range p.executions {
-		q := e.quantity
-		qr := e.roundtripQuantity
-
-		// Skip if the full quantity has already been matched or execution directions are the same.
-		if qr == q || es == e.quantitySign() {
-			continue
-		}
-
-		// Execution directions are opposite and there is an unmatched quantity.
-		qty := math.Min(eq, q-qr)
-
-	}
-
-	return nil
-}
-*/
+// newRoundtrip creates a new roundtrip updating unrealized quantities in both entry and exit executions.
 func (p *Position) newRoundtrip(entry, exit *Execution, qty float64) *Roundtrip {
-	entry.roundtripQuantity += qty
-	exit.roundtripQuantity += qty
+	entry.unrealizedQuantity -= qty
+	exit.unrealizedQuantity -= qty
 
-	rt := newRoundtrip(p.instrument, entry, exit, qty)
-
-	return rt
+	return newRoundtrip(p.instrument, entry, exit, qty)
 }
 
 // Instrument is a financial instrument associated with this position.
@@ -318,14 +288,6 @@ func (p *Position) ExecutionHistory() []Execution {
 	}
 
 	return v
-}
-
-// EntryAmount is the current round-trip entry amount of this position in instrument's currency.
-func (p *Position) EntryAmount() float64 {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-
-	return p.entryAmount
 }
 
 // Debt is the position debt in instrument's currency.
@@ -411,16 +373,7 @@ func (p *Position) QuantitySigned() float64 {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
-	return p.quantitySigned.Current()
-}
-
-// QuantitySignedHistory is a time series of the signed position quantities
-// (bought minus sold minus sold short).
-func (p *Position) QuantitySignedHistory() []entities.Scalar {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-
-	return p.quantitySigned.History()
+	return p.quantitySigned
 }
 
 // CashFlow is the cash flow
@@ -429,34 +382,7 @@ func (p *Position) CashFlow() float64 {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
-	return p.cashFlow.Current()
-}
-
-// CashFlowHistory is a time series of the cash flow
-// (the sum of cash flows af all order executions) in instrument's currency.
-func (p *Position) CashFlowHistory() []entities.Scalar {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-
-	return p.cashFlow.History()
-}
-
-// NetCashFlow is the net cash flow
-// (the sum of net cash flows af all executions) in instrument's currency.
-func (p *Position) NetCashFlow() float64 {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-
-	return p.cashFlowNet.Current()
-}
-
-// NetCashFlowHistory is a time series of the net cash flow
-// (the sum of net cash flows af all executions) in instrument's currency.
-func (p *Position) NetCashFlowHistory() []entities.Scalar {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-
-	return p.cashFlowNet.History()
+	return p.cashFlow
 }
 
 // Amount is the current position amount

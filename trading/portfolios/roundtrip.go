@@ -51,8 +51,8 @@ func newRoundtrip(instr instruments.Instrument, entry, exit *Execution, qty floa
 		entryPrice: entry.price,
 		exitTime:   exit.reportTime,
 		exitPrice:  exit.price,
-		highPrice:  math.Max(entry.roundtripPriceHigh, exit.roundtripPriceHigh),
-		lowPrice:   math.Min(entry.roundtripPriceLow, exit.roundtripPriceLow),
+		highPrice:  math.Max(entry.unrealizedPriceHigh, exit.unrealizedPriceHigh),
+		lowPrice:   math.Min(entry.unrealizedPriceLow, exit.unrealizedPriceLow),
 		commission: commission,
 		pnl:        pnl,
 	}

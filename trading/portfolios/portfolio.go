@@ -7,30 +7,39 @@ import (
 	"mbg/trading/instruments"
 	"mbg/trading/orders"
 	"mbg/trading/orders/reports"
+	"mbg/trading/portfolios/roundtrips/matchings"
 	"sync"
 	"time"
 )
 
 // Portfolio is a portfolio.
 type Portfolio struct {
-	mu         sync.RWMutex
-	currency   currencies.Currency
-	converter  currencies.Converter
-	account    *Account
-	positions  map[instruments.Instrument]*Position
-	executions []*Execution
+	mu                sync.RWMutex
+	roundtripMatching matchings.Matching
+	currency          currencies.Currency
+	converter         currencies.Converter
+	initialCash       float64
+	account           *Account
+	positions         map[instruments.Instrument]*Position
+	executions        []*Execution
+	perf              *Performance
 }
 
 // NewPortfolio creates a new portfolio.
-// This is the only correct way to create a portfolio instance.
-func NewPortfolio(holder string, currency currencies.Currency, converter currencies.Converter) *Portfolio {
+func NewPortfolio(holder string, cash float64, currency currencies.Currency, converter currencies.Converter,
+	matching matchings.Matching) *Portfolio {
 	p := &Portfolio{
-		currency:   currency,
-		converter:  converter,
-		account:    newAccount(holder, currency, converter),
-		positions:  make(map[instruments.Instrument]*Position),
-		executions: []*Execution{},
+		roundtripMatching: matching,
+		currency:          currency,
+		converter:         converter,
+		initialCash:       cash,
+		account:           newAccount(holder, currency, converter),
+		positions:         make(map[instruments.Instrument]*Position),
+		executions:        []*Execution{},
+		perf:              newPerformance(),
 	}
+
+	p.Deposit(time.Time{}, cash, currency, "Initial deposit")
 
 	return p
 }
@@ -63,18 +72,82 @@ func (p *Portfolio) OrderSingleExecution(report orders.OrderSingleExecutionRepor
 	exec := newExecutionOrderSingle(report, p.converter)
 	instr := report.Order().Instrument
 
-	var pos *Position
-
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	if po, ok := p.positions[instr]; ok {
-		pos = po
-		pos.add(exec, p.account)
+	if pos, ok := p.positions[instr]; ok {
+		p.addRoundtrips(pos, pos.add(exec, p.account))
+		p.addPerformance(pos)
 	} else {
-		pos := newPosition(instr, exec, p.account)
+		pos := newPosition(instr, exec, p.account, p.roundtripMatching)
 		p.positions[instr] = pos
+		p.addPerformance(pos)
 	}
 
 	p.executions = append(p.executions, exec)
+}
+
+func (p *Portfolio) portfolioAmount() float64 {
+	var amount float64
+
+	for _, pos := range p.positions {
+		v := pos.Amount()
+		if pos.Currency() != p.currency {
+			v *= p.converter.ExchangeRate(pos.Currency(), p.currency)
+		}
+
+		amount += v
+	}
+
+	return amount
+}
+
+func (p *Portfolio) summatePerformance() (pnl, drawdown float64) {
+	var amount float64
+
+	for _, pos := range p.positions {
+		v := pos.Amount()
+		if pos.Currency() != p.currency {
+			v *= p.converter.ExchangeRate(pos.Currency(), p.currency)
+		}
+
+		amount += v
+	}
+
+	return amount, 0
+}
+
+func (p *Portfolio) addPerformance(pos *Position) {
+	switch {
+	case pos.Currency() == p.currency:
+		p.perf.addDrawdown(pos.perf.dd.amount.Time, pos.perf.dd.amount.Value)
+	default:
+		// rate := p.converter.ExchangeRate(pos.Currency(), p.currency)
+	}
+}
+
+func (p *Portfolio) addRoundtrips(pos *Position, rts []*Roundtrip) {
+	if len(rts) == 0 {
+		return
+	}
+
+	switch {
+	case pos.Currency() == p.currency:
+		for _, rt := range rts {
+			p.perf.addRoundtrip(*rt)
+		}
+	default:
+		rate := p.converter.ExchangeRate(pos.Currency(), p.currency)
+
+		for _, rt := range rts {
+			r := *rt
+			r.entryPrice *= rate
+			r.exitPrice *= rate
+			r.highPrice *= rate
+			r.lowPrice *= rate
+			r.commission *= rate
+			r.pnl *= rate
+			p.perf.addRoundtrip(r)
+		}
+	}
 }

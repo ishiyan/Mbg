@@ -25,23 +25,14 @@ func newPerformance() *Performance {
 }
 
 func (p *Performance) addRoundtrip(r Roundtrip) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	p.rt.Add(r)
+	p.rt.add(r)
 }
 
-func (p *Performance) addPnL(t time.Time, entryAmount, amount, unrealizedAmount, cashFlow, netCashFlow float64) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	p.pnl.add(t, entryAmount, amount, amount, cashFlow, netCashFlow)
+func (p *Performance) addPnL(t time.Time, entryAmount, amount, unrealizedAmount, cashFlow float64) {
+	p.pnl.add(t, entryAmount, amount, amount, cashFlow)
 }
 
 func (p *Performance) addDrawdown(t time.Time, value float64) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
 	p.dd.add(t, value)
 }
 

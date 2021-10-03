@@ -2,6 +2,7 @@ package portfolios
 
 //nolint:gci
 import (
+	"mbg/trading/data"
 	"mbg/trading/data/entities"
 	"sync"
 	"time"
@@ -10,26 +11,22 @@ import (
 const hundred = 100
 
 // PnL (Profin and Loss) contains the last values and time series of
-// PnL amount and percentage, net PnL amount and percentage, unrealized PnL amount.
+// PnL amount and percentage, unrealized PnL amount.
 type PnL struct {
 	mu sync.RWMutex
 
-	amount           scalarHistory
-	amountNet        scalarHistory
-	amountUnrealized scalarHistory
-	percentage       scalarHistory
-	percentageNet    scalarHistory
+	amount           data.ScalarTimeSeries
+	amountUnrealized data.ScalarTimeSeries
+	percentage       data.ScalarTimeSeries
 }
 
 // newPnL creates a new PnL instance.
 // This is the only correct way to create a PnL instance.
 func newPnL() *PnL {
 	return &PnL{
-		amount:           scalarHistory{},
-		amountNet:        scalarHistory{},
-		amountUnrealized: scalarHistory{},
-		percentage:       scalarHistory{},
-		percentageNet:    scalarHistory{},
+		amount:           data.ScalarTimeSeries{},
+		amountUnrealized: data.ScalarTimeSeries{},
+		percentage:       data.ScalarTimeSeries{},
 	}
 }
 
@@ -89,60 +86,36 @@ func (p *PnL) UnrealizedAmountHistory() []entities.Scalar {
 	return p.amountUnrealized.History()
 }
 
-// NetAmount returns the current net Profit and Loss amount
-// (the value plus the net cash flow) or zero if not initialized.
-func (p *PnL) NetAmount() float64 {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-
-	return p.amountNet.Current()
-}
-
-// NetAmountHistory returns the net Profit and Loss amount time series
-// or an empty slice if not initialized.
-func (p *PnL) NetAmountHistory() []entities.Scalar {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-
-	return p.amountNet.History()
-}
-
-// NetPercentage returns the net Profit and Loss percentage
-// (the net PnL amount divided by the initial amount, expressed in %) or zero if not initialized.
-func (p *PnL) NetPercentage() float64 {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-
-	return p.percentageNet.Current()
-}
-
-// NetPercentageHistory returns the net Profit and Loss percentage time series
-// or an empty slice if not initialized.
-func (p *PnL) NetPercentageHistory() []entities.Scalar {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-
-	return p.percentageNet.History()
-}
-
 // add adds a new sample to the time series
 // if the new sample time is later the last time of the time series.
 // Otherwise (if the new sample time is less or equal to the last time),
 // the time series will not be updated.
-func (p *PnL) add(t time.Time, entryAmount, amount, unrealizedAmount, cashFlow, netCashFlow float64) {
+func (p *PnL) add(t time.Time, entryAmount, amount, unrealizedAmount, cashFlow float64) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	var pct, netPct float64
+	var pct float64
 
 	if entryAmount != 0 {
 		pct = (amount + cashFlow) / entryAmount * hundred
-		netPct = (amount + netCashFlow) / entryAmount * hundred
 	}
 
-	p.amount.add(t, amount+cashFlow)
-	p.amountNet.add(t, amount+netCashFlow)
-	p.amountUnrealized.add(t, unrealizedAmount)
-	p.percentage.add(t, pct)
-	p.percentageNet.add(t, netPct)
+	p.amount.Add(t, amount+cashFlow)
+	p.amountUnrealized.Add(t, unrealizedAmount)
+	p.percentage.Add(t, pct)
+}
+
+func (p *PnL) add2(t time.Time, entryAmount, amount, unrealizedAmount float64) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	var pct float64
+
+	if entryAmount != 0 {
+		pct = amount / entryAmount * hundred
+	}
+
+	p.amount.Add(t, amount)
+	p.amountUnrealized.Add(t, unrealizedAmount)
+	p.percentage.Add(t, pct)
 }

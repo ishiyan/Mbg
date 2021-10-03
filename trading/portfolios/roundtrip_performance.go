@@ -11,14 +11,13 @@ type RoundtripPerformance struct {
 	roundtrips []Roundtrip
 }
 
-// NewRoundtripPerformance creates a new round-trip portfolio performance.
-// This is the only correct way to create a round-trip performance instance.
-func NewRoundtripPerformance() *RoundtripPerformance {
+// newRoundtripPerformance creates a new round-trip portfolio performance.
+func newRoundtripPerformance() *RoundtripPerformance {
 	return &RoundtripPerformance{}
 }
 
-// Add adds a new round-trip.
-func (rp *RoundtripPerformance) Add(r Roundtrip) {
+// add adds a new round-trip.
+func (rp *RoundtripPerformance) add(r Roundtrip) {
 	rp.mu.Lock()
 	defer rp.mu.Unlock()
 

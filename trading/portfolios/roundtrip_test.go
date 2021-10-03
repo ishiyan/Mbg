@@ -87,16 +87,16 @@ func TestRoundtrip(t *testing.T) {
 			quantity:            tt.enQty,
 			price:               tt.enPrice,
 			commissionConverted: tt.enComm,
-			roundtripPriceHigh:  tt.enHigh,
-			roundtripPriceLow:   tt.enLow,
+			unrealizedPriceHigh: tt.enHigh,
+			unrealizedPriceLow:  tt.enLow,
 		}
 		ex := &Execution{
 			reportTime:          tt.exTime,
 			quantity:            tt.exQty,
 			price:               tt.exPrice,
 			commissionConverted: tt.exComm,
-			roundtripPriceHigh:  tt.exHigh,
-			roundtripPriceLow:   tt.exLow,
+			unrealizedPriceHigh: tt.exHigh,
+			unrealizedPriceLow:  tt.exLow,
 		}
 
 		r := newRoundtrip(instr, en, ex, tt.qty)

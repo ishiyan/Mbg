@@ -3,6 +3,7 @@ package portfolios
 //nolint:gci
 import (
 	"mbg/trading/currencies"
+	"mbg/trading/data"
 	"mbg/trading/data/entities"
 	"mbg/trading/portfolios/accounts/actions"
 	"sync"
@@ -16,7 +17,7 @@ type Account struct {
 	holder       string
 	currency     currencies.Currency
 	converter    currencies.Converter
-	balance      scalarHistory
+	balance      data.ScalarTimeSeries
 	transactions []*Transaction
 
 	// TO-DO: currency conversion commission (fixed % from converted to home + min/max absolute) ???
@@ -30,7 +31,7 @@ func newAccount(holder string, currency currencies.Currency, converter currencie
 		holder:    holder,
 		currency:  currency,
 		converter: converter,
-		balance:   scalarHistory{},
+		balance:   data.ScalarTimeSeries{},
 	}
 }
 
@@ -121,9 +122,9 @@ func (a *Account) add(time time.Time, amount float64, currency currencies.Curren
 
 	switch {
 	case action == actions.Debit:
-		a.balance.add(time, -amount)
+		a.balance.Accumulate(time, -amount)
 	default:
-		a.balance.add(time, amount)
+		a.balance.Accumulate(time, amount)
 	}
 
 	a.transactions = append(a.transactions, t)
@@ -140,7 +141,7 @@ func (a *Account) add(time time.Time, amount float64, currency currencies.Curren
 func (a *Account) addExecution(exec *Execution) {
 	var action actions.Action
 
-	amount := exec.netCashFlow + exec.debt
+	amount := exec.cashFlow + exec.debt
 
 	switch {
 	case amount < 0:
@@ -199,15 +200,15 @@ func (a *Account) addExecution(exec *Execution) {
 
 	switch {
 	case action == actions.Debit:
-		a.balance.add(exec.reportTime, -amount)
+		a.balance.Accumulate(exec.reportTime, -amount)
 	default:
-		a.balance.add(exec.reportTime, amount)
+		a.balance.Accumulate(exec.reportTime, amount)
 	}
 
 	a.transactions = append(a.transactions, t)
 
 	if tc != nil {
-		a.balance.add(exec.reportTime, -tc.amountConverted)
+		a.balance.Accumulate(exec.reportTime, -tc.amountConverted)
 		a.transactions = append(a.transactions, tc)
 	}
 }
