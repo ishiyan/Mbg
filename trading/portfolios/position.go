@@ -59,8 +59,8 @@ func newPosition(instr instruments.Instrument, ex *Execution, account *Account, 
 		perf:              newPerformance(),
 	}
 
-	if instr.PriceFactor != 0 {
-		p.priceFactor = instr.PriceFactor
+	if instr.PriceFactor() != 0 {
+		p.priceFactor = instr.PriceFactor()
 	}
 
 	// the same as in execution
@@ -161,7 +161,7 @@ func (p *Position) updateMarginAndDebt(ex *Execution) float64 {
 
 			return delta
 		case qtyDiff < 0: // Executed more than updated position quantity.
-			p.margin = -qtyDiff * p.instrument.Margin
+			p.margin = -qtyDiff * p.instrument.Margin()
 			amtDiff := -qtyDiff*ex.price*p.priceFactor - p.margin
 			delta := amtDiff - p.debt
 			p.debt = amtDiff
@@ -273,7 +273,7 @@ func (p *Position) Instrument() instruments.Instrument {
 
 // Currency is the instrument's currency.
 func (p *Position) Currency() currencies.Currency {
-	return p.instrument.Currency
+	return p.instrument.Currency()
 }
 
 // ExecutionHistory is a collection of order executions

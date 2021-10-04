@@ -80,7 +80,8 @@ func TestRoundtrip(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		instr := instruments.Instrument{PriceFactor: tt.factor}
+		mi := instruments.MutableInstrument{PriceFactor: tt.factor}
+		instr := mi.Instrument()
 		en := &Execution{
 			reportTime:          tt.enTime,
 			side:                tt.enSide,

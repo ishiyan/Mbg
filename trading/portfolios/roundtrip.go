@@ -25,11 +25,10 @@ type Roundtrip struct {
 }
 
 func newRoundtrip(instr instruments.Instrument, entry, exit *Execution, qty float64) *Roundtrip {
-	var pnl, pf float64
+	var pnl float64
 
-	if instr.PriceFactor != 0 {
-		pf = instr.PriceFactor
-	} else {
+	pf := instr.PriceFactor()
+	if pf == 0 {
 		pf = 1
 	}
 

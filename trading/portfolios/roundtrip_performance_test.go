@@ -339,8 +339,9 @@ func TestRoundtripPerformance(t *testing.T) {
 			pnl = tt.qty * (tt.enPrice - tt.exPrice)
 		}
 
+		mi := instruments.MutableInstrument{PriceFactor: 1}
 		r := Roundtrip{
-			instrument: instruments.Instrument{PriceFactor: 1},
+			instrument: mi.Instrument(),
 			side:       tt.side,
 			quantity:   tt.qty,
 			entryTime:  tt.enTime,

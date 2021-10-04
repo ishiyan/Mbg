@@ -49,24 +49,24 @@ func newExecutionOrderSingle(report orders.OrderSingleExecutionReport, converter
 	priceFactored := price
 	instrument := report.Order().Instrument
 
-	if instrument.PriceFactor != 0 {
-		priceFactored *= instrument.PriceFactor
+	if instrument.PriceFactor() != 0 {
+		priceFactored *= instrument.PriceFactor()
 	}
 
-	margin := instrument.Margin * qtyAbs
-	amount := priceFactored * qtyAbs
-	cashFlow := -qtySign * qtyAbs * priceFactored
+	marginAbs := instrument.Margin() * qtyAbs
+	amountAbs := priceFactored * qtyAbs
+	cashFlow := -qtySign * amountAbs
 
-	debt := amount - margin
-	if margin == 0 {
+	debt := amountAbs - marginAbs
+	if marginAbs == 0 {
 		debt = 0
 	}
 
 	rate := 1.0
 	conv := report.LastFillCommission()
 
-	if report.CommissionCurrency() != instrument.Currency {
-		conv, rate = converter.Convert(conv, report.CommissionCurrency(), instrument.Currency)
+	if report.CommissionCurrency() != instrument.Currency() {
+		conv, rate = converter.Convert(conv, report.CommissionCurrency(), instrument.Currency())
 	}
 
 	return &Execution{
@@ -75,15 +75,15 @@ func newExecutionOrderSingle(report orders.OrderSingleExecutionReport, converter
 		side:                       side,
 		quantity:                   qtyAbs,
 		quantitySign:               qtySign,
-		currency:                   instrument.Currency,
+		currency:                   instrument.Currency(),
 		commissionCurrency:         report.CommissionCurrency(),
 		conversionRate:             rate,
 		commission:                 report.LastFillCommission(),
 		commissionConverted:        conv,
 		commissionConvertedPerUnit: conv / qtyAbs,
 		price:                      price,
-		amount:                     amount,
-		margin:                     margin,
+		amount:                     amountAbs,
+		margin:                     marginAbs,
 		debt:                       debt,
 		pnl:                        -conv, // Will be updated when adding to position.
 		realizedPnL:                0,     // Will be updated when adding to position.
@@ -106,14 +106,12 @@ func (e *Execution) ReportTime() time.Time {
 	return e.reportTime
 }
 
-// Side is the execution order side,
-// which determines the sign of the quantity.
+// Side is the execution order side, which determines the sign of the quantity.
 func (e *Execution) Side() sides.Side {
 	return e.side
 }
 
-// Quantity is the unsigned execution quantity,
-// the sign is determined by the side.
+// Quantity is the unsigned execution quantity, the sign is determined by the side.
 func (e *Execution) Quantity() float64 {
 	return e.quantity
 }
@@ -134,53 +132,50 @@ func (e *Execution) ConversionRate() float64 {
 	return e.conversionRate
 }
 
-// Commission is the execution commission amount
-// in the commission currency.
+// Commission is the execution commission amount in the commission currency.
 func (e *Execution) Commission() float64 {
 	return e.commission
 }
 
-// CommissionConverted is the execution commission amount
-// in instrument's currency.
+// CommissionConverted is the execution commission amount in the instrument's currency.
 func (e *Execution) CommissionConverted() float64 {
 	return e.commissionConverted
 }
 
-// Price is the execution price in instrument's currency.
+// Price is the execution price in the instrument's currency.
 func (e *Execution) Price() float64 {
 	return e.price
 }
 
-// Amount is the unsigned execution value in instrument's currency
+// Amount is the unsigned execution value in the instrument's currency
 // (factored price times quantity).
 func (e *Execution) Amount() float64 {
 	return e.amount
 }
 
-// Margin is the execution margin in instrument's currency
+// Margin is the unsigned execution margin in instrument's currency
 // (instrument margin times quantity).
 func (e *Execution) Margin() float64 {
 	return e.margin
 }
 
-// Debt is the execution debt in instrument's currency
+// Debt is the execution debt in the instrument's currency
 // (amount minus margin).
 func (e *Execution) Debt() float64 {
 	return e.debt
 }
 
-// PnL is the Profit and Loss of this execution in instrument's currency.
+// PnL is the Profit and Loss in the instrument's currency.
 func (e *Execution) PnL() float64 {
 	return e.pnl
 }
 
-// RealizedPnL is the realized Profit and Loss of this execution
-// in instrument's currency.
+// RealizedPnL is the realized Profit and Loss in the instrument's currency.
 func (e *Execution) RealizedPnL() float64 {
 	return e.realizedPnL
 }
 
-// CashFlow is the execution cash flow in instrument's currency
+// CashFlow is the execution cash flow in the instrument's currency
 // (factored price times negative signed quantity).
 func (e *Execution) CashFlow() float64 {
 	return e.cashFlow
