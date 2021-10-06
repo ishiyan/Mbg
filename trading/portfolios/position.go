@@ -16,12 +16,6 @@ import (
 
 // Position is a portfolio position.
 type Position struct {
-	// Notifies when this position has been executed.
-	// event Action<PortfolioPosition, PortfolioExecution> Executed
-	// Notifies when this position has been changed.
-	// event Action<PortfolioPosition, DateTime> Changed
-	// PortfolioMonitors Monitors
-
 	mu                sync.RWMutex
 	roundtripMatching matchings.Matching
 	instrument        instruments.Instrument
@@ -63,9 +57,6 @@ func newPosition(instr instruments.Instrument, ex *Execution, account *Account, 
 		p.priceFactor = instr.PriceFactor()
 	}
 
-	// the same as in execution
-	// ex.pnl = -ex.commissionConverted
-	// ex.realizedPnL = 0
 	p.updateSideAndQuantities(ex, 0)
 	p.executions = append(p.executions, ex)
 
@@ -192,7 +183,6 @@ func (p *Position) updateExecutionPnLAndMatchRoundtrips(ex *Execution, qtySigned
 	if (qtySigned >= 0 && exSign < 0) || (qtySigned < 0 && exSign >= 0) {
 		// Execution and previous position have opposite sides.
 		// Long position and sell execution or short position and buy execution.
-
 		switch p.roundtripMatching {
 		case matchings.FirstInFirstOut:
 			for _, x := range p.executions {
