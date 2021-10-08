@@ -14,7 +14,7 @@
     "editor.fontFamily": "'Cascadia Code PL', 'Fira Code Sans', 'JetBrains Mono', Consolas, 'Courier New', monospace",
     "editor.fontLigatures": true,
     "editor.fontWeight": 300,
-    "editor.fontSize": 16,
+    "editor.fontSize": 12,
     "editor.tokenColorCustomizations": {
         "textMateRules": [
           {
