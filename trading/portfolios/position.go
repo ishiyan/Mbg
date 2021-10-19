@@ -38,17 +38,11 @@ type Position struct {
 
 // newPosition creates a new position in a given instrument.
 func newPosition(instr instruments.Instrument, ex *Execution, account *Account, matching matchings.Matching) *Position {
-	t := ex.reportTime
 	p := Position{
 		roundtripMatching: matching,
 		instrument:        instr,
-		margin:            ex.margin,
-		debt:              ex.debt,
 		priceFactor:       1,
-		price:             ex.price,
 		executions:        make([]*Execution, 0),
-		entryAmount:       ex.amount,
-		quantity:          ex.quantity,
 		amounts:           data.ScalarTimeSeries{},
 		perf:              newPerformance(),
 	}
@@ -57,15 +51,7 @@ func newPosition(instr instruments.Instrument, ex *Execution, account *Account, 
 		p.priceFactor = instr.PriceFactor()
 	}
 
-	p.updateSideAndQuantities(ex, 0)
-	p.executions = append(p.executions, ex)
-
-	cf := ex.cashFlow - ex.commissionConverted
-	p.amounts.Add(t, ex.amount)
-	p.cashFlow += cf
-	p.perf.addPnL(t, ex.amount, ex.amount, ex.amount, cf)
-	p.perf.addDrawdown(t, ex.amount+cf)
-	account.addExecution(ex)
+	p.init(ex, account)
 
 	return &p
 }
@@ -77,10 +63,15 @@ func (p *Position) add(ex *Execution, account *Account) []*Roundtrip {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	// debtIncrement := p.updateMarginAndDebt(ex)
+	if p.quantity == 0 {
+		p.init(ex, account)
+		return make([]*Roundtrip, 0)
+	}
+
 	qtySigned := p.quantitySigned
 	rts := p.updateExecutionPnLAndMatchRoundtrips(ex, qtySigned)
 	p.updateSideAndQuantities(ex, qtySigned)
+	p.updateMarginAndDebt(ex)
 	p.executions = append(p.executions, ex)
 	p.cashFlow += ex.cashFlow - ex.commissionConverted
 
@@ -92,6 +83,30 @@ func (p *Position) add(ex *Execution, account *Account) []*Roundtrip {
 	p.updatePrice(ex.reportTime, ex.price)
 
 	return rts
+}
+
+// init re-initializes the closed position.
+func (p *Position) init(ex *Execution, account *Account) {
+	p.margin = ex.margin
+	p.debt = ex.debt
+	p.price = ex.price
+	p.entryAmount = ex.amount
+	p.quantity = ex.quantity
+
+	for _, e := range p.executions {
+		e.unrealizedQuantity = 0
+	}
+
+	p.updateSideAndQuantities(ex, 0)
+	p.executions = append(p.executions, ex)
+
+	cf := ex.cashFlow - ex.commissionConverted
+	p.cashFlow = cf
+	t := ex.reportTime
+	p.amounts.Add(t, ex.amount)
+	p.perf.addPnL(t, ex.amount, ex.amount, ex.amount, cf)
+	p.perf.addDrawdown(t, ex.amount+cf)
+	account.addExecution(ex)
 }
 
 // updateSideAndQuantities updates p.side, p.quantity, p.quantitySigned,
@@ -228,13 +243,15 @@ func (p *Position) updateExecutionPnLAndMatchRoundtrips(ex *Execution, qtySigned
 }
 
 // updatePrice updates p.price, p.amounts and p.performance based on new price
-// assuming p.updateExecutionPnLAndMatchRoundtrips() has been called.
+// assuming p.updateExecutionPnLAndMatchRoundtrips() has been called
+// and the execution has been appended.
 func (p *Position) updatePrice(t time.Time, price float64) {
 	var unrealizedAmt float64
 
 	for _, e := range p.executions {
 		qty := e.unrealizedQuantity
 		if qty > 0 {
+			// Delta increments for the changed price.
 			unrealizedAmt += (price - e.price) * qty * e.quantitySign
 			e.unrealizedPriceHigh = math.Max(e.unrealizedPriceHigh, price)
 			e.unrealizedPriceLow = math.Min(e.unrealizedPriceLow, price)
@@ -288,7 +305,7 @@ func (p *Position) Debt() float64 {
 	return p.debt
 }
 
-// Margin is the position margin.
+// Margin is the position margin in instrument's currency.
 func (p *Position) Margin() float64 {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -296,12 +313,12 @@ func (p *Position) Margin() float64 {
 	return p.margin
 }
 
-// Leverage is the current position leverage in instrument's currency.
+// Leverage is the current position leverage ratio.
 func (p *Position) Leverage() float64 {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
-	v := p.margin // ??? * p.cashFlow.Current()
+	v := p.margin
 	if v == 0 {
 		return 0
 	}
@@ -341,7 +358,7 @@ func (p *Position) QuantitySoldShort() float64 {
 	return p.quantitySoldShort
 }
 
-// Side is the position side (short or long).
+// Side is the position side (long or short).
 func (p *Position) Side() pos.Side {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -349,21 +366,13 @@ func (p *Position) Side() pos.Side {
 	return p.side
 }
 
-// Quantity is the unsigned position quantity.
+// Quantity is the unsigned position quantity
+// (bought minus sold minus sold short).
 func (p *Position) Quantity() float64 {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
 	return p.quantity
-}
-
-// QuantitySigned is the signed position quantity
-// (bought minus sold minus sold short).
-func (p *Position) QuantitySigned() float64 {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-
-	return p.quantitySigned
 }
 
 // CashFlow is the cash flow
