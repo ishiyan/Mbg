@@ -20,6 +20,8 @@ func TestPosition(t *testing.T) {
 
 	const (
 		fmtVal            = "%v(): expected %v, actual %v"
+		fmtLen            = "%v(): expected length %v, actual %v"
+		fmtElem           = "%v()[%d]: expected %v, actual %v"
 		equalityThreshold = 1e-13
 	)
 
@@ -34,7 +36,6 @@ func TestPosition(t *testing.T) {
 
 	converter := currencies.NewUpdatableConverter()
 	converter.Update(currencies.EUR, currencies.USD, 2)
-	account := newAccount("foo", currencies.EUR, converter)
 
 	/*
 		eur := instruments.MutableInstrument{Currency: currencies.EUR}
@@ -47,7 +48,7 @@ func TestPosition(t *testing.T) {
 	t.Run("create new position from execution", func(t *testing.T) {
 		t.Parallel()
 
-		check := func(t *testing.T, instr instruments.Instrument, ex *Execution, pos *Position) {
+		check := func(t *testing.T, instr instruments.Instrument, ex *Execution, pos *Position, acc *Account, tranCnt int) {
 			if pos.Instrument() != instr {
 				t.Errorf(fmtVal, "Instrument", instr, pos.Instrument())
 			}
@@ -116,10 +117,141 @@ func TestPosition(t *testing.T) {
 			if notEqual(ex.Quantity(), pos.Quantity()) {
 				t.Errorf(fmtVal, "Quantity", ex.Quantity(), pos.Quantity())
 			}
+
+			cf := ex.cashFlow - ex.commissionConverted
+			if notEqual(cf, pos.CashFlow()) {
+				t.Errorf(fmtVal, "CashFlow", cf, pos.CashFlow())
+			}
+
+			if notEqual(ex.Amount(), pos.Amount()) {
+				t.Errorf(fmtVal, "Amount", ex.Amount(), pos.Amount())
+			}
+
+			his := pos.AmountHistory()
+			if len(his) != 1 {
+				t.Errorf(fmtLen, "AmountHistory", 1, len(his))
+			}
+
+			if notEqual(ex.Amount(), his[0].Value) {
+				t.Errorf(fmtElem, "Value AmountHistory", 0, ex.Amount(), his[0].Value)
+			}
+
+			if ex.reportTime != his[0].Time {
+				t.Errorf(fmtElem, "Time AmountHistory", 0, ex.reportTime, his[0].Time)
+			}
+
+			ehis := pos.ExecutionHistory()
+			if len(ehis) != 1 {
+				t.Errorf(fmtLen, "ExecutionHistory", 1, len(ehis))
+			}
+
+			if *ex != ehis[0] {
+				t.Errorf(fmtElem, "ExecutionHistory", 0, *ex, ehis[0])
+			}
+
+			tranhis := acc.TransactionHistory()
+			if len(tranhis) != tranCnt {
+				t.Errorf(fmtLen, "account TransactionHistory", tranCnt, len(tranhis))
+			}
 		}
 
 		instr := usdWithFactorAndMargin.Instrument()
-		oser := &mockOrderSingleExecutionReport{
+
+		t.Run("buy", func(t *testing.T) {
+			t.Parallel()
+
+			ex := newExecutionOrderSingle(&mockOrderSingleExecutionReport{
+				id:                 "1",
+				transactionTime:    time.Now(),
+				lastFillPrice:      6,
+				lastFillQuantity:   2,
+				lastFillCommission: 3,
+				commissionCurrency: currencies.USD,
+				order:              orders.OrderSingle{Instrument: instr, Side: sides.Buy},
+			}, converter)
+
+			account := newAccount("foo", currencies.EUR, converter)
+			pos := newPosition(instr, ex, account, matchings.FirstInFirstOut)
+			check(t, instr, ex, pos, account, 2)
+		})
+
+		t.Run("sell", func(t *testing.T) {
+			t.Parallel()
+
+			ex := newExecutionOrderSingle(&mockOrderSingleExecutionReport{
+				id:                 "1",
+				transactionTime:    time.Now(),
+				lastFillPrice:      6,
+				lastFillQuantity:   2,
+				lastFillCommission: 3,
+				commissionCurrency: currencies.USD,
+				order:              orders.OrderSingle{Instrument: instr, Side: sides.Sell},
+			}, converter)
+
+			account := newAccount("foo", currencies.EUR, converter)
+			pos := newPosition(instr, ex, account, matchings.FirstInFirstOut)
+			check(t, instr, ex, pos, account, 2)
+		})
+
+		t.Run("sell short", func(t *testing.T) {
+			t.Parallel()
+
+			ex := newExecutionOrderSingle(&mockOrderSingleExecutionReport{
+				id:                 "1",
+				transactionTime:    time.Now(),
+				lastFillPrice:      6,
+				lastFillQuantity:   2,
+				lastFillCommission: 3,
+				commissionCurrency: currencies.USD,
+				order:              orders.OrderSingle{Instrument: instr, Side: sides.SellShort},
+			}, converter)
+
+			account := newAccount("foo", currencies.EUR, converter)
+			pos := newPosition(instr, ex, account, matchings.FirstInFirstOut)
+			check(t, instr, ex, pos, account, 2)
+		})
+
+		t.Run("same currency", func(t *testing.T) {
+			t.Parallel()
+
+			ex := newExecutionOrderSingle(&mockOrderSingleExecutionReport{
+				id:                 "1",
+				transactionTime:    time.Now(),
+				lastFillPrice:      6,
+				lastFillQuantity:   2,
+				lastFillCommission: 3,
+				commissionCurrency: currencies.USD,
+				order:              orders.OrderSingle{Instrument: instr, Side: sides.Buy},
+			}, converter)
+
+			account := newAccount("foo", currencies.USD, converter)
+			pos := newPosition(instr, ex, account, matchings.FirstInFirstOut)
+			check(t, instr, ex, pos, account, 2)
+		})
+
+		t.Run("zero commission", func(t *testing.T) {
+			t.Parallel()
+
+			ex := newExecutionOrderSingle(&mockOrderSingleExecutionReport{
+				id:                 "1",
+				transactionTime:    time.Now(),
+				lastFillPrice:      6,
+				lastFillQuantity:   2,
+				lastFillCommission: 0,
+				commissionCurrency: currencies.USD,
+				order:              orders.OrderSingle{Instrument: instr, Side: sides.Buy},
+			}, converter)
+
+			account := newAccount("foo", currencies.EUR, converter)
+			pos := newPosition(instr, ex, account, matchings.FirstInFirstOut)
+			check(t, instr, ex, pos, account, 1)
+		})
+	})
+	t.Run("update price after creation", func(t *testing.T) {
+		t.Parallel()
+
+		instr := usdWithFactorAndMargin.Instrument()
+		ex := newExecutionOrderSingle(&mockOrderSingleExecutionReport{
 			id:                 "1",
 			transactionTime:    time.Now(),
 			lastFillPrice:      6,
@@ -127,10 +259,17 @@ func TestPosition(t *testing.T) {
 			lastFillCommission: 3,
 			commissionCurrency: currencies.USD,
 			order:              orders.OrderSingle{Instrument: instr, Side: sides.Buy},
-		}
-		ex := newExecutionOrderSingle(oser, converter)
+		}, converter)
 
+		account := newAccount("foo", currencies.EUR, converter)
 		pos := newPosition(instr, ex, account, matchings.FirstInFirstOut)
-		check(t, instr, ex, pos)
+
+		tim := ex.ReportTime().Add(2 * time.Minute)
+		pri := ex.Price() + 1
+		pos.updatePrice(tim, pri)
+
+		if notEqual(pri, pos.Price()) {
+			t.Errorf(fmtVal, "Price", pri, pos.Price())
+		}
 	})
 }

@@ -65,6 +65,7 @@ func (p *Position) add(ex *Execution, account *Account) []*Roundtrip {
 
 	if p.quantity == 0 {
 		p.init(ex, account)
+
 		return make([]*Roundtrip, 0)
 	}
 
@@ -119,7 +120,7 @@ func (p *Position) updateSideAndQuantities(ex *Execution, qtySigned float64) {
 	case sides.Sell, sides.SellPlus:
 		p.quantitySold += ex.quantity
 	case sides.SellShort, sides.SellShortExempt:
-		p.quantitySoldShort -= ex.quantity
+		p.quantitySoldShort += ex.quantity
 	}
 
 	qtySigned += ex.quantitySign * ex.quantity
