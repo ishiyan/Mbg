@@ -271,5 +271,37 @@ func TestPosition(t *testing.T) {
 		if notEqual(pri, pos.Price()) {
 			t.Errorf(fmtVal, "Price", pri, pos.Price())
 		}
+
+		amt := pri * pos.priceFactor * pos.quantitySigned
+		if notEqual(amt, pos.Amount()) {
+			t.Errorf(fmtVal, "Amount", amt, pos.Amount())
+		}
+	})
+	t.Run("add execution", func(t *testing.T) {
+		t.Parallel()
+
+		instr := usdWithFactorAndMargin.Instrument()
+		ex1 := newExecutionOrderSingle(&mockOrderSingleExecutionReport{
+			id:                 "1",
+			transactionTime:    time.Now(),
+			lastFillPrice:      6,
+			lastFillQuantity:   2,
+			lastFillCommission: 3,
+			commissionCurrency: currencies.USD,
+			order:              orders.OrderSingle{Instrument: instr, Side: sides.Buy},
+		}, converter)
+		ex2 := newExecutionOrderSingle(&mockOrderSingleExecutionReport{
+			id:                 "2",
+			transactionTime:    ex1.reportTime.Add(time.Hour),
+			lastFillPrice:      7,
+			lastFillQuantity:   3,
+			lastFillCommission: 4,
+			commissionCurrency: currencies.USD,
+			order:              orders.OrderSingle{Instrument: instr, Side: sides.Buy},
+		}, converter)
+
+		account := newAccount("foo", currencies.EUR, converter)
+		pos := newPosition(instr, ex1, account, matchings.FirstInFirstOut)
+		_ = pos.add(ex2, account)
 	})
 }
