@@ -17,6 +17,7 @@ func TestBarMedian(t *testing.T) {
 	t.Parallel()
 
 	b := bar(0, 3, 2, 0, 0)
+	//nolint:ifshort
 	exp := (b.Low + b.High) / 2
 
 	if act := b.Median(); act != exp {

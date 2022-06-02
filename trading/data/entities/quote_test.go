@@ -11,9 +11,8 @@ func TestQuoteMid(t *testing.T) {
 
 	q := Quote{Time: time.Time{}, Bid: 3.0, Ask: 2.0, BidSize: 0, AskSize: 0}
 	expected := (q.Ask + q.Bid) / 2
-	actual := q.Mid()
 
-	if actual != expected {
+	if actual := q.Mid(); actual != expected {
 		t.Errorf("expected %f, actual %f", expected, actual)
 	}
 }
@@ -86,9 +85,8 @@ func TestQuoteString(t *testing.T) {
 		Ask:  2.0, Bid: 3.0, AskSize: 4.0, BidSize: 5.0,
 	}
 	expected := "Quote(2021-04-01 00:00:00 +0000 UTC, 3.000000, 2.000000, 5.000000, 4.000000)"
-	actual := q.String()
 
-	if actual != expected {
+	if actual := q.String(); actual != expected {
 		t.Errorf("expected %s, actual %s", expected, actual)
 	}
 }

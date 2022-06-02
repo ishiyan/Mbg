@@ -46,7 +46,6 @@ const (
 
 var errUnknownBarComponent = errors.New("unknown bar component")
 
-//nolint:cyclop
 // BarComponentFunc returns an BarFunc function to get a component value from the Bar type.
 func BarComponentFunc(c BarComponent) (BarFunc, error) {
 	switch c {
@@ -73,7 +72,6 @@ func BarComponentFunc(c BarComponent) (BarFunc, error) {
 	}
 }
 
-//nolint:cyclop
 // String implements the Stringer interface.
 func (c BarComponent) String() string {
 	switch c {
