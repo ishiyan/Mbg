@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package mbg.trading.protobuf.indicators;
+
+option go_package="mbg/trading/protobuf/indicators";
+
+// Holds a time stamp and two band values.
+message Band {
+	// The date and time stamp.
+	google.protobuf.Timestamp time = 1;
+	// The first value.
+	double first_value = 2;
+	// The second value.
+	double second_value = 3;
+}
+
+// Holds a time stamp (x) and an array of values (z) corresponding to parameter (y) range to paint a HeatMap column.
+message HeatMap {
+	// The date and time stamp.
+	google.protobuf.Timestamp time = 1;
+	// The first parameter (y) value of the HeatMap. This value is the same for all columns.
+	// A parameter corresponding to the i-th value can be calculated as
+	// min(ParameterFirst,ParameterLast) + i / ParameterResolution.
+	double parameter_first = 2;
+	// The last parameter (y) of the HeatMap. This value is the same for all columns.
+	// A parameter corresponding to the i-th value can be calculated as
+	// min(ParameterFirst,ParameterLast) + i / ParameterResolution.
+	double parameter_last = 3;
+	// A parameter resolution value (positive number). A value of 10 means that HeatMap values are evaluated at every 0.1 of parameter range.
+	// A parameter corresponding to the i-th value can be calculated as
+	// min(ParameterFirst,ParameterLast) + i / ParameterResolution.
+	double parameter_resolution = 4;
+	// A minimal value (z) of the HeatMap column.
+	double value_min = 5;
+	// A maximal value (z) of the HeatMap column.
+	double value_max = 6;
+	// The values (z) of the HeatMap column.
+	repeated double values = 7 [packed = true];
+}

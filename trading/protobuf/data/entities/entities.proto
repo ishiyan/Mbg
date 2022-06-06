@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package mbg.trading.protobuf.data.entities;
+
+option go_package="mbg/trading/protobuf/data/entities";
+
+// Holds a time stamp, open, high, low and close prices and a volume.
+message Bar {
+	// The date and time stamp of the closing price.
+	google.protobuf.Timestamp time = 1;
+	// The opening price.
+	double open = 2;
+	// The highest price.
+	double high = 3;
+	// The lowest price.
+	double low = 4;
+	// The closing price.
+	double close = 5;
+	// The aggregated volume.
+	double volume = 6;
+
+	// Defines a component of the Bar type.
+	enum Component {
+		// The closing price.
+		CLOSE = 0;
+		// The opening price.
+		OPEN = 1;
+		// The highest price.
+		HIGH = 2;
+		// The lowest price.
+		LOW = 3;
+		// The median price, calculated as (low + hight)/2.
+		MEDIAN = 4;
+		// The typical price, calculated as (low + hight + close)/3.
+		TYPICAL = 5;
+		// The weighted price, calculated as (low + hight + open + close)/4.
+		WEIGHTED = 6;
+		// The average price, calculated as (low + high + open + close)/4.
+		AVERAGE = 7;
+		// The volume.
+		VOLUME = 8;
+	}
+}
+
+// Holds a time stamp, bid and ask prices and sizes.
+message Quote {
+	// The date and time stamp.
+	google.protobuf.Timestamp time = 1;
+	// The bid price.
+	double bid = 2;
+	// The ask price.
+	double ask = 3;
+	// The bid size.
+	double bid_size = 4;
+	// The ask size.
+	double ask_size = 5;
+
+	// Defines a component of the Quote type.
+	enum Component {
+		// The bid price.
+		BID = 0;
+		// The ask price.
+		ASK = 1;
+		// The med-price, calculated as (ask + bid) / 2.
+		MID = 2;
+		// The weighted price, calculated as (ask*askSize + bid*bidSize) / (askSize + bidSize).
+		WEIGHTED = 3;
+		// The weighted mid-price, calculated as (ask*bidSize + bid*askSize) / (askSize + bidSize).
+		WEIGHTED_MID = 4;
+		// The spread in basis points (100 basis points = 1%), calculated as 10000 * (ask - bid) / mid.
+		SPREAD_BP = 5;
+		// The bid size.
+		BID_SIZE = 6;
+		// The ask size.
+		ASK_SIZE = 7;
+		// The mid size, calculated as (ask_size + bid_size) / 2.
+		MID_SIZE = 8;
+	}
+}
+
+// Holds a time stamp, a price and a volume.
+message Trade {
+	// The date and time stamp.
+	google.protobuf.Timestamp time = 1;
+	// The price.
+	double price = 2;
+	// The volume.
+	double volume = 3;
+
+	// Defines a component of the Trade type.
+	enum Component {
+		// The price.
+		PRICE = 0;
+		// The volume.
+		VOLUME = 1;
+	}
+}
+
+// Holds a time stamp and a scalar value.
+message Scalar {
+	// The time stamp.
+	google.protobuf.Timestamp time = 1;
+	// The value.
+	double value = 2;
+}
+
+// Holds a temporal entity.
+message TemporalEntity  {
+	oneof entity {
+		Bar bar = 1;
+		Quote quote = 2;
+		Trade trade = 3;
+		Scalar scalar = 4;
+	}
+}

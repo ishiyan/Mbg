@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+import "trading/protobuf/indicators/indicators.proto";
+
+package mbg.trading.protobuf.indicators;
+
+option go_package="mbg/trading/protobuf/indicators";
+
+// Identifies a type of an indicator.
+enum IndicatorType {
+	// Unknown indicator.
+	UNKNOWN = 0;
+	// Simple Moving Average (SMA).
+	SAMPLE_MOVING_AVERAGE = 1;
+	// Exponential Moving Average (EMA).
+	EXPONENTIAL_MOVING_AVERAGE = 2;
+	// Standard Deviation (STDEV).
+	STANDARD_DEVIATION = 3;
+	// Variance (VAR).
+	VARIANCE = 4;
+	// Bollinger Bands (BB).
+	BOLLINGER_BANDS = 5;
+	// Goertzel power spectrum (GOERTZEL).
+	GOERTZEL_SPECTRUM = 6;
+}
+
+// An input parameters to create an indicator.
+message IndicatorParams {
+	oneof params {
+		SimpleMovingAverage simple_moving_average = 1;
+		ExponentialMovingAverage exponential_moving_average = 2;
+		StandardDeviation standard_deviation = 3;
+		Variance variance = 4;
+		BollingerBands bollinger_bands = 5;
+		GoertzelSpectrum goertzel_spectrum = 6;
+	}
+}
+
+// Identifies a type of an indicator output.
+enum OutputType {
+	// Holds a time stamp and a value.
+	SCALAR = 0;
+	// Holds a time stamp and two values representing upper and lower lines of a band.
+	BAND = 1;
+	// Holds a time stamp and an array of values representing a heat-map column.
+	HEATMAP = 2;
+}
+
+// Contains information about a single indicator output.
+message OutputMetadata {
+	// Identifies a single indicator output.
+	// This is an integer representation of an OutputKind of related indicator.
+	int32 kind = 1;
+	// A type of the output.
+	OutputType type = 2;
+	// Identifies an instance of the output.
+	string name = 3;
+	// Describes the output.
+	string description = 4;
+}
+
+// Describes an output metadata of an indicator.
+message IndicatorMetadata {
+	// Identifies the indicator.
+	IndicatorType indicator_type = 1;
+	// A metadata object per indicator output.
+	repeated OutputMetadata outputs = 2;
+}

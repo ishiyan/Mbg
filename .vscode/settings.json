@@ -50,5 +50,13 @@
         ]
       },
       "workbench.colorTheme": "Zenburn",
-      "svg.preview.background": "transparent"
+      "svg.preview.background": "transparent",
+      "protoc": {
+        "path": "protoc",
+        "compile_on_save": false,
+        "options": [
+            "--proto_path=${workspaceRoot}/protobuf",
+            "--proto_path=${workspaceRoot}/trading/protobuf"
+        ]
+      }
 }
