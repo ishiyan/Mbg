@@ -37,7 +37,7 @@ protoc-gen-go-grpc --version
 ```
 
 Install the `protoc` compiler from the [release page](https://github.com/protocolbuffers/protobuf/releases/latest).
-Use `apt` for Linux. For Windows, download binary zip, then copy executable and the `include` folder to the `bin` folder where `protoc-gen-go.exe` and `protoc-gen-go-grpc.exe` are located. 
+Use `apt` for Linux. For Windows, download binary zip, then copy executable and the `include` folder to the `bin` folder where `protoc-gen-go.exe` and `protoc-gen-go-grpc.exe` are located.
 
 ```bash
 apt install -y protobuf-compiler
@@ -69,8 +69,9 @@ buf lint
 ```
 
 ## Upload CSV to client
-https://blog.angular-university.io/angular-file-upload/
-https://stackoverflow.com/questions/47936183/angular-file-upload
-https://stackoverflow.com/questions/54971238/upload-json-file-using-angular-6
-https://stackoverflow.com/questions/51070418/angular-2-upload-parse-csv
-https://gyawaliamit.medium.com/reading-csv-file-on-angular-5694b64faaa5
+
+- [1](https://blog.angular-university.io/angular-file-upload/)
+- [2](https://stackoverflow.com/questions/47936183/angular-file-upload)
+- [3](https://stackoverflow.com/questions/54971238/upload-json-file-using-angular-6)
+- [4](https://stackoverflow.com/questions/51070418/angular-2-upload-parse-csv)
+- [5](https://gyawaliamit.medium.com/reading-csv-file-on-angular-5694b64faaa5)
