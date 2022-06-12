@@ -74,7 +74,7 @@ func TestMarshalJSON(t *testing.T) {
 		bs, err := tt.m.MarshalJSON()
 
 		if err != nil && tt.succeeded {
-			t.Errorf("'%v'.MarshalJSON(): expected success '%v', got error %w", tt.m, exp, err)
+			t.Errorf("'%v'.MarshalJSON(): expected success '%v', got error %v", tt.m, exp, err)
 
 			continue
 		}
@@ -115,7 +115,7 @@ func TestUnmarshalJSON(t *testing.T) {
 
 		err := m.UnmarshalJSON(bs)
 		if err != nil && tt.succeeded {
-			t.Errorf("UnmarshalJSON('%v'): expected success '%v', got error %w", tt.json, exp, err)
+			t.Errorf("UnmarshalJSON('%v'): expected success '%v', got error %v", tt.json, exp, err)
 
 			continue
 		}

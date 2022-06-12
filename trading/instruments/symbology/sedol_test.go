@@ -3251,7 +3251,7 @@ func TestSEDOLValidate(t *testing.T) {
 		act := err == nil
 
 		if exp != act {
-			t.Errorf("SEDOL.Validate('%v'): expected %v, actual %v (%w)", tt.sedol, exp, act, err)
+			t.Errorf("SEDOL.Validate('%v'): expected %v, actual %v (%v)", tt.sedol, exp, act, err)
 		}
 	}
 }
@@ -3303,7 +3303,7 @@ func TestSEDOLCalculateCheckDigit(t *testing.T) {
 		act := err == nil
 
 		if exp != act {
-			t.Errorf("SEDOL.CalculateCheckDigit('%v'): expected %v, actual %v (%w)", tt.sedol, exp, act, err)
+			t.Errorf("SEDOL.CalculateCheckDigit('%v'): expected %v, actual %v (%v)", tt.sedol, exp, act, err)
 		}
 	}
 }

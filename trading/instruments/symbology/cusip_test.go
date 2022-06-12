@@ -4501,7 +4501,7 @@ func TestValidateCUSIP(t *testing.T) {
 		act := err == nil
 
 		if exp != act {
-			t.Errorf("CUSIP.ValidateCheckDigit(%v): expected %v, actual %v (%w)", tt.cusip, exp, act, err)
+			t.Errorf("CUSIP.ValidateCheckDigit(%v): expected %v, actual %v (%v)", tt.cusip, exp, act, err)
 		}
 	}
 }
@@ -4522,7 +4522,7 @@ func TestCalculateCheckDigitCUSIP(t *testing.T) {
 		act := err == nil
 
 		if exp != act {
-			t.Errorf("CUSIP.CalculateCheckDigit(%v): expected %v, actual %v (%w)", tt.cusip, exp, act, err)
+			t.Errorf("CUSIP.CalculateCheckDigit(%v): expected %v, actual %v (%v)", tt.cusip, exp, act, err)
 		}
 	}
 }

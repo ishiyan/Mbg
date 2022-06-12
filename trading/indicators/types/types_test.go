@@ -9,21 +9,19 @@ func TestString(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		it   InstrumentType
+		it   IndicatorType
 		text string
 	}{
-		{Undefined, undefined},
-		{Stock, stock},
-		{Index, index},
-		{INAV, inav},
-		{ETF, etf},
-		{ETC, etc},
-		{Forex, forex},
-		{Crypto, crypto},
+		{SimpleMovingAverage, simpleMovingAverage},
+		{ExponentialMovingAverage, exponentialMovingAverage},
+		{BollingerBands, bollingerBands},
+		{Variance, variance},
+		{StandardDeviation, standardDeviation},
+		{GoertzelSpectrum, goertzelSpectrum},
 		{last, unknown},
-		{InstrumentType(0), unknown},
-		{InstrumentType(9999), unknown},
-		{InstrumentType(-9999), unknown},
+		{IndicatorType(0), unknown},
+		{IndicatorType(9999), unknown},
+		{IndicatorType(-9999), unknown},
 	}
 
 	for _, tt := range tests {
@@ -40,21 +38,19 @@ func TestIsKnown(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		it      InstrumentType
+		it      IndicatorType
 		boolean bool
 	}{
-		{Undefined, false},
-		{Stock, true},
-		{Index, true},
-		{INAV, true},
-		{ETF, true},
-		{ETC, true},
-		{Forex, true},
-		{Crypto, true},
+		{SimpleMovingAverage, true},
+		{ExponentialMovingAverage, true},
+		{BollingerBands, true},
+		{Variance, true},
+		{StandardDeviation, true},
+		{GoertzelSpectrum, true},
 		{last, false},
-		{InstrumentType(0), false},
-		{InstrumentType(9999), false},
-		{InstrumentType(-9999), false},
+		{IndicatorType(0), false},
+		{IndicatorType(9999), false},
+		{IndicatorType(-9999), false},
 	}
 
 	for _, tt := range tests {
@@ -72,22 +68,20 @@ func TestMarshalJSON(t *testing.T) {
 
 	var nilstr string
 	tests := []struct {
-		it        InstrumentType
+		it        IndicatorType
 		json      string
 		succeeded bool
 	}{
-		{Undefined, "\"undefined\"", true},
-		{Stock, "\"stock\"", true},
-		{Index, "\"index\"", true},
-		{INAV, "\"inav\"", true},
-		{ETF, "\"etf\"", true},
-		{ETC, "\"etc\"", true},
-		{Forex, "\"forex\"", true},
-		{Crypto, "\"crypto\"", true},
+		{SimpleMovingAverage, "\"simpleMovingAverage\"", true},
+		{ExponentialMovingAverage, "\"exponentialMovingAverage\"", true},
+		{BollingerBands, "\"bollingerBands\"", true},
+		{Variance, "\"variance\"", true},
+		{StandardDeviation, "\"standardDeviation\"", true},
+		{GoertzelSpectrum, "\"goertzelSpectrum\"", true},
 		{last, nilstr, false},
-		{InstrumentType(9999), nilstr, false},
-		{InstrumentType(-9999), nilstr, false},
-		{InstrumentType(0), nilstr, false},
+		{IndicatorType(9999), nilstr, false},
+		{IndicatorType(-9999), nilstr, false},
+		{IndicatorType(0), nilstr, false},
 	}
 
 	for _, tt := range tests {
@@ -116,20 +110,18 @@ func TestMarshalJSON(t *testing.T) {
 func TestUnmarshalJSON(t *testing.T) {
 	t.Parallel()
 
-	var zero InstrumentType
+	var zero IndicatorType
 	tests := []struct {
-		it        InstrumentType
+		it        IndicatorType
 		json      string
 		succeeded bool
 	}{
-		{Undefined, "\"undefined\"", true},
-		{Stock, "\"stock\"", true},
-		{Index, "\"index\"", true},
-		{INAV, "\"inav\"", true},
-		{ETF, "\"etf\"", true},
-		{ETC, "\"etc\"", true},
-		{Forex, "\"forex\"", true},
-		{Crypto, "\"crypto\"", true},
+		{SimpleMovingAverage, "\"simpleMovingAverage\"", true},
+		{ExponentialMovingAverage, "\"exponentialMovingAverage\"", true},
+		{BollingerBands, "\"bollingerBands\"", true},
+		{Variance, "\"variance\"", true},
+		{StandardDeviation, "\"standardDeviation\"", true},
+		{GoertzelSpectrum, "\"goertzelSpectrum\"", true},
 		{zero, "\"unknown\"", false},
 		{zero, "\"foobar\"", false},
 	}
@@ -138,7 +130,7 @@ func TestUnmarshalJSON(t *testing.T) {
 		exp := tt.it
 		bs := []byte(tt.json)
 
-		var it InstrumentType
+		var it IndicatorType
 
 		err := it.UnmarshalJSON(bs)
 		if err != nil && tt.succeeded {

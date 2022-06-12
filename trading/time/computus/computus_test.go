@@ -695,7 +695,7 @@ func verifyRange(t *testing.T, ts []time.Time, f func(int) (time.Time, error), s
 
 		act, err := f(y)
 		if err != nil {
-			t.Errorf("%v(%v): expected success '%v', got error %w", s, y, tt, err)
+			t.Errorf("%v(%v): expected success '%v', got error %v", s, y, tt, err)
 
 			return
 		}
@@ -714,7 +714,7 @@ func verifyYearDayRange(t *testing.T, ts []time.Time, f func(int) (int, error), 
 
 		act, err := f(y)
 		if err != nil {
-			t.Errorf("%v(%v): expected success '%v', got error %w", s, y, tt, err)
+			t.Errorf("%v(%v): expected success '%v', got error %v", s, y, tt, err)
 
 			return
 		}
@@ -731,7 +731,7 @@ func verifyYearRange(t *testing.T, y1 int, y2 int, f func(int) (time.Time, error
 	for y := y1; y <= y2; y++ {
 		act, err := f(y)
 		if err != nil {
-			t.Errorf("%v(%v): expected success, got error %w", s, y, err)
+			t.Errorf("%v(%v): expected success, got error %v", s, y, err)
 
 			return
 		}
@@ -766,7 +766,7 @@ func verifyRangeIsHoliday(t *testing.T, ts []time.Time, n int, f func(time.Time)
 
 		act, err := f(tt)
 		if err != nil {
-			t.Errorf("Is%v('%v'): expected true, got error %w", s, tt, err)
+			t.Errorf("Is%v('%v'): expected true, got error %v", s, tt, err)
 
 			continue
 		}
@@ -785,7 +785,7 @@ func verifyRangeIsNotHoliday(t *testing.T, ts []time.Time, n int, f func(time.Ti
 
 		act, err := f(tt)
 		if err != nil {
-			t.Errorf("Is%v('%v'): expected true, got error %w", s, tt, err)
+			t.Errorf("Is%v('%v'): expected true, got error %v", s, tt, err)
 
 			continue
 		}

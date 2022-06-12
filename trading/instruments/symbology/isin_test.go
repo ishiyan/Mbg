@@ -285,7 +285,7 @@ func TestValidateISIN(t *testing.T) {
 		act := err == nil
 
 		if exp != act {
-			t.Errorf("ISIN.Validate(%v): expected %v, actual %v (%w)", tt.isin, exp, act, err)
+			t.Errorf("ISIN.Validate(%v): expected %v, actual %v (%v)", tt.isin, exp, act, err)
 		}
 	}
 }
@@ -582,7 +582,7 @@ func TestValidateCheckDigitISIN(t *testing.T) {
 		act := err == nil
 
 		if exp != act {
-			t.Errorf("ISIN.ValidateCheckDigit(%v): expected %v, actual %v (%w)", tt.isin, exp, act, err)
+			t.Errorf("ISIN.ValidateCheckDigit(%v): expected %v, actual %v (%v)", tt.isin, exp, act, err)
 		}
 	}
 }
