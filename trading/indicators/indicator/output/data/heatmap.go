@@ -1,4 +1,4 @@
-package entities
+package data
 
 import (
 	"fmt"
@@ -42,8 +42,8 @@ type Heatmap struct {
 	Values []float64 `json:"values"`
 }
 
-// newHeatmap creates a new heatmap.
-func newHeatmap(time time.Time, parameterFirst, parameterLast, parameterResolution, valueMin, valueMax float64,
+// NewHeatmap creates a new heatmap.
+func NewHeatmap(time time.Time, parameterFirst, parameterLast, parameterResolution, valueMin, valueMax float64,
 	values []float64,
 ) *Heatmap {
 	return &Heatmap{
@@ -53,12 +53,13 @@ func newHeatmap(time time.Time, parameterFirst, parameterLast, parameterResoluti
 		ParameterResolution: parameterResolution,
 		ValueMin:            valueMin,
 		ValueMax:            valueMax,
+		Values:              values,
 	}
 }
 
-// newEmptyHeatmap creates a new empty heatmap.
+// NewEmptyHeatmap creates a new empty heatmap.
 // Both min and max values will be equal to NaN, the values slice will be empty.
-func newEmptyHeatmap(time time.Time, parameterFirst, parameterLast, parameterResolution float64) *Heatmap {
+func NewEmptyHeatmap(time time.Time, parameterFirst, parameterLast, parameterResolution float64) *Heatmap {
 	nan := math.NaN()
 
 	return &Heatmap{
@@ -74,7 +75,7 @@ func newEmptyHeatmap(time time.Time, parameterFirst, parameterLast, parameterRes
 
 // IsEmpty indicates whether this heatmap is not initialized.
 func (h *Heatmap) IsEmpty() bool {
-	return h.Values == nil || len(h.Values) > 0
+	return h.Values == nil || len(h.Values) < 1
 }
 
 // String implements the Stringer interface.

@@ -1,5 +1,4 @@
-// Package types enumerates the types of indicators.
-package types
+package indicator
 
 import (
 	"bytes"
@@ -7,12 +6,12 @@ import (
 	"fmt"
 )
 
-// IndicatorType Identifies an indicator.
-type IndicatorType int
+// Type Identifies an indicator by enumerating all implemented indicators.
+type Type int
 
 const (
 	// SimpleMovingAverage identifies the Simple Moving Average (SMA) indicator.
-	SimpleMovingAverage IndicatorType = iota + 1
+	SimpleMovingAverage Type = iota + 1
 
 	// ExponentialMovingAverage identifies the Exponential Moving Average (EMA) indicator.
 	ExponentialMovingAverage
@@ -41,12 +40,12 @@ const (
 	goertzelSpectrum         = "goertzelSpectrum"
 )
 
-var errUnknownIndicatorType = errors.New("unknown indicator type")
+var errUnknownType = errors.New("unknown indicator type")
 
 //nolint:exhaustive,cyclop
 // String implements the Stringer interface.
-func (i IndicatorType) String() string {
-	switch i {
+func (t Type) String() string {
+	switch t {
 	case SimpleMovingAverage:
 		return simpleMovingAverage
 	case ExponentialMovingAverage:
@@ -64,16 +63,16 @@ func (i IndicatorType) String() string {
 	}
 }
 
-// IsKnown determines if this I=indicator type is known.
-func (i IndicatorType) IsKnown() bool {
-	return i >= SimpleMovingAverage && i < last
+// IsKnown determines if this indicator type is known.
+func (t Type) IsKnown() bool {
+	return t >= SimpleMovingAverage && t < last
 }
 
 // MarshalJSON implements the Marshaler interface.
-func (i IndicatorType) MarshalJSON() ([]byte, error) {
-	s := i.String()
+func (t Type) MarshalJSON() ([]byte, error) {
+	s := t.String()
 	if s == unknown {
-		return nil, fmt.Errorf("cannot marshal '%s': %w", s, errUnknownIndicatorType)
+		return nil, fmt.Errorf("cannot marshal '%s': %w", s, errUnknownType)
 	}
 
 	const extra = 2 // Two bytes for quotes.
@@ -88,25 +87,25 @@ func (i IndicatorType) MarshalJSON() ([]byte, error) {
 
 //nolint:cyclop
 // UnmarshalJSON implements the Unmarshaler interface.
-func (i *IndicatorType) UnmarshalJSON(data []byte) error {
+func (t *Type) UnmarshalJSON(data []byte) error {
 	d := bytes.Trim(data, "\"")
 	s := string(d)
 
 	switch s {
 	case simpleMovingAverage:
-		*i = SimpleMovingAverage
+		*t = SimpleMovingAverage
 	case exponentialMovingAverage:
-		*i = ExponentialMovingAverage
+		*t = ExponentialMovingAverage
 	case bollingerBands:
-		*i = BollingerBands
+		*t = BollingerBands
 	case variance:
-		*i = Variance
+		*t = Variance
 	case standardDeviation:
-		*i = StandardDeviation
+		*t = StandardDeviation
 	case goertzelSpectrum:
-		*i = GoertzelSpectrum
+		*t = GoertzelSpectrum
 	default:
-		return fmt.Errorf("cannot unmarshal '%s': %w", s, errUnknownIndicatorType)
+		return fmt.Errorf("cannot unmarshal '%s': %w", s, errUnknownType)
 	}
 
 	return nil

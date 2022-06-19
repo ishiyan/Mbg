@@ -1,11 +1,12 @@
-package entities
+package data
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 )
 
-// QuoteComponent defines a component of the Quote type.
+// QuoteComponent describes a component of the Quote type.
 type QuoteComponent int
 
 // QuoteFunc defines a function to get a component value from the Quote type.
@@ -13,7 +14,7 @@ type QuoteFunc func(q *Quote) float64
 
 const (
 	// QuoteBidPrice is the bid price component.
-	QuoteBidPrice QuoteComponent = iota
+	QuoteBidPrice QuoteComponent = iota + 1
 
 	// QuoteAskPrice is the ask price component.
 	QuoteAskPrice
@@ -39,6 +40,18 @@ const (
 	// QuoteSpreadBp is the spread in basis points (100 basis points = 1%) component, calculated as
 	//   10000 * (ask - bid) / mid.
 	QuoteSpreadBp
+	quoteLast
+)
+
+const (
+	quoteBid         = "bid"
+	quoteAsk         = "ask"
+	quoteBidSize     = "bidSize"
+	quoteAskSize     = "askSize"
+	quoteMid         = "mid"
+	quoteWeighted    = "weighted"
+	quoteWeightedMid = "weightedMid"
+	quoteSpreadBp    = "spreadBp"
 )
 
 var errUnknownQuoteComponent = errors.New("unknown quote component")
@@ -71,22 +84,73 @@ func QuoteComponentFunc(c QuoteComponent) (QuoteFunc, error) {
 func (c QuoteComponent) String() string {
 	switch c {
 	case QuoteBidPrice:
-		return "BidPrice"
+		return quoteBid
 	case QuoteAskPrice:
-		return "AskPrice"
+		return quoteAsk
 	case QuoteBidSize:
-		return "BidSize"
+		return quoteBidSize
 	case QuoteAskSize:
-		return "AskSize"
+		return quoteAskSize
 	case QuoteMidPrice:
-		return "MidPrice"
+		return quoteMid
 	case QuoteWeightedPrice:
-		return "WeightedPrice"
+		return quoteWeighted
 	case QuoteWeightedMidPrice:
-		return "WeightedMidPrice"
+		return quoteWeightedMid
 	case QuoteSpreadBp:
-		return "SpreadBp"
+		return quoteSpreadBp
 	default:
-		return fmt.Errorf("%d: %w", int(c), errUnknownQuoteComponent).Error()
+		return unknown
 	}
+}
+
+// IsKnown determines if this quote component is known.
+func (c QuoteComponent) IsKnown() bool {
+	return c >= QuoteBidPrice && c < quoteLast
+}
+
+// MarshalJSON implements the Marshaler interface.
+func (c QuoteComponent) MarshalJSON() ([]byte, error) {
+	s := c.String()
+	if s == unknown {
+		return nil, fmt.Errorf(marshalErrFmt, s, errUnknownQuoteComponent)
+	}
+
+	const extra = 2 // Two bytes for quotes.
+
+	b := make([]byte, 0, len(s)+extra)
+	b = append(b, dqc)
+	b = append(b, s...)
+	b = append(b, dqc)
+
+	return b, nil
+}
+
+// UnmarshalJSON implements the Unmarshaler interface.
+func (c *QuoteComponent) UnmarshalJSON(data []byte) error {
+	d := bytes.Trim(data, dqs)
+	s := string(d)
+
+	switch s {
+	case quoteBid:
+		*c = QuoteBidPrice
+	case quoteAsk:
+		*c = QuoteAskPrice
+	case quoteBidSize:
+		*c = QuoteBidSize
+	case quoteAskSize:
+		*c = QuoteAskSize
+	case quoteMid:
+		*c = QuoteMidPrice
+	case quoteWeighted:
+		*c = QuoteWeightedPrice
+	case quoteWeightedMid:
+		*c = QuoteWeightedMidPrice
+	case quoteSpreadBp:
+		*c = QuoteSpreadBp
+	default:
+		return fmt.Errorf(unmarshalErrFmt, s, errUnknownQuoteComponent)
+	}
+
+	return nil
 }

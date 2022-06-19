@@ -1,11 +1,12 @@
-package entities
+package data
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 )
 
-// BarComponent defines a component of the Bar type.
+// BarComponent describes a component of the Bar type.
 type BarComponent int
 
 // BarFunc defines a function to get a component value from the Bar type.
@@ -13,7 +14,7 @@ type BarFunc func(b *Bar) float64
 
 const (
 	// BarOpenPrice is the opening price component.
-	BarOpenPrice BarComponent = iota
+	BarOpenPrice BarComponent = iota + 1
 
 	// BarHighPrice is the highest price component.
 	BarHighPrice
@@ -42,6 +43,19 @@ const (
 	// BarAveragePrice is the average price component, calculated as
 	//   (low + high + open + close) / 4.
 	BarAveragePrice
+	barLast
+)
+
+const (
+	barOpen     = "open"
+	barHigh     = "high"
+	barLow      = "low"
+	barClose    = "close"
+	barVolume   = "volume"
+	barMedian   = "median"
+	barTypical  = "typical"
+	barWeighted = "weighted"
+	barAverage  = "average"
 )
 
 var errUnknownBarComponent = errors.New("unknown bar component")
@@ -76,24 +90,77 @@ func BarComponentFunc(c BarComponent) (BarFunc, error) {
 func (c BarComponent) String() string {
 	switch c {
 	case BarOpenPrice:
-		return "OpenPrice"
+		return barOpen
 	case BarHighPrice:
-		return "HighPrice"
+		return barHigh
 	case BarLowPrice:
-		return "LowPrice"
+		return barLow
 	case BarClosePrice:
-		return "ClosePrice"
+		return barClose
 	case BarVolume:
-		return "Volume"
+		return barVolume
 	case BarMedianPrice:
-		return "MedianPrice"
+		return barMedian
 	case BarTypicalPrice:
-		return "TypicalPrice"
+		return barTypical
 	case BarWeightedPrice:
-		return "WeightedPrice"
+		return barWeighted
 	case BarAveragePrice:
-		return "AveragePrice"
+		return barAverage
 	default:
-		return fmt.Errorf("%d: %w", int(c), errUnknownBarComponent).Error()
+		return unknown
 	}
+}
+
+// IsKnown determines if this bar component is known.
+func (c BarComponent) IsKnown() bool {
+	return c >= BarOpenPrice && c < barLast
+}
+
+// MarshalJSON implements the Marshaler interface.
+func (c BarComponent) MarshalJSON() ([]byte, error) {
+	s := c.String()
+	if s == unknown {
+		return nil, fmt.Errorf(marshalErrFmt, s, errUnknownBarComponent)
+	}
+
+	const extra = 2 // Two bytes for quotes.
+
+	b := make([]byte, 0, len(s)+extra)
+	b = append(b, dqc)
+	b = append(b, s...)
+	b = append(b, dqc)
+
+	return b, nil
+}
+
+// UnmarshalJSON implements the Unmarshaler interface.
+func (c *BarComponent) UnmarshalJSON(data []byte) error {
+	d := bytes.Trim(data, dqs)
+	s := string(d)
+
+	switch s {
+	case barOpen:
+		*c = BarOpenPrice
+	case barHigh:
+		*c = BarHighPrice
+	case barLow:
+		*c = BarLowPrice
+	case barClose:
+		*c = BarClosePrice
+	case barVolume:
+		*c = BarVolume
+	case barMedian:
+		*c = BarMedianPrice
+	case barTypical:
+		*c = BarTypicalPrice
+	case barWeighted:
+		*c = BarWeightedPrice
+	case barAverage:
+		*c = BarAveragePrice
+	default:
+		return fmt.Errorf(unmarshalErrFmt, s, errUnknownBarComponent)
+	}
+
+	return nil
 }

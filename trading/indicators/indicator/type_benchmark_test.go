@@ -1,29 +1,29 @@
 //nolint:testpackage
-package types
+package indicator
 
 import (
 	"testing"
 )
 
-func BenchmarkString(b *testing.B) {
+func BenchmarkTypeString(b *testing.B) {
 	act := last
 	for i := 0; i < b.N; i++ {
 		_ = act.String()
 	}
 }
 
-func BenchmarkMarshalJSON(b *testing.B) {
+func BenchmarkTypeMarshalJSON(b *testing.B) {
 	act := GoertzelSpectrum
 	for i := 0; i < b.N; i++ {
 		_, _ = act.MarshalJSON()
 	}
 }
 
-func BenchmarkUnmarshalJSON(b *testing.B) {
-	var it IndicatorType
+func BenchmarkTypeUnmarshalJSON(b *testing.B) {
+	var t Type
 
 	bs := []byte("\"goertzelSpectrum\"")
 	for i := 0; i < b.N; i++ {
-		_ = it.UnmarshalJSON(bs)
+		_ = t.UnmarshalJSON(bs)
 	}
 }

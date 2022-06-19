@@ -1,0 +1,261 @@
+package statistics
+
+import (
+	"fmt"
+	"math"
+	"sync"
+
+	"mbg/trading/data"
+	"mbg/trading/indicators/indicator"
+	"mbg/trading/indicators/indicator/output"
+)
+
+// Variance computes the variance of the samples within a moving window of length ℓ:
+//    σ² = (∑xᵢ² - (∑xᵢ)²/ℓ)/ℓ
+// for the estimation of the population variance, or as:
+//    σ² = (∑xᵢ² - (∑xᵢ)²/ℓ)/(ℓ-1)
+// for the unbiased estimation of the sample variance, i={0,…,ℓ-1}.
+type Variance struct {
+	mu               sync.RWMutex
+	name             string
+	description      string
+	window           []float64
+	windowSum        float64
+	windowSquaredSum float64
+	windowLength     int
+	windowCount      int
+	lastIndex        int
+	primed           bool
+	unbiased         bool
+	barFunc          data.BarFunc
+	quoteFunc        data.QuoteFunc
+	tradeFunc        data.TradeFunc
+}
+
+// newVariance returns an instnce of the Variance indicator created using supplied parameters.
+func NewVariance(p *VarianceParams) (*Variance, error) {
+	const invalid = "invalid variance parameters"
+	const fmts = "%s: %s"
+	const fmtw = "%s: %w"
+	const fmtn = "var.%c(%d)"
+
+	length := p.Length
+	if length < 2 {
+		return nil, fmt.Errorf(fmts, invalid, "length should be greater than 1")
+	}
+
+	var err error
+
+	var barFunc data.BarFunc
+	if barFunc, err = data.BarComponentFunc(p.BarComponent); err != nil {
+		return nil, fmt.Errorf(fmtw, invalid, err)
+	}
+
+	var quoteFunc data.QuoteFunc
+	if quoteFunc, err = data.QuoteComponentFunc(p.QuoteComponent); err != nil {
+		return nil, fmt.Errorf(fmtw, invalid, err)
+	}
+
+	var tradeFunc data.TradeFunc
+	if tradeFunc, err = data.TradeComponentFunc(p.TradeComponent); err != nil {
+		return nil, fmt.Errorf(fmtw, invalid, err)
+	}
+
+	var name, desc string
+	if p.IsUnbiased {
+		name = fmt.Sprintf(fmtn, 's', length)
+		desc = "Unbiased estimation of the sample variance " + name
+	} else {
+		name = fmt.Sprintf(fmtn, 'p', length)
+		desc = "Estimation of the population variance " + name
+	}
+
+	return &Variance{
+		name:         name,
+		description:  desc,
+		window:       make([]float64, length),
+		windowLength: length,
+		lastIndex:    length - 1,
+		unbiased:     p.IsUnbiased,
+		barFunc:      barFunc,
+		quoteFunc:    quoteFunc,
+		tradeFunc:    tradeFunc,
+	}, nil
+}
+
+// IsPrimed indicates whether an indicator is primed.
+func (v *Variance) IsPrimed() bool {
+	v.mu.RLock()
+	defer v.mu.RUnlock()
+
+	return v.primed
+}
+
+// Reset resets an indicator. The indicator is not primed after this call.
+func (v *Variance) Reset() {
+	v.mu.Lock()
+	defer v.mu.Unlock()
+
+	v.primed = false
+	v.windowCount = 0
+	v.windowSum = 0.
+	v.windowSquaredSum = 0.
+}
+
+// Metadata describes an output data of the indicator.
+// It always has a single scalar output -- the calculated value of the variance.
+func (v *Variance) Metadata() indicator.Metadata {
+	return indicator.Metadata{
+		Type: indicator.Variance,
+		Outputs: []output.Metadata{
+			{
+				Kind:        int(VarianceValue),
+				Type:        output.Scalar,
+				Name:        v.name,
+				Description: v.description,
+			},
+		},
+	}
+}
+
+// Update updatess the value of the variance, σ², given the next sample.
+//
+// Depending on the isUnbiased, the value is the unbiased sample variance or the population variance.
+//
+// The indicator is not primed during the first ℓ-1 updates.
+func (v *Variance) Update(sample float64) float64 {
+	if math.IsNaN(sample) {
+		return sample
+	}
+
+	var value float64
+	temp := sample
+	wlen := float64(v.windowLength)
+
+	v.mu.Lock()
+	defer v.mu.Unlock()
+
+	if v.primed {
+		v.windowSum += temp
+		temp *= temp
+		v.windowSquaredSum += temp
+		temp = v.window[0]
+		v.windowSum -= temp
+		temp *= temp
+		v.windowSquaredSum -= temp
+
+		if v.unbiased {
+			temp = v.windowSum
+			temp *= temp
+			temp /= wlen
+			value = v.windowSquaredSum - temp
+			value /= float64(v.lastIndex)
+		} else {
+			temp = v.windowSum / wlen
+			temp *= temp
+			value = v.windowSquaredSum/wlen - temp
+		}
+
+		for i := 0; i < v.lastIndex; i++ {
+			v.window[i] = v.window[i+1]
+		}
+
+		v.window[v.lastIndex] = sample
+	} else {
+		v.windowSum += temp
+		v.window[v.windowCount] = temp
+		temp *= temp
+		v.windowSquaredSum += temp
+
+		v.windowCount++
+		if v.windowLength == v.windowCount {
+			v.primed = true
+			if v.unbiased {
+				temp = v.windowSum
+				temp *= temp
+				temp /= float64(v.windowLength)
+				value = v.windowSquaredSum - temp
+				value /= float64(v.lastIndex)
+			} else {
+				temp = v.windowSum / wlen
+				temp *= temp
+				value = v.windowSquaredSum/wlen - temp
+			}
+		} else {
+			return nan
+		}
+	}
+
+	return value
+}
+
+// UpdateScalar updates the indicator given the next scalar sample.
+func (v *Variance) UpdateScalar(sample *data.Scalar) indicator.Output {
+	output := make([]any, 1)
+	output[0] = data.Scalar{Time: sample.Time, Value: v.Update(sample.Value)}
+
+	return output
+}
+
+// UpdateBar updates the indicator given the next bar sample.
+func (v *Variance) UpdateBar(sample *data.Bar) indicator.Output {
+	return v.UpdateScalar(&data.Scalar{Time: sample.Time, Value: v.barFunc(sample)})
+}
+
+// UpdateQuote updates the indicator given the next quote sample.
+func (v *Variance) UpdateQuote(sample *data.Quote) indicator.Output {
+	return v.UpdateScalar(&data.Scalar{Time: sample.Time, Value: v.quoteFunc(sample)})
+}
+
+// UpdateTrade updates the indicator given the next trade sample.
+func (v *Variance) UpdateTrade(sample *data.Trade) indicator.Output {
+	return v.UpdateScalar(&data.Scalar{Time: sample.Time, Value: v.tradeFunc(sample)})
+}
+
+// UpdateScalars updates the indicator given a slice of the next scalar samples.
+func (v *Variance) UpdateScalars(samples []*data.Scalar) []indicator.Output {
+	len := len(samples)
+	output := make([]indicator.Output, len)
+
+	for i, d := range samples {
+		output[i] = v.UpdateScalar(d)
+	}
+
+	return output
+}
+
+// UpdateBars updates the indicator given a slice of the next bar samples.
+func (v *Variance) UpdateBars(samples []*data.Bar) []indicator.Output {
+	len := len(samples)
+	output := make([]indicator.Output, len)
+
+	for i, d := range samples {
+		output[i] = v.UpdateBar(d)
+	}
+
+	return output
+}
+
+// UpdateQuotes updates the indicator given a slice of the next quote samples.
+func (v *Variance) UpdateQuotes(samples []*data.Quote) []indicator.Output {
+	len := len(samples)
+	output := make([]indicator.Output, len)
+
+	for i, d := range samples {
+		output[i] = v.UpdateQuote(d)
+	}
+
+	return output
+}
+
+// UpdateTrades updates the indicator given a slice of the next trade samples.
+func (v *Variance) UpdateTrades(samples []*data.Trade) []indicator.Output {
+	len := len(samples)
+	output := make([]indicator.Output, len)
+
+	for i, d := range samples {
+		output[i] = v.UpdateTrade(d)
+	}
+
+	return output
+}

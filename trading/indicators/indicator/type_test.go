@@ -1,15 +1,15 @@
 //nolint:testpackage
-package types
+package indicator
 
 import (
 	"testing"
 )
 
-func TestString(t *testing.T) {
+func TestTypeString(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		it   IndicatorType
+		t    Type
 		text string
 	}{
 		{SimpleMovingAverage, simpleMovingAverage},
@@ -19,26 +19,26 @@ func TestString(t *testing.T) {
 		{StandardDeviation, standardDeviation},
 		{GoertzelSpectrum, goertzelSpectrum},
 		{last, unknown},
-		{IndicatorType(0), unknown},
-		{IndicatorType(9999), unknown},
-		{IndicatorType(-9999), unknown},
+		{Type(0), unknown},
+		{Type(9999), unknown},
+		{Type(-9999), unknown},
 	}
 
 	for _, tt := range tests {
 		exp := tt.text
-		act := tt.it.String()
+		act := tt.t.String()
 
 		if exp != act {
-			t.Errorf("'%v'.String(): expected '%v', actual '%v'", tt.it, exp, act)
+			t.Errorf("'%v'.String(): expected '%v', actual '%v'", tt.t, exp, act)
 		}
 	}
 }
 
-func TestIsKnown(t *testing.T) {
+func TestTypeIsKnown(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		it      IndicatorType
+		t       Type
 		boolean bool
 	}{
 		{SimpleMovingAverage, true},
@@ -48,27 +48,27 @@ func TestIsKnown(t *testing.T) {
 		{StandardDeviation, true},
 		{GoertzelSpectrum, true},
 		{last, false},
-		{IndicatorType(0), false},
-		{IndicatorType(9999), false},
-		{IndicatorType(-9999), false},
+		{Type(0), false},
+		{Type(9999), false},
+		{Type(-9999), false},
 	}
 
 	for _, tt := range tests {
 		exp := tt.boolean
-		act := tt.it.IsKnown()
+		act := tt.t.IsKnown()
 
 		if exp != act {
-			t.Errorf("'%v'.IsKnown(): expected '%v', actual '%v'", tt.it, exp, act)
+			t.Errorf("'%v'.IsKnown(): expected '%v', actual '%v'", tt.t, exp, act)
 		}
 	}
 }
 
-func TestMarshalJSON(t *testing.T) {
+func TestTypeMarshalJSON(t *testing.T) {
 	t.Parallel()
 
 	var nilstr string
 	tests := []struct {
-		it        IndicatorType
+		t         Type
 		json      string
 		succeeded bool
 	}{
@@ -79,40 +79,40 @@ func TestMarshalJSON(t *testing.T) {
 		{StandardDeviation, "\"standardDeviation\"", true},
 		{GoertzelSpectrum, "\"goertzelSpectrum\"", true},
 		{last, nilstr, false},
-		{IndicatorType(9999), nilstr, false},
-		{IndicatorType(-9999), nilstr, false},
-		{IndicatorType(0), nilstr, false},
+		{Type(9999), nilstr, false},
+		{Type(-9999), nilstr, false},
+		{Type(0), nilstr, false},
 	}
 
 	for _, tt := range tests {
 		exp := tt.json
-		bs, err := tt.it.MarshalJSON()
+		bs, err := tt.t.MarshalJSON()
 
 		if err != nil && tt.succeeded {
-			t.Errorf("'%v'.MarshalJSON(): expected success '%v', got error %v", tt.it, exp, err)
+			t.Errorf("'%v'.MarshalJSON(): expected success '%v', got error %v", tt.t, exp, err)
 
 			continue
 		}
 
 		if err == nil && !tt.succeeded {
-			t.Errorf("'%v'.MarshalJSON(): expected error, got success", tt.it)
+			t.Errorf("'%v'.MarshalJSON(): expected error, got success", tt.t)
 
 			continue
 		}
 
 		act := string(bs)
 		if exp != act {
-			t.Errorf("'%v'.MarshalJSON(): expected '%v', actual '%v'", tt.it, exp, act)
+			t.Errorf("'%v'.MarshalJSON(): expected '%v', actual '%v'", tt.t, exp, act)
 		}
 	}
 }
 
-func TestUnmarshalJSON(t *testing.T) {
+func TestTypeUnmarshalJSON(t *testing.T) {
 	t.Parallel()
 
-	var zero IndicatorType
+	var zero Type
 	tests := []struct {
-		it        IndicatorType
+		t         Type
 		json      string
 		succeeded bool
 	}{
@@ -127,12 +127,12 @@ func TestUnmarshalJSON(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		exp := tt.it
+		exp := tt.t
 		bs := []byte(tt.json)
 
-		var it IndicatorType
+		var act Type
 
-		err := it.UnmarshalJSON(bs)
+		err := act.UnmarshalJSON(bs)
 		if err != nil && tt.succeeded {
 			t.Errorf("UnmarshalJSON('%v'): expected success '%v', got error %v", tt.json, exp, err)
 
@@ -145,8 +145,8 @@ func TestUnmarshalJSON(t *testing.T) {
 			continue
 		}
 
-		if exp != it {
-			t.Errorf("MarshalJSON('%v'): expected '%v', actual '%v'", tt.json, exp, it)
+		if exp != act {
+			t.Errorf("MarshalJSON('%v'): expected '%v', actual '%v'", tt.json, exp, act)
 		}
 	}
 }

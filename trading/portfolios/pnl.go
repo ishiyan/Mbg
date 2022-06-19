@@ -2,10 +2,10 @@ package portfolios
 
 //nolint:gci
 import (
-	"mbg/trading/data"
-	"mbg/trading/data/entities"
 	"sync"
 	"time"
+
+	"mbg/trading/data"
 )
 
 const hundred = 100
@@ -41,7 +41,7 @@ func (p *PnL) Amount() float64 {
 
 // AmountHistory returns the Profit and Loss amount time series
 // or an empty slice if not initialized.
-func (p *PnL) AmountHistory() []entities.Scalar {
+func (p *PnL) AmountHistory() []data.Scalar {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
@@ -59,7 +59,7 @@ func (p *PnL) Percentage() float64 {
 
 // PercentageHistory returns the Profit and Loss percentage time series
 // or an empty slice if not initialized.
-func (p *PnL) PercentageHistory() []entities.Scalar {
+func (p *PnL) PercentageHistory() []data.Scalar {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
@@ -79,7 +79,7 @@ func (p *PnL) UnrealizedAmount() float64 {
 
 // UnrealizedAmountHistory returns the unrealized Profit and Loss amount time series
 // or an empty slice if not initialized.
-func (p *PnL) UnrealizedAmountHistory() []entities.Scalar {
+func (p *PnL) UnrealizedAmountHistory() []data.Scalar {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 

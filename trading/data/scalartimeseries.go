@@ -2,7 +2,6 @@ package data
 
 //nolint:gci
 import (
-	"mbg/trading/data/entities"
 	"sort"
 	"time"
 )
@@ -10,11 +9,11 @@ import (
 // ScalarTimeSeries contains a time series of values.
 // The implementation is not thread-safe and should not be exposed directly.
 type ScalarTimeSeries struct {
-	scalar *entities.Scalar
-	series []*entities.Scalar
+	scalar *Scalar
+	series []*Scalar
 }
 
-var empty []entities.Scalar = []entities.Scalar{} //nolint:gochecknoglobals
+var empty []Scalar = []Scalar{} //nolint:gochecknoglobals
 
 // Current returns a current (the most recent) value of the time series or zero if time series is empty.
 func (sts *ScalarTimeSeries) Current() float64 {
@@ -42,10 +41,10 @@ func (sts *ScalarTimeSeries) At(t time.Time) float64 {
 }
 
 // History returns a copy of the time series or an empty slice if the time series is empty.
-func (sts *ScalarTimeSeries) History() []entities.Scalar {
+func (sts *ScalarTimeSeries) History() []Scalar {
 	if h := sts.series; h != nil {
 		if l := len(h); l > 0 {
-			v := make([]entities.Scalar, l)
+			v := make([]Scalar, l)
 			for i, s := range h {
 				v[i] = *s
 			}
@@ -63,7 +62,7 @@ func (sts *ScalarTimeSeries) History() []entities.Scalar {
 func (sts *ScalarTimeSeries) Add(t time.Time, v float64) {
 	switch {
 	case sts.scalar == nil || sts.scalar.Time.Before(t): // The very first or a next sample.
-		s := &entities.Scalar{Time: t, Value: v}
+		s := &Scalar{Time: t, Value: v}
 		sts.series = append(sts.series, s)
 		sts.scalar = s
 	case sts.scalar.Time.Equal(t): // The sample time is equal to the last time.
@@ -75,7 +74,7 @@ func (sts *ScalarTimeSeries) Add(t time.Time, v float64) {
 		if sts.series[i].Time.Equal(t) {
 			sts.series[i].Value = v
 		} else {
-			s := &entities.Scalar{Time: t, Value: v}
+			s := &Scalar{Time: t, Value: v}
 			sts.series = append(sts.series[:i+1], sts.series[i:]...)
 			sts.series[i] = s
 		}
@@ -89,11 +88,11 @@ func (sts *ScalarTimeSeries) Add(t time.Time, v float64) {
 func (sts *ScalarTimeSeries) Accumulate(t time.Time, v float64) {
 	switch {
 	case sts.scalar == nil: // The very first sample.
-		s := &entities.Scalar{Time: t, Value: v}
+		s := &Scalar{Time: t, Value: v}
 		sts.series = append(sts.series, s)
 		sts.scalar = s
 	case sts.scalar.Time.Before(t): // Next sample.
-		s := &entities.Scalar{Time: t, Value: v + sts.scalar.Value}
+		s := &Scalar{Time: t, Value: v + sts.scalar.Value}
 		sts.series = append(sts.series, s)
 		sts.scalar = s
 	case sts.scalar.Time.Equal(t): // Sample time is equal to the last time.
@@ -109,7 +108,7 @@ func (sts *ScalarTimeSeries) Accumulate(t time.Time, v float64) {
 				h[i].Value += v
 			}
 		} else {
-			s := &entities.Scalar{Time: t, Value: v}
+			s := &Scalar{Time: t, Value: v}
 			if i > 0 {
 				s.Value += h[i-1].Value
 			}

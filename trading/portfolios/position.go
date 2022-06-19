@@ -3,15 +3,15 @@ package portfolios
 //nolint:gci
 import (
 	"math"
+	"sync"
+	"time"
+
 	"mbg/trading/currencies"
 	"mbg/trading/data"
-	"mbg/trading/data/entities"
 	"mbg/trading/instruments"
 	"mbg/trading/orders/sides"
 	pos "mbg/trading/portfolios/positions/sides"
 	"mbg/trading/portfolios/roundtrips/matchings"
-	"sync"
-	"time"
 )
 
 // Position is a portfolio position.
@@ -396,7 +396,7 @@ func (p *Position) Amount() float64 {
 
 // AmountHistory is a time series of the position amounts
 // (factored price times signed quantity) in instrument's currency.
-func (p *Position) AmountHistory() []entities.Scalar {
+func (p *Position) AmountHistory() []data.Scalar {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 

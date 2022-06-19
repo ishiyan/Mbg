@@ -3,9 +3,10 @@ package portfolios
 
 //nolint:gci
 import (
-	"mbg/trading/data/entities"
 	"testing"
 	"time"
+
+	"mbg/trading/data"
 )
 
 func TestPnLEmpty(t *testing.T) {
@@ -58,9 +59,9 @@ func TestPnLadd(t *testing.T) {
 
 	t0 := time.Now()
 	p := newPnL()
-	ah := []entities.Scalar{}
-	uah := []entities.Scalar{}
-	ph := []entities.Scalar{}
+	ah := []data.Scalar{}
+	uah := []data.Scalar{}
+	ph := []data.Scalar{}
 
 	tests := []struct {
 		t                   time.Time
@@ -81,13 +82,13 @@ func TestPnLadd(t *testing.T) {
 		p.add(tt.t, tt.entryAmount, tt.amount, tt.unrealizedAmount, tt.cashFlow)
 
 		if tt.add {
-			ah = append(ah, entities.Scalar{Time: tt.t, Value: tt.amount + tt.cashFlow})
-			uah = append(uah, entities.Scalar{Time: tt.t, Value: tt.unrealizedAmount})
+			ah = append(ah, data.Scalar{Time: tt.t, Value: tt.amount + tt.cashFlow})
+			uah = append(uah, data.Scalar{Time: tt.t, Value: tt.unrealizedAmount})
 
 			if tt.entryAmount != 0 {
-				ph = append(ph, entities.Scalar{Time: tt.t, Value: (tt.amount + tt.cashFlow) / tt.entryAmount * hundred})
+				ph = append(ph, data.Scalar{Time: tt.t, Value: (tt.amount + tt.cashFlow) / tt.entryAmount * hundred})
 			} else {
-				ph = append(ph, entities.Scalar{Time: tt.t, Value: 0})
+				ph = append(ph, data.Scalar{Time: tt.t, Value: 0})
 			}
 		}
 

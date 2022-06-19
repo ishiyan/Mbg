@@ -3,9 +3,10 @@ package portfolios
 
 //nolint:gci
 import (
-	"mbg/trading/data/entities"
 	"testing"
 	"time"
+
+	"mbg/trading/data"
 )
 
 func TestDrawdownEmpty(t *testing.T) {
@@ -76,14 +77,14 @@ func TestDrawdownAdd(t *testing.T) {
 
 	t0 := time.Now()
 	d := Drawdown{}
-	wh := []entities.Scalar{}
-	ah := []entities.Scalar{}
-	ph := []entities.Scalar{}
-	amh := []entities.Scalar{}
-	pmh := []entities.Scalar{}
+	wh := []data.Scalar{}
+	ah := []data.Scalar{}
+	ph := []data.Scalar{}
+	amh := []data.Scalar{}
+	pmh := []data.Scalar{}
 
 	tests := []struct {
-		s             entities.Scalar
+		s             data.Scalar
 		watermark     float64
 		amount        float64
 		percentage    float64
@@ -92,27 +93,27 @@ func TestDrawdownAdd(t *testing.T) {
 		add           bool
 		addWatermark  bool
 	}{
-		{entities.Scalar{Time: t0.AddDate(0, 0, 1), Value: 100}, 100, 0, 0, 0, 0, false, true},
-		{entities.Scalar{Time: t0.AddDate(0, 0, 2), Value: 110}, 110, 0, 0, 0, 0, true, true},
-		{entities.Scalar{Time: t0.AddDate(0, 0, 3), Value: 105}, 110, -5, -50. / 11, -5, -50. / 11, true, false},
-		{entities.Scalar{Time: t0.AddDate(0, 0, 4), Value: 90}, 110, -20, -200. / 11, -20, -200. / 11, true, false},
-		{entities.Scalar{Time: t0.AddDate(0, 0, 5), Value: 115}, 115, 0, 0, -20, -200. / 11, true, true},
-		{entities.Scalar{Time: t0.AddDate(0, 0, 4), Value: 999}, 115, 0, 0, -20, -200. / 11, false, false},
-		{entities.Scalar{Time: t0.AddDate(0, 0, 5), Value: 999}, 115, 0, 0, -20, -200. / 11, false, false},
+		{data.Scalar{Time: t0.AddDate(0, 0, 1), Value: 100}, 100, 0, 0, 0, 0, false, true},
+		{data.Scalar{Time: t0.AddDate(0, 0, 2), Value: 110}, 110, 0, 0, 0, 0, true, true},
+		{data.Scalar{Time: t0.AddDate(0, 0, 3), Value: 105}, 110, -5, -50. / 11, -5, -50. / 11, true, false},
+		{data.Scalar{Time: t0.AddDate(0, 0, 4), Value: 90}, 110, -20, -200. / 11, -20, -200. / 11, true, false},
+		{data.Scalar{Time: t0.AddDate(0, 0, 5), Value: 115}, 115, 0, 0, -20, -200. / 11, true, true},
+		{data.Scalar{Time: t0.AddDate(0, 0, 4), Value: 999}, 115, 0, 0, -20, -200. / 11, false, false},
+		{data.Scalar{Time: t0.AddDate(0, 0, 5), Value: 999}, 115, 0, 0, -20, -200. / 11, false, false},
 	}
 
 	for _, tt := range tests {
 		d.add(tt.s.Time, tt.s.Value)
 
 		if tt.addWatermark {
-			wh = append(wh, entities.Scalar{Time: tt.s.Time, Value: tt.watermark})
+			wh = append(wh, data.Scalar{Time: tt.s.Time, Value: tt.watermark})
 		}
 
 		if tt.add {
-			ah = append(ah, entities.Scalar{Time: tt.s.Time, Value: tt.amount})
-			ph = append(ph, entities.Scalar{Time: tt.s.Time, Value: tt.percentage})
-			amh = append(amh, entities.Scalar{Time: tt.s.Time, Value: tt.amountMax})
-			pmh = append(pmh, entities.Scalar{Time: tt.s.Time, Value: tt.percentageMax})
+			ah = append(ah, data.Scalar{Time: tt.s.Time, Value: tt.amount})
+			ph = append(ph, data.Scalar{Time: tt.s.Time, Value: tt.percentage})
+			amh = append(amh, data.Scalar{Time: tt.s.Time, Value: tt.amountMax})
+			pmh = append(pmh, data.Scalar{Time: tt.s.Time, Value: tt.percentageMax})
 		}
 
 		if d.Watermark() != tt.watermark {

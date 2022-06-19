@@ -1,4 +1,4 @@
-package entities
+package data
 
 import (
 	"fmt"
@@ -7,17 +7,17 @@ import (
 
 // Quote represents [price, size] pairs for the bid & ask.
 type Quote struct {
-	Time    time.Time `json:"t"`  // The date and time.
-	Bid     float64   `json:"bp"` // The bid price.
-	Ask     float64   `json:"ap"` // The ask price.
-	BidSize float64   `json:"bs"` // The bid size.
-	AskSize float64   `json:"as"` // The ask size.
+	Time    time.Time `json:"time"`    // The date and time.
+	Bid     float64   `json:"bid"`     // The bid price.
+	Ask     float64   `json:"ask"`     // The ask price.
+	BidSize float64   `json:"bidSize"` // The bid size.
+	AskSize float64   `json:"askSize"` // The ask size.
 }
 
 // Mid is the mid-price, calculated as
 //   (ask + bid) / 2.
 func (q *Quote) Mid() float64 {
-	return (q.Ask + q.Bid) / 2 //nolint:gomnd
+	return (q.Ask + q.Bid) / 2 //znolint:gomnd
 }
 
 // Weighted is a weighted price, calculated as
@@ -61,5 +61,5 @@ func (q *Quote) SpreadBp() float64 {
 
 // String implements the Stringer interface.
 func (q *Quote) String() string {
-	return fmt.Sprintf("Quote(%v, %f, %f, %f, %f)", q.Time, q.Bid, q.Ask, q.BidSize, q.AskSize)
+	return fmt.Sprintf("Quote(%v, %f, %f, %f, %f)", q.Time.Format(timeFmtDateTime), q.Bid, q.Ask, q.BidSize, q.AskSize)
 }

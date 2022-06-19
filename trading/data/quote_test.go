@@ -1,5 +1,5 @@
 //nolint:testpackage
-package entities
+package data
 
 import (
 	"testing"
@@ -84,7 +84,7 @@ func TestQuoteString(t *testing.T) {
 		Time: time.Date(2021, time.April, 1, 0, 0, 0, 0, &time.Location{}),
 		Ask:  2.0, Bid: 3.0, AskSize: 4.0, BidSize: 5.0,
 	}
-	expected := "Quote(2021-04-01 00:00:00 +0000 UTC, 3.000000, 2.000000, 5.000000, 4.000000)"
+	expected := "Quote(2021-04-01 00:00:00, 3.000000, 2.000000, 5.000000, 4.000000)"
 
 	if actual := q.String(); actual != expected {
 		t.Errorf("expected %s, actual %s", expected, actual)

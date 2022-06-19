@@ -1,12 +1,10 @@
-package entities
+package data
 
 import (
 	"fmt"
 	"math"
 	"time"
 )
-
-const timeFmt = "2006-01-02 15:04:05"
 
 // Band represents two band values and a time stamp.
 type Band struct {
@@ -22,7 +20,7 @@ type Band struct {
 
 // newBand creates a new band.
 // Both lower and upper values should not be NaN.
-func newBand(time time.Time, lower, upper float64) *Band {
+func NewBand(time time.Time, lower, upper float64) *Band {
 	if lower < upper {
 		return &Band{
 			Time:  time,
@@ -40,7 +38,7 @@ func newBand(time time.Time, lower, upper float64) *Band {
 
 // newEmptyBand creates a new empty band.
 // Both lower and upper values will be equal to NaN.
-func newEmptyBand(time time.Time) *Band {
+func NewEmptyBand(time time.Time) *Band {
 	nan := math.NaN()
 
 	return &Band{

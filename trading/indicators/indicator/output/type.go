@@ -1,5 +1,5 @@
-// Package types enumerates the output entitity types of indicators.
-package types
+// Package output encapsuletes info related to outputs of an indicator.
+package output
 
 import (
 	"bytes"
@@ -7,12 +7,12 @@ import (
 	"fmt"
 )
 
-// OutputType identifies an output entity type of an indicator.
-type OutputType int
+// Type identifies a type of an output of an indicator by enumerating all possible output types.
+type Type int
 
 const (
 	// Holds a time stamp and a value.
-	Scalar OutputType = iota + 1
+	Scalar Type = iota + 1
 
 	// Holds a time stamp and two values representing upper and lower lines of a band.
 	Band
@@ -29,12 +29,11 @@ const (
 	heatmap = "heatmap"
 )
 
-var errUnknownOutputType = errors.New("unknown indicator output type")
+var errUnknownType = errors.New("unknown indicator output type")
 
-//nolint:exhaustive,cyclop
 // String implements the Stringer interface.
-func (i OutputType) String() string {
-	switch i {
+func (t Type) String() string {
+	switch t {
 	case Scalar:
 		return scalar
 	case Band:
@@ -47,15 +46,15 @@ func (i OutputType) String() string {
 }
 
 // IsKnown determines if this output type is known.
-func (i OutputType) IsKnown() bool {
-	return i >= Scalar && i < last
+func (t Type) IsKnown() bool {
+	return t >= Scalar && t < last
 }
 
 // MarshalJSON implements the Marshaler interface.
-func (i OutputType) MarshalJSON() ([]byte, error) {
-	s := i.String()
+func (t Type) MarshalJSON() ([]byte, error) {
+	s := t.String()
 	if s == unknown {
-		return nil, fmt.Errorf("cannot marshal '%s': %w", s, errUnknownOutputType)
+		return nil, fmt.Errorf("cannot marshal '%s': %w", s, errUnknownType)
 	}
 
 	const extra = 2 // Two bytes for quotes.
@@ -68,21 +67,20 @@ func (i OutputType) MarshalJSON() ([]byte, error) {
 	return b, nil
 }
 
-//nolint:cyclop
 // UnmarshalJSON implements the Unmarshaler interface.
-func (i *OutputType) UnmarshalJSON(data []byte) error {
+func (t *Type) UnmarshalJSON(data []byte) error {
 	d := bytes.Trim(data, "\"")
 	s := string(d)
 
 	switch s {
 	case scalar:
-		*i = Scalar
+		*t = Scalar
 	case band:
-		*i = Band
+		*t = Band
 	case heatmap:
-		*i = Heatmap
+		*t = Heatmap
 	default:
-		return fmt.Errorf("cannot unmarshal '%s': %w", s, errUnknownOutputType)
+		return fmt.Errorf("cannot unmarshal '%s': %w", s, errUnknownType)
 	}
 
 	return nil

@@ -3,7 +3,6 @@ package data
 
 //nolint:gci
 import (
-	"mbg/trading/data/entities"
 	"testing"
 	"time"
 )
@@ -20,7 +19,7 @@ func TestScalarTimeSeries(t *testing.T) {
 		}
 	}
 
-	verifyHistLen := func(exp int, act []entities.Scalar) {
+	verifyHistLen := func(exp int, act []Scalar) {
 		t.Helper()
 
 		if len(act) != exp {
@@ -28,10 +27,10 @@ func TestScalarTimeSeries(t *testing.T) {
 		}
 	}
 
-	verifyHistElem := func(idx int, tim time.Time, val float64, hist []entities.Scalar) {
+	verifyHistElem := func(idx int, tim time.Time, val float64, hist []Scalar) {
 		t.Helper()
 
-		exp := entities.Scalar{Time: tim, Value: val}
+		exp := Scalar{Time: tim, Value: val}
 		if hist[idx] != exp {
 			t.Errorf("History()[%v]: expected %v, actual %v", idx, exp, hist[idx])
 		}
@@ -45,13 +44,13 @@ func TestScalarTimeSeries(t *testing.T) {
 		}
 	}
 
-	s0 := entities.Scalar{Time: time.Now(), Value: 1}
-	s1 := entities.Scalar{Time: s0.Time.AddDate(0, 0, 2), Value: 2}
-	s2 := entities.Scalar{Time: s0.Time.AddDate(0, 0, 1), Value: 3}
-	s3 := entities.Scalar{Time: s0.Time.AddDate(0, 0, 2), Value: 4}
-	s4 := entities.Scalar{Time: s0.Time.AddDate(0, 0, -1), Value: 5}
-	s5 := entities.Scalar{Time: s0.Time.AddDate(0, 0, 3), Value: 6}
-	s6 := entities.Scalar{Time: s0.Time.AddDate(0, 0, 2), Value: 7}
+	s0 := Scalar{Time: time.Now(), Value: 1}
+	s1 := Scalar{Time: s0.Time.AddDate(0, 0, 2), Value: 2}
+	s2 := Scalar{Time: s0.Time.AddDate(0, 0, 1), Value: 3}
+	s3 := Scalar{Time: s0.Time.AddDate(0, 0, 2), Value: 4}
+	s4 := Scalar{Time: s0.Time.AddDate(0, 0, -1), Value: 5}
+	s5 := Scalar{Time: s0.Time.AddDate(0, 0, 3), Value: 6}
+	s6 := Scalar{Time: s0.Time.AddDate(0, 0, 2), Value: 7}
 
 	t.Run("empty", func(t *testing.T) {
 		t.Parallel()

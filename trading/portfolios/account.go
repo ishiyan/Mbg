@@ -2,12 +2,12 @@ package portfolios
 
 //nolint:gci
 import (
-	"mbg/trading/currencies"
-	"mbg/trading/data"
-	"mbg/trading/data/entities"
-	"mbg/trading/portfolios/accounts/actions"
 	"sync"
 	"time"
+
+	"mbg/trading/currencies"
+	"mbg/trading/data"
+	"mbg/trading/portfolios/accounts/actions"
 )
 
 // Account is a single-entry account holding transactions in home currency.
@@ -54,7 +54,7 @@ func (a *Account) Balance() float64 {
 }
 
 // BalanceHistory is a time series of the total ot all transactions expressed in the home currency.
-func (a *Account) BalanceHistory() []entities.Scalar {
+func (a *Account) BalanceHistory() []data.Scalar {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 

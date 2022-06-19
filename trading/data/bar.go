@@ -1,4 +1,4 @@
-package entities
+package data
 
 import (
 	"fmt"
@@ -8,22 +8,22 @@ import (
 // Bar represents an [open, high, low, close, volume] price bar.
 type Bar struct {
 	// Time is the date and time of the closing price.
-	Time time.Time `json:"t"`
+	Time time.Time `json:"time"`
 
 	// Open is the opening price.
-	Open float64 `json:"o"`
+	Open float64 `json:"open"`
 
 	// High is the highest price.
-	High float64 `json:"h"`
+	High float64 `json:"high"`
 
 	// Low is the lowest price.
-	Low float64 `json:"l"`
+	Low float64 `json:"low"`
 
 	// Close is the closing price.
-	Close float64 `json:"c"`
+	Close float64 `json:"close"`
 
 	// Volume is the aggregated volume.
-	Volume float64 `json:"v"`
+	Volume float64 `json:"volume"`
 }
 
 // IsRising indicates whether this is a rising bar, i.e. the opening price is less than the closing price.
@@ -60,9 +60,7 @@ func (b *Bar) Average() float64 {
 	return (b.Low + b.High + b.Open + b.Close) / 4 //nolint:gomnd
 }
 
-const timeFmt = "2006-01-02 15:04:05"
-
 // String implements the Stringer interface.
 func (b *Bar) String() string {
-	return fmt.Sprintf("{%s, %f, %f, %f, %f, %f}", b.Time.Format(timeFmt), b.Open, b.High, b.Low, b.Close, b.Volume)
+	return fmt.Sprintf("{%s, %f, %f, %f, %f, %f}", b.Time.Format(timeFmtDateTime), b.Open, b.High, b.Low, b.Close, b.Volume)
 }
