@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-//nolint:funlen
+//nolint:funlen,maintidx
 func TestIsHolidayNorway(t *testing.T) {
 	t.Parallel()
 

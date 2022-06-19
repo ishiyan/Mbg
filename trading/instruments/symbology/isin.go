@@ -137,7 +137,7 @@ func (isin ISIN) CalculateCheckDigit() (byte, error) {
 }
 
 //gocyclo:ignore
-//nolint:funlen,gocognit,cyclop
+//nolint:funlen,gocognit,cyclop,maintidx
 // ValidateCountry valudates if two first letters of the ISIN represent a valid country code.
 func (isin ISIN) ValidateCountry() bool {
 	if len(isin) < isinCountryLength {

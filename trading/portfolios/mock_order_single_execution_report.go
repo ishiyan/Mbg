@@ -1,12 +1,13 @@
 package portfolios
 
-//nolint:gci
+//nolint:gofumpt
 import (
+	"time"
+
 	"mbg/trading/currencies"
 	"mbg/trading/orders"
 	"mbg/trading/orders/reports"
 	"mbg/trading/orders/status"
-	"time"
 )
 
 // mockOrderSingleExecutionReport is a mock report event for an order in a single instrument.

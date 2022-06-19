@@ -1,6 +1,5 @@
 package portfolios
 
-//nolint:gci
 import (
 	"sync"
 	"time"

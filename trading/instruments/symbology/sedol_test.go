@@ -7,7 +7,7 @@ import (
 
 // Useful link to verify SEDOLs: https://www.isindb.com/fix-sedol-calculate-sedol-check-digit/.
 
-//nolint:funlen
+//nolint:funlen,maintidx
 func TestSEDOLValidate(t *testing.T) {
 	t.Parallel()
 

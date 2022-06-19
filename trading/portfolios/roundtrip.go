@@ -1,12 +1,13 @@
 package portfolios
 
-//nolint:gci
+//nolint:gofumpt,gci
 import (
 	"math"
+	"time"
+
 	"mbg/trading/instruments"
 	"mbg/trading/portfolios/positions/sides"
 	pos "mbg/trading/portfolios/positions/sides"
-	"time"
 )
 
 // Roundtrip is a position round-trip.

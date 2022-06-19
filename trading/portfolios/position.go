@@ -1,6 +1,6 @@
 package portfolios
 
-//nolint:gci
+//nolint:gofumpt
 import (
 	"math"
 	"sync"

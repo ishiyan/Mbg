@@ -1,7 +1,7 @@
 //nolint:testpackage
 package portfolios
 
-//nolint:gci
+//nolint:gofumpt
 import (
 	"testing"
 	"time"

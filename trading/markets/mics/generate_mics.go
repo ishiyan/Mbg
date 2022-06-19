@@ -1,5 +1,6 @@
 // The following directive is necessary to make the package coherent:
 
+//go:build ignore
 // +build ignore
 
 // This program generates `mic.go` and `mic_test.go`, overwriting any existing versions.

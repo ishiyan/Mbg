@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-//nolint:funlen
+//nolint:funlen,maintidx
 func TestValidateISIN(t *testing.T) {
 	t.Parallel()
 
@@ -290,7 +290,7 @@ func TestValidateISIN(t *testing.T) {
 	}
 }
 
-//nolint:funlen
+//nolint:funlen,maintidx
 func TestValidateCheckDigitISIN(t *testing.T) {
 	t.Parallel()
 
@@ -596,7 +596,7 @@ func TestCalculateCheckDigitISIN(t *testing.T) {
 	}
 }
 
-//nolint:funlen
+//nolint:funlen,maintidx
 func TestValidateCountryISIN(t *testing.T) {
 	t.Parallel()
 
@@ -717,11 +717,6 @@ func TestValidateCountryISIN(t *testing.T) {
 		{"JO", true},
 		{"JP", true},
 		{"KE", true},
-		{"KG", true},
-		{"KH", true},
-		{"KI", true},
-		{"KM", true},
-		{"KN", true},
 		{"KP", true},
 		{"KR", true},
 		{"KW", true},

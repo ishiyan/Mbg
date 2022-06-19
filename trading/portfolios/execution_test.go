@@ -1,17 +1,18 @@
 //nolint:testpackage
 package portfolios
 
-//nolint:gci
+//nolint:gofumpt
 import (
+	"testing"
+	"time"
+
 	"mbg/trading/currencies"
 	"mbg/trading/instruments"
 	"mbg/trading/orders"
 	"mbg/trading/orders/sides"
-	"testing"
-	"time"
 )
 
-//nolint:funlen,gocognit
+//nolint:funlen,gocognit,maintidx
 func TestExecution(t *testing.T) {
 	t.Parallel()
 

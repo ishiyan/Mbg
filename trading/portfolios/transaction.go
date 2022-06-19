@@ -1,10 +1,11 @@
 package portfolios
 
-//nolint:gci
+//nolint:gofumpt
 import (
+	"time"
+
 	"mbg/trading/currencies"
 	"mbg/trading/portfolios/accounts/actions"
-	"time"
 )
 
 // Transaction is an immutable account transaction.

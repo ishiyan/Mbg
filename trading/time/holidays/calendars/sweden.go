@@ -1,9 +1,10 @@
 package calendars
 
-//nolint:gci
+//nolint:gofumpt
 import (
-	"mbg/trading/time/computus"
 	"time"
+
+	"mbg/trading/time/computus"
 )
 
 // Sweden implements a generic Swedish exchange holiday calendar.

@@ -1,14 +1,15 @@
 //nolint:testpackage
 package portfolios
 
-//nolint:gci
+//nolint:gofumpt
 import (
 	"math"
+	"testing"
+	"time"
+
 	"mbg/trading/instruments"
 	"mbg/trading/orders/sides"
 	pos "mbg/trading/portfolios/positions/sides"
-	"testing"
-	"time"
 )
 
 //nolint:funlen,gocognit

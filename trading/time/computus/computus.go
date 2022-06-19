@@ -290,32 +290,44 @@ func OrthodoxEasterSundayYearDay(year int) (int, error) {
 // IsShroveTuesday checks if a date (greater than 1583 AD) is the Shrove Tuesday,
 // aka Mardi Gras (47 days before Easter).
 func IsShroveTuesday(t time.Time) (bool, error) {
-	return checkDays(t, 47)
+	const c = 47
+
+	return checkDays(t, c)
 }
 
 // IsAshWednesday checks if a date (greater than 1583 AD) is the Ash Wednesday, start of Lent (46 days before Easter).
 func IsAshWednesday(t time.Time) (bool, error) {
-	return checkDays(t, 46)
+	const c = 46
+
+	return checkDays(t, c)
 }
 
 // IsPalmSunday checks if a date (greater than 1583 AD) is the Palm Sunday (7 days before Easter).
 func IsPalmSunday(t time.Time) (bool, error) {
-	return checkDays(t, 7)
+	const c = 7
+
+	return checkDays(t, c)
 }
 
 // IsMaundyThursday checks if a date (greater than 1583 AD) is the Maundy Thursday (3 days before Easter).
 func IsMaundyThursday(t time.Time) (bool, error) {
-	return checkDays(t, 3)
+	const c = 3
+
+	return checkDays(t, c)
 }
 
 // IsGoodFriday checks if a date (greater than 1583 AD) is the Good Friday (Karfreitag, 2 days before Easter).
 func IsGoodFriday(t time.Time) (bool, error) {
-	return checkDays(t, 2)
+	const c = 2
+
+	return checkDays(t, c)
 }
 
 // IsEasterSunday checks if a date (greater than 1583 AD) is the Western Easter Sunday.
 func IsEasterSunday(t time.Time) (bool, error) {
-	return checkDays(t, 0)
+	const c = 0
+
+	return checkDays(t, c)
 }
 
 // IsOrthodoxEasterSunday checks if a date (greater than 1583 AD) is the Orthodox Easter Sunday.

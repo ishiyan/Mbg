@@ -31,7 +31,7 @@ func (st SynchronizedTimepiece) Synchronize(t time.Time) {
 	sec := daySeconds(t)
 	nsec := t.Nanosecond()
 
-	if mon > st.mon || day > st.day {
+	if mon > st.mon || day > st.day { //nolint:nestif
 		// delta := time.Sub(st.now)
 		if st.sec <= st.secSessionEnd {
 			if st.sec < st.secSessionStart {

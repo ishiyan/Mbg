@@ -1,15 +1,16 @@
 package portfolios
 
-//nolint:gci
+//nolint:gofumpt
 import (
 	"math"
+	"sync"
+	"time"
+
 	"mbg/trading/currencies"
 	"mbg/trading/instruments"
 	"mbg/trading/orders"
 	"mbg/trading/orders/reports"
 	"mbg/trading/portfolios/roundtrips/matchings"
-	"sync"
-	"time"
 )
 
 // Portfolio is a portfolio.
@@ -27,7 +28,8 @@ type Portfolio struct {
 
 // NewPortfolio creates a new portfolio.
 func NewPortfolio(holder string, cash float64, currency currencies.Currency, converter currencies.Converter,
-	matching matchings.Matching) *Portfolio {
+	matching matchings.Matching,
+) *Portfolio {
 	p := &Portfolio{
 		roundtripMatching: matching,
 		currency:          currency,

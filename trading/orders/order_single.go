@@ -1,13 +1,14 @@
 // Package orders defines order properties and functionality to create and track orders.
 package orders
 
-//nolint:gci
+//nolint:gofumpt
 import (
+	"time"
+
 	"mbg/trading/instruments"
 	"mbg/trading/orders/sides"
 	"mbg/trading/orders/tif"
 	"mbg/trading/orders/types"
-	"time"
 )
 
 // OrderSingle is a request to place an order in a single instrument.

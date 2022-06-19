@@ -1,12 +1,13 @@
 //nolint:testpackage
 package portfolios
 
-//nolint:gci
+//nolint:gofumpt
 import (
-	"mbg/trading/currencies"
-	"mbg/trading/portfolios/accounts/actions"
 	"testing"
 	"time"
+
+	"mbg/trading/currencies"
+	"mbg/trading/portfolios/accounts/actions"
 )
 
 func TestTransaction(t *testing.T) {

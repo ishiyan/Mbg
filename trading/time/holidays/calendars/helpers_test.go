@@ -1,12 +1,13 @@
 //nolint:testpackage
 package calendars
 
-//nolint:gci
+//nolint:gofumpt
 import (
-	"mbg/trading/time/computus"
-	"mbg/trading/time/holidays"
 	"testing"
 	"time"
+
+	"mbg/trading/time/computus"
+	"mbg/trading/time/holidays"
 )
 
 const (
@@ -91,7 +92,8 @@ func verifyWorkday(t *testing.T, c holidays.Calendarer, month, day int) {
 var always = func(y int) bool { return true }
 
 func verifyFixedDateOrWeekend(t *testing.T, c holidays.Calendarer, month, day int, name string,
-	condition func(int) bool) {
+	condition func(int) bool,
+) {
 	t.Helper()
 
 	w := WeekendsOnly{}
@@ -118,7 +120,8 @@ func verifyFixedDateOrWeekend(t *testing.T, c holidays.Calendarer, month, day in
 }
 
 func verifyComputusOrWeekend(t *testing.T, c holidays.Calendarer, offset int, name string,
-	condition func(int) bool) {
+	condition func(int) bool,
+) {
 	t.Helper()
 
 	w := WeekendsOnly{}
@@ -145,7 +148,8 @@ func verifyComputusOrWeekend(t *testing.T, c holidays.Calendarer, offset int, na
 }
 
 func verifyComputus(t *testing.T, c holidays.Calendarer, offset int, name string,
-	condition func(int) bool) {
+	condition func(int) bool,
+) {
 	t.Helper()
 
 	for i := testYearStart; i < testYearEnd; i++ {

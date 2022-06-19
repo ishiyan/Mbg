@@ -1,16 +1,17 @@
 //nolint:testpackage
 package portfolios
 
-//nolint:gci
+//nolint:gofumpt
 import (
 	"math"
-	"mbg/trading/instruments"
-	"mbg/trading/portfolios/positions/sides"
 	"testing"
 	"time"
+
+	"mbg/trading/instruments"
+	"mbg/trading/portfolios/positions/sides"
 )
 
-//nolint:funlen,gocognit,gocyclo
+//nolint:funlen,gocognit,gocyclo,maintidx
 func TestRoundtripPerformanceEmpty(t *testing.T) {
 	t.Parallel()
 
@@ -217,7 +218,7 @@ func TestRoundtripPerformanceEmpty(t *testing.T) {
 	}
 }
 
-//nolint:funlen,gocognit,gocyclo
+//nolint:funlen,gocognit,gocyclo,maintidx
 func TestRoundtripPerformance(t *testing.T) {
 	t.Parallel()
 

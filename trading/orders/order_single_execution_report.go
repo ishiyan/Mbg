@@ -1,11 +1,12 @@
 package orders
 
-//nolint:gci
+//nolint:gofumpt
 import (
+	"time"
+
 	"mbg/trading/currencies"
 	"mbg/trading/orders/reports"
 	"mbg/trading/orders/status"
-	"time"
 )
 
 // OrderSingleExecutionReport is a report event for an order in a single instrument.

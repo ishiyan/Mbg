@@ -1,12 +1,13 @@
 package portfolios
 
-//nolint:gci
+//nolint:gofumpt
 import (
 	"math"
+	"time"
+
 	"mbg/trading/currencies"
 	"mbg/trading/orders"
 	"mbg/trading/orders/sides"
-	"time"
 )
 
 // Execution contains properties of a fill or a partial fill of an order.

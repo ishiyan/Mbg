@@ -7,7 +7,7 @@ import (
 
 // Useful link to verify CUSIPs: https://www.isindb.com/fix-cusip-calculate-cusip-check-digit/.
 
-//nolint:funlen
+//nolint:funlen,maintidx
 func TestValidateCUSIP(t *testing.T) {
 	t.Parallel()
 
