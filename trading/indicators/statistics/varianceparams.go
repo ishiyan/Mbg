@@ -9,7 +9,8 @@ type VarianceParams struct {
 	// The value should be greater than 1.
 	Length int
 
-	// IsUnbiased indicates whether the estimate of the variance is the unbiased sample variance or the population variance.
+	// IsUnbiased indicates whether the estimate of the variance is the unbiased sample variance or
+	// the population variance.
 	//
 	// When in doubt, use the unbiased sample variance (value is true).
 	IsUnbiased bool

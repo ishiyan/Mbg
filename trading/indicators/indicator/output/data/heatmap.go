@@ -6,7 +6,8 @@ import (
 	"time"
 )
 
-// Heatmap holds a time stamp (x) and an array of values (z) corresponding to parameter (y) range to paint a heatmap column.
+// Heatmap holds a time stamp (x) and an array of values (z) corresponding to parameter (y) range
+// to paint a heatmap column.
 type Heatmap struct {
 	// Time is the date and time (x) of this heatmap.
 	Time time.Time `json:"time"`

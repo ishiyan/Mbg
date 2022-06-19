@@ -1,5 +1,6 @@
 package statistics
 
+//nolint: gofumpt
 import (
 	"fmt"
 	"math"
@@ -34,29 +35,34 @@ type Variance struct {
 
 // newVariance returns an instnce of the Variance indicator created using supplied parameters.
 func NewVariance(p *VarianceParams) (*Variance, error) {
-	const invalid = "invalid variance parameters"
-	const fmts = "%s: %s"
-	const fmtw = "%s: %w"
-	const fmtn = "var.%c(%d)"
+	const (
+		invalid = "invalid variance parameters"
+		fmts    = "%s: %s"
+		fmtw    = "%s: %w"
+		fmtn    = "var.%c(%d)"
+		minlen  = 2
+	)
 
 	length := p.Length
-	if length < 2 {
+	if length < minlen {
 		return nil, fmt.Errorf(fmts, invalid, "length should be greater than 1")
 	}
 
-	var err error
+	var (
+		err       error
+		barFunc   data.BarFunc
+		quoteFunc data.QuoteFunc
+		tradeFunc data.TradeFunc
+	)
 
-	var barFunc data.BarFunc
 	if barFunc, err = data.BarComponentFunc(p.BarComponent); err != nil {
 		return nil, fmt.Errorf(fmtw, invalid, err)
 	}
 
-	var quoteFunc data.QuoteFunc
 	if quoteFunc, err = data.QuoteComponentFunc(p.QuoteComponent); err != nil {
 		return nil, fmt.Errorf(fmtw, invalid, err)
 	}
 
-	var tradeFunc data.TradeFunc
 	if tradeFunc, err = data.TradeComponentFunc(p.TradeComponent); err != nil {
 		return nil, fmt.Errorf(fmtw, invalid, err)
 	}
@@ -123,18 +129,21 @@ func (v *Variance) Metadata() indicator.Metadata {
 // Depending on the isUnbiased, the value is the unbiased sample variance or the population variance.
 //
 // The indicator is not primed during the first ℓ-1 updates.
+//nolint: funlen
 func (v *Variance) Update(sample float64) float64 {
 	if math.IsNaN(sample) {
 		return sample
 	}
 
 	var value float64
+
 	temp := sample
 	wlen := float64(v.windowLength)
 
 	v.mu.Lock()
 	defer v.mu.Unlock()
 
+	//nolint: nestif
 	if v.primed {
 		v.windowSum += temp
 		temp *= temp
@@ -173,7 +182,7 @@ func (v *Variance) Update(sample float64) float64 {
 			if v.unbiased {
 				temp = v.windowSum
 				temp *= temp
-				temp /= float64(v.windowLength)
+				temp /= wlen
 				value = v.windowSquaredSum - temp
 				value /= float64(v.lastIndex)
 			} else {
@@ -182,7 +191,7 @@ func (v *Variance) Update(sample float64) float64 {
 				value = v.windowSquaredSum/wlen - temp
 			}
 		} else {
-			return nan
+			return math.NaN()
 		}
 	}
 
@@ -214,8 +223,8 @@ func (v *Variance) UpdateTrade(sample *data.Trade) indicator.Output {
 
 // UpdateScalars updates the indicator given a slice of the next scalar samples.
 func (v *Variance) UpdateScalars(samples []*data.Scalar) []indicator.Output {
-	len := len(samples)
-	output := make([]indicator.Output, len)
+	length := len(samples)
+	output := make([]indicator.Output, length)
 
 	for i, d := range samples {
 		output[i] = v.UpdateScalar(d)
@@ -226,8 +235,8 @@ func (v *Variance) UpdateScalars(samples []*data.Scalar) []indicator.Output {
 
 // UpdateBars updates the indicator given a slice of the next bar samples.
 func (v *Variance) UpdateBars(samples []*data.Bar) []indicator.Output {
-	len := len(samples)
-	output := make([]indicator.Output, len)
+	length := len(samples)
+	output := make([]indicator.Output, length)
 
 	for i, d := range samples {
 		output[i] = v.UpdateBar(d)
@@ -238,8 +247,8 @@ func (v *Variance) UpdateBars(samples []*data.Bar) []indicator.Output {
 
 // UpdateQuotes updates the indicator given a slice of the next quote samples.
 func (v *Variance) UpdateQuotes(samples []*data.Quote) []indicator.Output {
-	len := len(samples)
-	output := make([]indicator.Output, len)
+	length := len(samples)
+	output := make([]indicator.Output, length)
 
 	for i, d := range samples {
 		output[i] = v.UpdateQuote(d)
@@ -250,8 +259,8 @@ func (v *Variance) UpdateQuotes(samples []*data.Quote) []indicator.Output {
 
 // UpdateTrades updates the indicator given a slice of the next trade samples.
 func (v *Variance) UpdateTrades(samples []*data.Trade) []indicator.Output {
-	len := len(samples)
-	output := make([]indicator.Output, len)
+	length := len(samples)
+	output := make([]indicator.Output, length)
 
 	for i, d := range samples {
 		output[i] = v.UpdateTrade(d)

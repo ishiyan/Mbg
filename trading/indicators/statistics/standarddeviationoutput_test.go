@@ -13,6 +13,7 @@ func TestStandardDeviationOutputString(t *testing.T) {
 		text string
 	}{
 		{StandardDeviationValue, standardDeviationValue},
+		{StandardDeviationVarianceValue, standardDeviationVarianceValue},
 		{standardDeviationLast, unknown},
 		{StandardDeviationOutput(0), unknown},
 		{StandardDeviationOutput(9999), unknown},
@@ -37,6 +38,7 @@ func TestStandardDeviationOutputIsKnown(t *testing.T) {
 		boolean bool
 	}{
 		{StandardDeviationValue, true},
+		{StandardDeviationVarianceValue, true},
 		{standardDeviationLast, false},
 		{StandardDeviationOutput(0), false},
 		{StandardDeviationOutput(9999), false},
@@ -63,6 +65,7 @@ func TestStandardDeviationOutputMarshalJSON(t *testing.T) {
 		succeeded bool
 	}{
 		{StandardDeviationValue, dqs + standardDeviationValue + dqs, true},
+		{StandardDeviationVarianceValue, dqs + standardDeviationVarianceValue + dqs, true},
 		{standardDeviationLast, nilstr, false},
 		{StandardDeviationOutput(9999), nilstr, false},
 		{StandardDeviationOutput(-9999), nilstr, false},
@@ -102,6 +105,7 @@ func TestStandardDeviationOutputUnmarshalJSON(t *testing.T) {
 		succeeded bool
 	}{
 		{StandardDeviationValue, dqs + standardDeviationValue + dqs, true},
+		{StandardDeviationVarianceValue, dqs + standardDeviationVarianceValue + dqs, true},
 		{zero, dqs + unknown + dqs, false},
 		{zero, dqs + "foobar" + dqs, false},
 	}

@@ -12,11 +12,15 @@ type StandardDeviationOutput int
 const (
 	// The scalar value of the the standard deviation.
 	StandardDeviationValue StandardDeviationOutput = iota + 1
+
+	// The scalar value of the the variance from which standard deviation is calculated.
+	StandardDeviationVarianceValue
 	standardDeviationLast
 )
 
 const (
-	standardDeviationValue = "value"
+	standardDeviationValue         = "value"
+	standardDeviationVarianceValue = "variance"
 )
 
 var errUnknownStandardDeviationOutput = errors.New("unknown standard deviation output")
@@ -26,6 +30,8 @@ func (o StandardDeviationOutput) String() string {
 	switch o {
 	case StandardDeviationValue:
 		return standardDeviationValue
+	case StandardDeviationVarianceValue:
+		return standardDeviationVarianceValue
 	default:
 		return unknown
 	}
@@ -61,6 +67,8 @@ func (o *StandardDeviationOutput) UnmarshalJSON(data []byte) error {
 	switch s {
 	case standardDeviationValue:
 		*o = StandardDeviationValue
+	case standardDeviationVarianceValue:
+		*o = StandardDeviationVarianceValue
 	default:
 		return fmt.Errorf(unmarshalErrFmt, s, errUnknownStandardDeviationOutput)
 	}

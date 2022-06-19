@@ -1,6 +1,7 @@
 //nolint:testpackage
 package statistics
 
+//nolint: gofumpt
 import (
 	"math"
 	"testing"
@@ -9,63 +10,81 @@ import (
 	"mbg/trading/data"
 )
 
-var testVarianceTime = time.Date(2021, time.April, 1, 0, 0, 0, 0, &time.Location{})
+func testVarianceTime() time.Time {
+	return time.Date(2021, time.April, 1, 0, 0, 0, 0, &time.Location{})
+}
 
 // testVarianceInput is variance input test data.
-var testVarianceInput = []float64{1, 2, 8, 4, 9, 6, 7, 13, 9, 10, 3, 12}
+func testVarianceInput() []float64 { return []float64{1, 2, 8, 4, 9, 6, 7, 13, 9, 10, 3, 12} }
 
 // testVarianceExpectedLength3Population is the Excel (VAR.P) output of population variance of length 3.
-var testVarianceExpectedLength3Population = []float64{
-	nan, nan,
-	9.55555555555556000, 6.22222222222222000, 4.66666666666667000, 4.22222222222222000, 1.55555555555556000,
-	9.55555555555556000, 6.22222222222222000, 2.88888888888889000, 9.55555555555556000, 14.88888888888890000,
+func testVarianceExpectedLength3Population() []float64 {
+	return []float64{
+		math.NaN(), math.NaN(),
+		9.55555555555556000, 6.22222222222222000, 4.66666666666667000, 4.22222222222222000, 1.55555555555556000,
+		9.55555555555556000, 6.22222222222222000, 2.88888888888889000, 9.55555555555556000, 14.88888888888890000,
+	}
 }
 
 // testVarianceExpectedLength5Population is the Excel (VAR.P) output of population variance of length 5.
-var testVarianceExpectedLength5Population = []float64{
-	nan, nan, nan, nan,
-	10.16000, 6.56000, 2.96000, 9.36000, 5.76000, 6.00000, 11.04000, 12.24000,
+func testVarianceExpectedLength5Population() []float64 {
+	return []float64{
+		math.NaN(), math.NaN(), math.NaN(), math.NaN(),
+		10.16000, 6.56000, 2.96000, 9.36000, 5.76000, 6.00000, 11.04000, 12.24000,
+	}
 }
 
 // testVarianceExpectedLength3Sample is the Excel (VAR.S) output of population variance of length 3.
-var testVarianceExpectedLength3Sample = []float64{
-	nan, nan,
-	14.3333333333333000, 9.3333333333333400, 7.0000000000000000, 6.3333333333333400, 2.3333333333333300,
-	14.3333333333333000, 9.3333333333333400, 4.3333333333333400, 14.3333333333333000, 22.3333333333333000,
+func testVarianceExpectedLength3Sample() []float64 {
+	return []float64{
+		math.NaN(), math.NaN(),
+		14.3333333333333000, 9.3333333333333400, 7.0000000000000000, 6.3333333333333400, 2.3333333333333300,
+		14.3333333333333000, 9.3333333333333400, 4.3333333333333400, 14.3333333333333000, 22.3333333333333000,
+	}
 }
 
 // testVarianceExpectedLength5Sample is the Excel (VAR.S) output of population variance of length 5.
-var testVarianceExpectedLength5Sample = []float64{
-	nan, nan, nan, nan,
-	12.7000, 8.2000, 3.7000, 11.7000, 7.2000, 7.5000, 13.8000, 15.3000,
+func testVarianceExpectedLength5Sample() []float64 {
+	return []float64{
+		math.NaN(), math.NaN(), math.NaN(), math.NaN(),
+		12.7000, 8.2000, 3.7000, 11.7000, 7.2000, 7.5000, 13.8000, 15.3000,
+	}
 }
 
+//nolint: funlen
 func TestVarianceUpdate(t *testing.T) {
 	t.Parallel()
 
 	check := func(index int, exp, act float64) {
+		t.Helper()
+
 		if math.Abs(exp-act) > 1e-13 {
 			t.Errorf("[%v] is incorrect: expected %v, actual %v", index, exp, act)
 		}
 	}
 
 	checkNaN := func(index int, act float64) {
+		t.Helper()
+
 		if !math.IsNaN(act) {
 			t.Errorf("[%v] is incorrect: expected NaN, actual %v", index, act)
 		}
 	}
 
+	input := testVarianceInput()
+
 	t.Run("population variance length of 3", func(t *testing.T) {
 		t.Parallel()
 		v := testVarianceCreate(3, false)
+		expected := testVarianceExpectedLength3Population()
 
 		for i := 0; i < 2; i++ {
-			checkNaN(i, v.Update(testVarianceInput[i]))
+			checkNaN(i, v.Update(input[i]))
 		}
 
-		for i := 2; i < len(testVarianceInput); i++ {
-			exp := testVarianceExpectedLength3Population[i]
-			act := v.Update(testVarianceInput[i])
+		for i := 2; i < len(input); i++ {
+			exp := expected[i]
+			act := v.Update(input[i])
 			check(i, exp, act)
 		}
 	})
@@ -73,19 +92,53 @@ func TestVarianceUpdate(t *testing.T) {
 	t.Run("population variance length of 5", func(t *testing.T) {
 		t.Parallel()
 		v := testVarianceCreate(5, false)
+		expected := testVarianceExpectedLength5Population()
 
 		for i := 0; i < 4; i++ {
-			checkNaN(i, v.Update(testVarianceInput[i]))
+			checkNaN(i, v.Update(input[i]))
 		}
 
-		for i := 4; i < len(testVarianceInput); i++ {
-			exp := testVarianceExpectedLength3Population[i]
-			act := v.Update(testVarianceInput[i])
+		for i := 4; i < len(input); i++ {
+			exp := expected[i]
+			act := v.Update(input[i])
+			check(i, exp, act)
+		}
+	})
+
+	t.Run("sample variance length of 3", func(t *testing.T) {
+		t.Parallel()
+		v := testVarianceCreate(3, true)
+		expected := testVarianceExpectedLength3Sample()
+
+		for i := 0; i < 2; i++ {
+			checkNaN(i, v.Update(input[i]))
+		}
+
+		for i := 2; i < len(input); i++ {
+			exp := expected[i]
+			act := v.Update(input[i])
+			check(i, exp, act)
+		}
+	})
+
+	t.Run("sample variance length of 5", func(t *testing.T) {
+		t.Parallel()
+		v := testVarianceCreate(5, true)
+		expected := testVarianceExpectedLength5Sample()
+
+		for i := 0; i < 4; i++ {
+			checkNaN(i, v.Update(input[i]))
+		}
+
+		for i := 4; i < len(input); i++ {
+			exp := expected[i]
+			act := v.Update(input[i])
 			check(i, exp, act)
 		}
 	})
 }
 
+//nolint: funlen
 func TestNewVariance(t *testing.T) {
 	t.Parallel()
 
@@ -190,5 +243,6 @@ func testVarianceCreate(length int, unbiased bool) *Variance {
 	}
 
 	v, _ := NewVariance(&params)
+
 	return v
 }

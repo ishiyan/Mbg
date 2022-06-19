@@ -7,37 +7,13 @@ import (
 	"time"
 )
 
-var testBandTime = time.Date(2021, time.April, 1, 0, 0, 0, 0, &time.Location{})
-
-func TestNewBand(t *testing.T) {
+func TestBandNew(t *testing.T) {
 	t.Parallel()
 
 	const (
-		p1           = 1.
-		p2           = 2.
-		upperLarger  = "lower < upper"
-		upperSmaller = "lower > upper"
+		p1 = 1.
+		p2 = 2.
 	)
-
-	check := func(condition, name string, exp, act any) {
-		if exp != act {
-			t.Errorf("(%s): %s is incorrect: expected %v, actual %v", condition, name, exp, act)
-		}
-	}
-
-	b := NewBand(testBandTime, p1, p2)
-	check(upperLarger, "Time", testBandTime, b.Time)
-	check(upperLarger, "Lower", p1, b.Lower)
-	check(upperLarger, "Upper", p2, b.Upper)
-
-	b = NewBand(testBandTime, p2, p1)
-	check(upperSmaller, "Time", testBandTime, b.Time)
-	check(upperSmaller, "Lower", p1, b.Lower)
-	check(upperSmaller, "Upper", p2, b.Upper)
-}
-
-func TestNewEmptyBand(t *testing.T) {
-	t.Parallel()
 
 	check := func(name string, exp, act any) {
 		if exp != act {
@@ -51,10 +27,34 @@ func TestNewEmptyBand(t *testing.T) {
 		}
 	}
 
-	b := NewEmptyBand(testBandTime)
-	check("Time", testBandTime, b.Time)
-	checkNaN("Lower", b.Lower)
-	checkNaN("Upper", b.Upper)
+	time := testBandTime()
+
+	t.Run("new initialized band, lower < upper", func(t *testing.T) {
+		t.Parallel()
+
+		b := NewBand(time, p1, p2)
+		check("Time", time, b.Time)
+		check("Lower", p1, b.Lower)
+		check("Upper", p2, b.Upper)
+	})
+
+	t.Run("new initialized band, lower > upper", func(t *testing.T) {
+		t.Parallel()
+
+		b := NewBand(time, p2, p1)
+		check("Time", time, b.Time)
+		check("Lower", p1, b.Lower)
+		check("Upper", p2, b.Upper)
+	})
+
+	t.Run("new empty band", func(t *testing.T) {
+		t.Parallel()
+
+		b := NewEmptyBand(time)
+		check("Time", time, b.Time)
+		checkNaN("Lower", b.Lower)
+		checkNaN("Upper", b.Upper)
+	})
 }
 
 func TestBandIsEmpty(t *testing.T) {
@@ -66,7 +66,7 @@ func TestBandIsEmpty(t *testing.T) {
 		}
 	}
 
-	b := createTestBand()
+	b := testBandCreate()
 	check("Lower and Upper not NaN", false, b.IsEmpty())
 
 	b.Lower = math.NaN()
@@ -82,7 +82,7 @@ func TestBandIsEmpty(t *testing.T) {
 func TestBandString(t *testing.T) {
 	t.Parallel()
 
-	b := createTestBand()
+	b := testBandCreate()
 	expected := "{2021-04-01 00:00:00, 1.000000, 2.000000}"
 
 	if actual := b.String(); actual != expected {
@@ -90,6 +90,8 @@ func TestBandString(t *testing.T) {
 	}
 }
 
-func createTestBand() Band {
-	return Band{Time: testBandTime, Lower: 1., Upper: 2.}
+func testBandCreate() Band {
+	return Band{Time: testBandTime(), Lower: 1., Upper: 2.}
 }
+
+func testBandTime() time.Time { return time.Date(2021, time.April, 1, 0, 0, 0, 0, &time.Location{}) }

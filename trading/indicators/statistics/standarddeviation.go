@@ -1,6 +1,7 @@
 package statistics
 
-// StandardDeviation computes the standard deviation of the samples within a moving window of length ℓ as a square root of variance:
+// StandardDeviation computes the standard deviation of the samples within a moving window of length ℓ
+// as a square root of variance:
 //
 // σ² = (∑xᵢ² - (∑xᵢ)²/ℓ)/ℓ
 //

@@ -11,7 +11,7 @@ All linters are enabled with default settings.
 To run the `golangci-lint`, execute `golangci-lint run` in the root directory.
 
 Sometimes you get warnings about one or another file being not 'gofumpt-ed'.
-To fix it, run `gofumpt -l -w filename.go` on a troubled file..
+To fix it, install `go install mvdan.cc/gofumpt@latest` and run `gofumpt -l -w filename.go` on a troubled file.
 
 Sometimes you get warnings about one or another file being not 'gci-ed'.
 To fix it, install `go get github.com/daixiang0/gci` and run `gci -w filename.go` on a troubled file.
