@@ -97,17 +97,6 @@ func (v *Variance) IsPrimed() bool {
 	return v.primed
 }
 
-// Reset resets an indicator. The indicator is not primed after this call.
-func (v *Variance) Reset() {
-	v.mu.Lock()
-	defer v.mu.Unlock()
-
-	v.primed = false
-	v.windowCount = 0
-	v.windowSum = 0.
-	v.windowSquaredSum = 0.
-}
-
 // Metadata describes an output data of the indicator.
 // It always has a single scalar output -- the calculated value of the variance.
 func (v *Variance) Metadata() indicator.Metadata {
@@ -219,52 +208,4 @@ func (v *Variance) UpdateQuote(sample *data.Quote) indicator.Output {
 // UpdateTrade updates the indicator given the next trade sample.
 func (v *Variance) UpdateTrade(sample *data.Trade) indicator.Output {
 	return v.UpdateScalar(&data.Scalar{Time: sample.Time, Value: v.tradeFunc(sample)})
-}
-
-// UpdateScalars updates the indicator given a slice of the next scalar samples.
-func (v *Variance) UpdateScalars(samples []*data.Scalar) []indicator.Output {
-	length := len(samples)
-	output := make([]indicator.Output, length)
-
-	for i, d := range samples {
-		output[i] = v.UpdateScalar(d)
-	}
-
-	return output
-}
-
-// UpdateBars updates the indicator given a slice of the next bar samples.
-func (v *Variance) UpdateBars(samples []*data.Bar) []indicator.Output {
-	length := len(samples)
-	output := make([]indicator.Output, length)
-
-	for i, d := range samples {
-		output[i] = v.UpdateBar(d)
-	}
-
-	return output
-}
-
-// UpdateQuotes updates the indicator given a slice of the next quote samples.
-func (v *Variance) UpdateQuotes(samples []*data.Quote) []indicator.Output {
-	length := len(samples)
-	output := make([]indicator.Output, length)
-
-	for i, d := range samples {
-		output[i] = v.UpdateQuote(d)
-	}
-
-	return output
-}
-
-// UpdateTrades updates the indicator given a slice of the next trade samples.
-func (v *Variance) UpdateTrades(samples []*data.Trade) []indicator.Output {
-	length := len(samples)
-	output := make([]indicator.Output, length)
-
-	for i, d := range samples {
-		output[i] = v.UpdateTrade(d)
-	}
-
-	return output
 }

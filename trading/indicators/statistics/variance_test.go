@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"mbg/trading/data"
+	"mbg/trading/indicators/indicator"
+	"mbg/trading/indicators/indicator/output"
 )
 
 func testVarianceTime() time.Time {
@@ -87,6 +89,8 @@ func TestVarianceUpdate(t *testing.T) {
 			act := v.Update(input[i])
 			check(i, exp, act)
 		}
+
+		checkNaN(0, v.Update(math.NaN()))
 	})
 
 	t.Run("population variance length of 5", func(t *testing.T) {
@@ -119,22 +123,147 @@ func TestVarianceUpdate(t *testing.T) {
 			act := v.Update(input[i])
 			check(i, exp, act)
 		}
+
+		checkNaN(0, v.Update(math.NaN()))
+	})
+}
+
+//nolint: funlen
+func TestVarianceUpdateEntity(t *testing.T) {
+	t.Parallel()
+
+	const (
+		l   = 3
+		inp = 3.
+		exp = inp * inp / float64(l)
+	)
+
+	time := testVarianceTime()
+
+	check := func(act indicator.Output) {
+		t.Helper()
+
+		if len(act) != 1 {
+			t.Errorf("en(output) is incorrect: expected 1, actual %v", len(act))
+		}
+
+		s, ok := act[0].(data.Scalar)
+		if !ok {
+			t.Error("output is not scalar")
+		}
+
+		if s.Time != time {
+			t.Errorf("time is incorrect: expected %v, actual %v", time, s.Time)
+		}
+
+		if s.Value != exp {
+			t.Errorf("value is incorrect: expected %v, actual %v", exp, s.Value)
+		}
+	}
+
+	t.Run("update scalar", func(t *testing.T) {
+		t.Parallel()
+
+		s := data.Scalar{Time: time, Value: inp}
+		v := testVarianceCreate(l, true)
+		v.Update(0.)
+		v.Update(0.)
+		check(v.UpdateScalar(&s))
 	})
 
-	t.Run("sample variance length of 5", func(t *testing.T) {
+	t.Run("update bar", func(t *testing.T) {
 		t.Parallel()
-		v := testVarianceCreate(5, true)
-		expected := testVarianceExpectedLength5Sample()
 
-		for i := 0; i < 4; i++ {
-			checkNaN(i, v.Update(input[i]))
-		}
+		b := data.Bar{Time: time, Close: inp}
+		v := testVarianceCreate(l, true)
+		v.Update(0.)
+		v.Update(0.)
+		check(v.UpdateBar(&b))
+	})
 
-		for i := 4; i < len(input); i++ {
-			exp := expected[i]
-			act := v.Update(input[i])
-			check(i, exp, act)
+	t.Run("update quote", func(t *testing.T) {
+		t.Parallel()
+
+		q := data.Quote{Time: time, Bid: inp}
+		v := testVarianceCreate(l, true)
+		v.Update(0.)
+		v.Update(0.)
+		check(v.UpdateQuote(&q))
+	})
+
+	t.Run("update trade", func(t *testing.T) {
+		t.Parallel()
+
+		r := data.Trade{Time: time, Price: inp}
+		v := testVarianceCreate(l, true)
+		v.Update(0.)
+		v.Update(0.)
+		check(v.UpdateTrade(&r))
+	})
+}
+
+func TestVarianceIsPrimed(t *testing.T) {
+	t.Parallel()
+
+	check := func(index int, exp, act bool) {
+		t.Helper()
+
+		if exp != act {
+			t.Errorf("[%v] is incorrect: expected %v, actual %v", index, exp, act)
 		}
+	}
+
+	input := testVarianceInput()
+	v := testVarianceCreate(3, false)
+
+	check(0, false, v.IsPrimed())
+
+	for i := 0; i < 2; i++ {
+		v.Update(input[i])
+		check(i+1, false, v.IsPrimed())
+	}
+
+	for i := 2; i < len(input); i++ {
+		v.Update(input[i])
+		check(i+1, true, v.IsPrimed())
+	}
+}
+
+func TestVarianceMetadata(t *testing.T) {
+	t.Parallel()
+
+	check := func(what string, exp, act any) {
+		t.Helper()
+
+		if exp != act {
+			t.Errorf("%s is incorrect: expected %v, actual %v", what, exp, act)
+		}
+	}
+
+	t.Run("population variance", func(t *testing.T) {
+		t.Parallel()
+		v := testVarianceCreate(7, false)
+		act := v.Metadata()
+
+		check("Type", indicator.Variance, act.Type)
+		check("len(Outputs)", 1, len(act.Outputs))
+		check("Outputs[0].Kind", int(VarianceValue), act.Outputs[0].Kind)
+		check("Outputs[0].Type", output.Scalar, act.Outputs[0].Type)
+		check("Outputs[0].Name", "var.p(7)", act.Outputs[0].Name)
+		check("Outputs[0].Description", "Estimation of the population variance var.p(7)", act.Outputs[0].Description)
+	})
+
+	t.Run("sample variance", func(t *testing.T) {
+		t.Parallel()
+		v := testVarianceCreate(7, true)
+		act := v.Metadata()
+
+		check("Type", indicator.Variance, act.Type)
+		check("len(Outputs)", 1, len(act.Outputs))
+		check("Outputs[0].Kind", int(VarianceValue), act.Outputs[0].Kind)
+		check("Outputs[0].Type", output.Scalar, act.Outputs[0].Type)
+		check("Outputs[0].Name", "var.s(7)", act.Outputs[0].Name)
+		check("Outputs[0].Description", "Unbiased estimation of the sample variance var.s(7)", act.Outputs[0].Description)
 	})
 }
 
