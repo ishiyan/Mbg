@@ -33,7 +33,7 @@ type Variance struct {
 	tradeFunc        data.TradeFunc
 }
 
-// newVariance returns an instnce of the Variance indicator created using supplied parameters.
+// NewVariance returns an instnce of the Variance indicator created using supplied parameters.
 func NewVariance(p *VarianceParams) (*Variance, error) {
 	const (
 		invalid = "invalid variance parameters"
