@@ -139,12 +139,11 @@ func TestVarianceUpdateEntity(t *testing.T) {
 	)
 
 	time := testVarianceTime()
-
 	check := func(act indicator.Output) {
 		t.Helper()
 
 		if len(act) != 1 {
-			t.Errorf("en(output) is incorrect: expected 1, actual %v", len(act))
+			t.Errorf("len(output) is incorrect: expected 1, actual %v", len(act))
 		}
 
 		s, ok := act[0].(data.Scalar)

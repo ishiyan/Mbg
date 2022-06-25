@@ -1,5 +1,6 @@
 package statistics
 
+//nolint:gofumpt
 import (
 	"fmt"
 	"math"
@@ -28,6 +29,7 @@ func NewStandardDeviation(p *VarianceParams, outputs []StandardDeviationOutput) 
 	const (
 		fmtn = "stdev.%c(%d)"
 	)
+
 	for i, o := range outputs {
 		if !o.IsKnown() {
 			return nil, fmt.Errorf("unknown standard deviation output[%d]: %d", i, int(o))
@@ -69,6 +71,7 @@ func (s *StandardDeviation) Metadata() indicator.Metadata {
 	for i, o := range s.outputs {
 		outputs[i].Kind = int(o)
 		outputs[i].Type = output.Scalar
+
 		switch o {
 		case StandardDeviationValue:
 			outputs[i].Name = s.name
