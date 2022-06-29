@@ -179,7 +179,7 @@ func (s *ExponentialMovingAverage) Update(sample float64) float64 {
 		s.count++
 		if s.firstIsAverage {
 			s.sum += temp
-			if s.length != s.count {
+			if s.count < s.length {
 				return math.NaN()
 			}
 
@@ -191,7 +191,7 @@ func (s *ExponentialMovingAverage) Update(sample float64) float64 {
 				s.value += (temp - s.value) * s.smoothingFactor
 			}
 
-			if s.count != s.length {
+			if s.count < s.length {
 				return math.NaN()
 			}
 		}

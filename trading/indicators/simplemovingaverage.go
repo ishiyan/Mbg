@@ -130,14 +130,12 @@ func (s *SimpleMovingAverage) Update(sample float64) float64 {
 		}
 
 		s.window[s.lastIndex] = temp
-
-		return temp
 	} else {
 		s.windowSum += temp
 		s.window[s.windowCount] = temp
 		s.windowCount++
 
-		if s.windowLength != s.windowCount {
+		if s.windowLength > s.windowCount {
 			return math.NaN()
 		}
 
