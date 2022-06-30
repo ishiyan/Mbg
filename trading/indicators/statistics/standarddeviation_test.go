@@ -166,8 +166,7 @@ func testStdevLength5SampleExpected() []float64 {
 	}
 }
 
-//nolint: funlen
-func TestStandardDeviationUpdate(t *testing.T) {
+func TestStandardDeviationUpdate(t *testing.T) { //nolint: funlen
 	t.Parallel()
 
 	input := testStdevInput()
@@ -190,79 +189,78 @@ func TestStandardDeviationUpdate(t *testing.T) {
 
 	t.Run("population standard deviation, no variance putput", func(t *testing.T) {
 		t.Parallel()
-		s := testStandardDeviationCreate(5, false, []StandardDeviationOutput{StandardDeviationValue})
+		stdev := testStandardDeviationCreate(5, false, []StandardDeviationOutput{StandardDeviationValue})
 		expected := testStdevLength5PopulationExpected()
 
 		for i := 0; i < 4; i++ {
-			act := s.Update(time, input[i])[0].(data.Scalar).Value //nolint:forcetypeassert
+			act := stdev.Update(time, input[i])[0].(data.Scalar).Value //nolint:forcetypeassert
 			checkNaN(i, act)
 		}
 
 		for i := 4; i < len(input); i++ {
 			exp := expected[i]
-			act := s.Update(time, input[i])[0].(data.Scalar).Value //nolint:forcetypeassert
+			act := stdev.Update(time, input[i])[0].(data.Scalar).Value //nolint:forcetypeassert
 			check(i, exp, act)
 		}
 
-		checkNaN(0, s.Update(time, math.NaN())[0].(data.Scalar).Value) //nolint:forcetypeassert
+		checkNaN(0, stdev.Update(time, math.NaN())[0].(data.Scalar).Value) //nolint:forcetypeassert
 	})
 
 	t.Run("sample standard deviation, no variance putput", func(t *testing.T) {
 		t.Parallel()
-		s := testStandardDeviationCreate(5, true, []StandardDeviationOutput{StandardDeviationValue})
+		stdev := testStandardDeviationCreate(5, true, []StandardDeviationOutput{StandardDeviationValue})
 		expected := testStdevLength5SampleExpected()
 
 		for i := 0; i < 4; i++ {
-			act := s.Update(time, input[i])[0].(data.Scalar).Value //nolint:forcetypeassert
+			act := stdev.Update(time, input[i])[0].(data.Scalar).Value //nolint:forcetypeassert
 			checkNaN(i, act)
 		}
 
 		for i := 4; i < len(input); i++ {
 			exp := expected[i]
-			act := s.Update(time, input[i])[0].(data.Scalar).Value //nolint:forcetypeassert
+			act := stdev.Update(time, input[i])[0].(data.Scalar).Value //nolint:forcetypeassert
 			check(i, exp, act)
 		}
 
-		checkNaN(0, s.Update(time, math.NaN())[0].(data.Scalar).Value) //nolint:forcetypeassert
+		checkNaN(0, stdev.Update(time, math.NaN())[0].(data.Scalar).Value) //nolint:forcetypeassert
 	})
 
 	t.Run("population standard deviation, with variance putput last", func(t *testing.T) {
 		t.Parallel()
-		s := testStandardDeviationCreate(5, false,
+		stdev := testStandardDeviationCreate(5, false,
 			[]StandardDeviationOutput{StandardDeviationValue, StandardDeviationVarianceValue})
 		expected := testStdevLength5PopulationExpected()
 
 		for i := 0; i < 4; i++ {
-			s.Update(time, input[i])
+			stdev.Update(time, input[i])
 		}
 
 		for i := 4; i < len(input); i++ {
 			exp := expected[i]
-			act := s.Update(time, input[i])[1].(data.Scalar).Value //nolint:forcetypeassert
+			act := stdev.Update(time, input[i])[1].(data.Scalar).Value //nolint:forcetypeassert
 			check(i, exp*exp, act)
 		}
 	})
 
 	t.Run("population standard deviation, with variance putput first", func(t *testing.T) {
 		t.Parallel()
-		s := testStandardDeviationCreate(5, false,
+		stdev := testStandardDeviationCreate(5, false,
 			[]StandardDeviationOutput{StandardDeviationVarianceValue, StandardDeviationValue})
 		expected := testStdevLength5PopulationExpected()
 
 		for i := 0; i < 4; i++ {
-			s.Update(time, input[i])
+			stdev.Update(time, input[i])
 		}
 
 		for i := 4; i < len(input); i++ {
 			exp := expected[i]
-			act := s.Update(time, input[i])[0].(data.Scalar).Value //nolint:forcetypeassert
+			act := stdev.Update(time, input[i])[0].(data.Scalar).Value //nolint:forcetypeassert
 			check(i, exp*exp, act)
 		}
 	})
 }
 
-//nolint: funlen
-func TestStandardDeviationUpdateEntity(t *testing.T) {
+func TestStandardDeviationUpdateEntity(t *testing.T) { //nolint: funlen
 	t.Parallel()
 
 	const (
@@ -297,40 +295,40 @@ func TestStandardDeviationUpdateEntity(t *testing.T) {
 		t.Parallel()
 
 		i := data.Scalar{Time: time, Value: inp}
-		s := testStandardDeviationCreate(l, true, []StandardDeviationOutput{StandardDeviationValue})
-		s.Update(time, 0.)
-		s.Update(time, 0.)
-		check(s.UpdateScalar(&i))
+		stdev := testStandardDeviationCreate(l, true, []StandardDeviationOutput{StandardDeviationValue})
+		stdev.Update(time, 0.)
+		stdev.Update(time, 0.)
+		check(stdev.UpdateScalar(&i))
 	})
 
 	t.Run("update bar", func(t *testing.T) {
 		t.Parallel()
 
 		i := data.Bar{Time: time, Close: inp}
-		s := testStandardDeviationCreate(l, true, []StandardDeviationOutput{StandardDeviationValue})
-		s.Update(time, 0.)
-		s.Update(time, 0.)
-		check(s.UpdateBar(&i))
+		stdev := testStandardDeviationCreate(l, true, []StandardDeviationOutput{StandardDeviationValue})
+		stdev.Update(time, 0.)
+		stdev.Update(time, 0.)
+		check(stdev.UpdateBar(&i))
 	})
 
 	t.Run("update quote", func(t *testing.T) {
 		t.Parallel()
 
 		i := data.Quote{Time: time, Bid: inp}
-		s := testStandardDeviationCreate(l, true, []StandardDeviationOutput{StandardDeviationValue})
-		s.Update(time, 0.)
-		s.Update(time, 0.)
-		check(s.UpdateQuote(&i))
+		stdev := testStandardDeviationCreate(l, true, []StandardDeviationOutput{StandardDeviationValue})
+		stdev.Update(time, 0.)
+		stdev.Update(time, 0.)
+		check(stdev.UpdateQuote(&i))
 	})
 
 	t.Run("update trade", func(t *testing.T) {
 		t.Parallel()
 
 		i := data.Trade{Time: time, Price: inp}
-		s := testStandardDeviationCreate(l, true, []StandardDeviationOutput{StandardDeviationValue})
-		s.Update(time, 0.)
-		s.Update(time, 0.)
-		check(s.UpdateTrade(&i))
+		stdev := testStandardDeviationCreate(l, true, []StandardDeviationOutput{StandardDeviationValue})
+		stdev.Update(time, 0.)
+		stdev.Update(time, 0.)
+		check(stdev.UpdateTrade(&i))
 	})
 }
 
@@ -347,18 +345,18 @@ func TestStandardDeviationIsPrimed(t *testing.T) {
 
 	input := testStdevInput()
 	time := testStDevTime()
-	s := testStandardDeviationCreate(5, true, []StandardDeviationOutput{StandardDeviationValue})
+	stdev := testStandardDeviationCreate(5, true, []StandardDeviationOutput{StandardDeviationValue})
 
-	check(0, false, s.IsPrimed())
+	check(0, false, stdev.IsPrimed())
 
 	for i := 0; i < 4; i++ {
-		s.Update(time, input[i])
-		check(i+1, false, s.IsPrimed())
+		stdev.Update(time, input[i])
+		check(i+1, false, stdev.IsPrimed())
 	}
 
 	for i := 4; i < len(input); i++ {
-		s.Update(time, input[i])
-		check(i+1, true, s.IsPrimed())
+		stdev.Update(time, input[i])
+		check(i+1, true, stdev.IsPrimed())
 	}
 }
 
@@ -375,8 +373,8 @@ func TestStandardDeviationMetadata(t *testing.T) {
 
 	t.Run("population standard deviation", func(t *testing.T) {
 		t.Parallel()
-		s := testStandardDeviationCreate(7, false, []StandardDeviationOutput{StandardDeviationValue})
-		act := s.Metadata()
+		stdev := testStandardDeviationCreate(7, false, []StandardDeviationOutput{StandardDeviationValue})
+		act := stdev.Metadata()
 
 		check("Type", indicator.StandardDeviation, act.Type)
 		check("len(Outputs)", 1, len(act.Outputs))
@@ -389,8 +387,8 @@ func TestStandardDeviationMetadata(t *testing.T) {
 
 	t.Run("sample standard deviation", func(t *testing.T) {
 		t.Parallel()
-		s := testStandardDeviationCreate(7, true, []StandardDeviationOutput{StandardDeviationValue})
-		act := s.Metadata()
+		stdev := testStandardDeviationCreate(7, true, []StandardDeviationOutput{StandardDeviationValue})
+		act := stdev.Metadata()
 
 		check("Type", indicator.StandardDeviation, act.Type)
 		check("len(Outputs)", 1, len(act.Outputs))
@@ -403,33 +401,33 @@ func TestStandardDeviationMetadata(t *testing.T) {
 
 	t.Run("population standard deviation with variance", func(t *testing.T) {
 		t.Parallel()
-		s := testStandardDeviationCreate(7, false,
+		stdev := testStandardDeviationCreate(7, false,
 			[]StandardDeviationOutput{StandardDeviationValue, StandardDeviationVarianceValue})
-		act := s.Metadata()
+		act := stdev.Metadata()
 
 		check("Type", indicator.StandardDeviation, act.Type)
 		check("len(Outputs)", 2, len(act.Outputs))
-		check("Outputs[0].Kind", int(StandardDeviationVarianceValue), act.Outputs[1].Kind)
-		check("Outputs[0].Type", output.Scalar, act.Outputs[1].Type)
-		check("Outputs[0].Name", "var.p(7)", act.Outputs[1].Name)
-		check("Outputs[0].Description", "Estimation of the population variance var.p(7)", act.Outputs[1].Description)
+		check("Outputs[1].Kind", int(StandardDeviationVarianceValue), act.Outputs[1].Kind)
+		check("Outputs[1].Type", output.Scalar, act.Outputs[1].Type)
+		check("Outputs[1].Name", "var.p(7)", act.Outputs[1].Name)
+		check("Outputs[1].Description", "Estimation of the population variance var.p(7)", act.Outputs[1].Description)
 	})
 }
 
-//nolint: funlen
-func TestNewStandardDeviation(t *testing.T) {
+func TestNewStandardDeviation(t *testing.T) { //nolint: funlen
 	t.Parallel()
 
 	const (
-		bc     data.BarComponent   = data.BarMedianPrice
-		qc     data.QuoteComponent = data.QuoteMidPrice
-		tc     data.TradeComponent = data.TradePrice
-		length                     = 5
-		errlen                     = "invalid variance parameters: length should be greater than 1"
-		errbc                      = "invalid variance parameters: 9999: unknown bar component"
-		errqc                      = "invalid variance parameters: 9999: unknown quote component"
-		errtc                      = "invalid variance parameters: 9999: unknown trade component"
-		errout                     = "unknown standard deviation output[1]: 0"
+		bc data.BarComponent   = data.BarMedianPrice
+		qc data.QuoteComponent = data.QuoteMidPrice
+		tc data.TradeComponent = data.TradePrice
+
+		length = 5
+		errlen = "invalid variance parameters: length should be greater than 1"
+		errbc  = "invalid variance parameters: 9999: unknown bar component"
+		errqc  = "invalid variance parameters: 9999: unknown quote component"
+		errtc  = "invalid variance parameters: 9999: unknown trade component"
+		errout = "unknown standard deviation output[1]: 0"
 	)
 
 	check := func(name string, exp, act any) {
@@ -443,18 +441,18 @@ func TestNewStandardDeviation(t *testing.T) {
 	checkSuccessful := func(params *VarianceParams, name, description string) {
 		t.Helper()
 
-		s, err := NewStandardDeviation(params, []StandardDeviationOutput{StandardDeviationValue})
+		stdev, err := NewStandardDeviation(params, []StandardDeviationOutput{StandardDeviationValue})
 		check("err == nil", true, err == nil)
-		check("variance != nil", true, s.variance != nil)
-		check("name", name, s.name)
-		check("description", description, s.description)
+		check("variance != nil", true, stdev.variance != nil)
+		check("name", name, stdev.name)
+		check("description", description, stdev.description)
 	}
 
 	checkErroneous := func(params *VarianceParams, outputs []StandardDeviationOutput, errmsg string) {
 		t.Helper()
 
-		s, err := NewStandardDeviation(params, outputs)
-		check("s == nil", true, s == nil)
+		stdev, err := NewStandardDeviation(params, outputs)
+		check("stdev == nil", true, stdev == nil)
 		check("err", errmsg, err.Error())
 	}
 
@@ -557,7 +555,7 @@ func testStandardDeviationCreate(length int, unbiased bool, outputs []StandardDe
 		QuoteComponent: data.QuoteBidPrice, TradeComponent: data.TradePrice,
 	}
 
-	s, _ := NewStandardDeviation(&params, outputs)
+	stdev, _ := NewStandardDeviation(&params, outputs)
 
-	return s
+	return stdev
 }

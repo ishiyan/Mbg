@@ -63,10 +63,8 @@ func testSimpleMovingAverageExpected10() []float64 {
 	}
 }
 
-//nolint: funlen
-func TestSimpleMovingAverageUpdate(t *testing.T) {
+func TestSimpleMovingAverageUpdate(t *testing.T) { //nolint: funlen
 	t.Parallel()
-	input := testSimpleMovingAverageInput()
 
 	check := func(index int, exp, act float64) {
 		t.Helper()
@@ -83,6 +81,8 @@ func TestSimpleMovingAverageUpdate(t *testing.T) {
 			t.Errorf("[%v] is incorrect: expected NaN, actual %v", index, act)
 		}
 	}
+
+	input := testSimpleMovingAverageInput()
 
 	t.Run("length = 3", func(t *testing.T) {
 		t.Parallel()
@@ -139,8 +139,7 @@ func TestSimpleMovingAverageUpdate(t *testing.T) {
 	})
 }
 
-//nolint: funlen
-func TestSimpleMovingAverageUpdateEntity(t *testing.T) {
+func TestSimpleMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen
 	t.Parallel()
 
 	const (
@@ -208,7 +207,7 @@ func TestSimpleMovingAverageUpdateEntity(t *testing.T) {
 	})
 }
 
-func TestSimpleMovingAverageIsPrimed(t *testing.T) {
+func TestSimpleMovingAverageIsPrimed(t *testing.T) { //nolint:funlen
 	t.Parallel()
 
 	input := testSimpleMovingAverageInput()
@@ -274,6 +273,7 @@ func TestSimpleMovingAverageIsPrimed(t *testing.T) {
 
 func TestSimpleMovingAverageMetadata(t *testing.T) {
 	t.Parallel()
+
 	sma := testSimpleMovingAverageCreate(5)
 	act := sma.Metadata()
 
@@ -293,19 +293,19 @@ func TestSimpleMovingAverageMetadata(t *testing.T) {
 	check("Outputs[0].Description", "Simple moving average sma(5)", act.Outputs[0].Description)
 }
 
-//nolint: funlen
-func TestNewSimpleMovingAverage(t *testing.T) {
+func TestNewSimpleMovingAverage(t *testing.T) { //nolint: funlen
 	t.Parallel()
 
 	const (
-		bc     data.BarComponent   = data.BarMedianPrice
-		qc     data.QuoteComponent = data.QuoteMidPrice
-		tc     data.TradeComponent = data.TradePrice
-		length                     = 5
-		errlen                     = "invalid simple moving average parameters: length should be greater than 1"
-		errbc                      = "invalid simple moving average parameters: 9999: unknown bar component"
-		errqc                      = "invalid simple moving average parameters: 9999: unknown quote component"
-		errtc                      = "invalid simple moving average parameters: 9999: unknown trade component"
+		bc data.BarComponent   = data.BarMedianPrice
+		qc data.QuoteComponent = data.QuoteMidPrice
+		tc data.TradeComponent = data.TradePrice
+
+		length = 5
+		errlen = "invalid simple moving average parameters: length should be greater than 1"
+		errbc  = "invalid simple moving average parameters: 9999: unknown bar component"
+		errqc  = "invalid simple moving average parameters: 9999: unknown quote component"
+		errtc  = "invalid simple moving average parameters: 9999: unknown trade component"
 	)
 
 	check := func(name string, exp, act any) {

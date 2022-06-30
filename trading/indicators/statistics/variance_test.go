@@ -53,10 +53,8 @@ func testVarianceExpectedLength5Sample() []float64 {
 	}
 }
 
-//nolint: funlen
-func TestVarianceUpdate(t *testing.T) {
+func TestVarianceUpdate(t *testing.T) { //nolint: funlen
 	t.Parallel()
-	input := testVarianceInput()
 
 	check := func(index int, exp, act float64) {
 		t.Helper()
@@ -73,6 +71,8 @@ func TestVarianceUpdate(t *testing.T) {
 			t.Errorf("[%v] is incorrect: expected NaN, actual %v", index, act)
 		}
 	}
+
+	input := testVarianceInput()
 
 	t.Run("population variance length of 3", func(t *testing.T) {
 		t.Parallel()
@@ -127,8 +127,7 @@ func TestVarianceUpdate(t *testing.T) {
 	})
 }
 
-//nolint: funlen
-func TestVarianceUpdateEntity(t *testing.T) {
+func TestVarianceUpdateEntity(t *testing.T) { //nolint: funlen
 	t.Parallel()
 
 	const (
@@ -265,8 +264,7 @@ func TestVarianceMetadata(t *testing.T) {
 	})
 }
 
-//nolint: funlen
-func TestNewVariance(t *testing.T) {
+func TestNewVariance(t *testing.T) { //nolint: funlen
 	t.Parallel()
 
 	const (
