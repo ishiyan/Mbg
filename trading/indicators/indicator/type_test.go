@@ -13,7 +13,13 @@ func TestTypeString(t *testing.T) {
 		text string
 	}{
 		{SimpleMovingAverage, simpleMovingAverage},
+		{WeightedMovingAverage, weightedMovingAverage},
+		{TriangleMovingAverage, triangleMovingAverage},
 		{ExponentialMovingAverage, exponentialMovingAverage},
+		{DoubleExponentialMovingAverage, doubleExponentialMovingAverage},
+		{TripleExponentialMovingAverage, tripleExponentialMovingAverage},
+		{T3ExponentialMovingAverage, t3ExponentialMovingAverage},
+		{KaufmanAdaptiveMovingAverage, kaufmanAdaptiveMovingAverage},
 		{BollingerBands, bollingerBands},
 		{Variance, variance},
 		{StandardDeviation, standardDeviation},
@@ -42,7 +48,13 @@ func TestTypeIsKnown(t *testing.T) {
 		boolean bool
 	}{
 		{SimpleMovingAverage, true},
+		{WeightedMovingAverage, true},
+		{TriangleMovingAverage, true},
 		{ExponentialMovingAverage, true},
+		{DoubleExponentialMovingAverage, true},
+		{TripleExponentialMovingAverage, true},
+		{T3ExponentialMovingAverage, true},
+		{KaufmanAdaptiveMovingAverage, true},
 		{BollingerBands, true},
 		{Variance, true},
 		{StandardDeviation, true},
@@ -66,18 +78,26 @@ func TestTypeIsKnown(t *testing.T) {
 func TestTypeMarshalJSON(t *testing.T) {
 	t.Parallel()
 
+	const dqs = "\""
+
 	var nilstr string
 	tests := []struct {
 		t         Type
 		json      string
 		succeeded bool
 	}{
-		{SimpleMovingAverage, "\"simpleMovingAverage\"", true},
-		{ExponentialMovingAverage, "\"exponentialMovingAverage\"", true},
-		{BollingerBands, "\"bollingerBands\"", true},
-		{Variance, "\"variance\"", true},
-		{StandardDeviation, "\"standardDeviation\"", true},
-		{GoertzelSpectrum, "\"goertzelSpectrum\"", true},
+		{SimpleMovingAverage, dqs + simpleMovingAverage + dqs, true},
+		{WeightedMovingAverage, dqs + weightedMovingAverage + dqs, true},
+		{TriangleMovingAverage, dqs + triangleMovingAverage + dqs, true},
+		{ExponentialMovingAverage, dqs + exponentialMovingAverage + dqs, true},
+		{DoubleExponentialMovingAverage, dqs + doubleExponentialMovingAverage + dqs, true},
+		{TripleExponentialMovingAverage, dqs + tripleExponentialMovingAverage + dqs, true},
+		{T3ExponentialMovingAverage, dqs + t3ExponentialMovingAverage + dqs, true},
+		{KaufmanAdaptiveMovingAverage, dqs + kaufmanAdaptiveMovingAverage + dqs, true},
+		{BollingerBands, dqs + bollingerBands + dqs, true},
+		{Variance, dqs + variance + dqs, true},
+		{StandardDeviation, dqs + standardDeviation + dqs, true},
+		{GoertzelSpectrum, dqs + goertzelSpectrum + dqs, true},
 		{last, nilstr, false},
 		{Type(9999), nilstr, false},
 		{Type(-9999), nilstr, false},
@@ -110,18 +130,26 @@ func TestTypeMarshalJSON(t *testing.T) {
 func TestTypeUnmarshalJSON(t *testing.T) {
 	t.Parallel()
 
+	const dqs = "\""
+
 	var zero Type
 	tests := []struct {
 		t         Type
 		json      string
 		succeeded bool
 	}{
-		{SimpleMovingAverage, "\"simpleMovingAverage\"", true},
-		{ExponentialMovingAverage, "\"exponentialMovingAverage\"", true},
-		{BollingerBands, "\"bollingerBands\"", true},
-		{Variance, "\"variance\"", true},
-		{StandardDeviation, "\"standardDeviation\"", true},
-		{GoertzelSpectrum, "\"goertzelSpectrum\"", true},
+		{SimpleMovingAverage, dqs + simpleMovingAverage + dqs, true},
+		{WeightedMovingAverage, dqs + weightedMovingAverage + dqs, true},
+		{TriangleMovingAverage, dqs + triangleMovingAverage + dqs, true},
+		{ExponentialMovingAverage, dqs + exponentialMovingAverage + dqs, true},
+		{DoubleExponentialMovingAverage, dqs + doubleExponentialMovingAverage + dqs, true},
+		{TripleExponentialMovingAverage, dqs + tripleExponentialMovingAverage + dqs, true},
+		{T3ExponentialMovingAverage, dqs + t3ExponentialMovingAverage + dqs, true},
+		{KaufmanAdaptiveMovingAverage, dqs + kaufmanAdaptiveMovingAverage + dqs, true},
+		{BollingerBands, dqs + bollingerBands + dqs, true},
+		{Variance, dqs + variance + dqs, true},
+		{StandardDeviation, dqs + standardDeviation + dqs, true},
+		{GoertzelSpectrum, dqs + goertzelSpectrum + dqs, true},
 		{zero, "\"unknown\"", false},
 		{zero, "\"foobar\"", false},
 	}

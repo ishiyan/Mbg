@@ -2,7 +2,6 @@ package indicator
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 )
 
@@ -13,8 +12,26 @@ const (
 	// SimpleMovingAverage identifies the Simple Moving Average (SMA) indicator.
 	SimpleMovingAverage Type = iota + 1
 
+	// WeightedMovingAverage identifies the Weighted Moving Average (WMA) indicator.
+	WeightedMovingAverage
+
+	// TriangleMovingAverage identifies the Triangle Moving Average (TRIMA) indicator.
+	TriangleMovingAverage
+
 	// ExponentialMovingAverage identifies the Exponential Moving Average (EMA) indicator.
 	ExponentialMovingAverage
+
+	// DoubleExponentialMovingAverage identifies the Double Exponential Moving Average (DEMA) indicator.
+	DoubleExponentialMovingAverage
+
+	// TripleExponentialMovingAverage identifies the Triple Exponential Moving Average (TEMA) indicator.
+	TripleExponentialMovingAverage
+
+	// T3ExponentialMovingAverage identifies the T3 Exponential Moving Average (T3EMA) indicator.
+	T3ExponentialMovingAverage
+
+	// KaufmanAdaptiveMovingAverage identifies the Kaufman Adaptive Moving Average (KAMA) indicator.
+	KaufmanAdaptiveMovingAverage
 
 	// BollingerBands identifies the Bollinger Bands (BB) indicator.
 	BollingerBands
@@ -31,16 +48,20 @@ const (
 )
 
 const (
-	unknown                  = "unknown"
-	simpleMovingAverage      = "simpleMovingAverage"
-	exponentialMovingAverage = "exponentialMovingAverage"
-	bollingerBands           = "bollingerBands"
-	variance                 = "variance"
-	standardDeviation        = "standardDeviation"
-	goertzelSpectrum         = "goertzelSpectrum"
+	unknown                        = "unknown"
+	simpleMovingAverage            = "simpleMovingAverage"
+	weightedMovingAverage          = "weightedMovingAverage"
+	triangleMovingAverage          = "triangleMovingAverage"
+	exponentialMovingAverage       = "exponentialMovingAverage"
+	doubleExponentialMovingAverage = "doubleExponentialMovingAverage"
+	tripleExponentialMovingAverage = "tripleExponentialMovingAverage"
+	t3ExponentialMovingAverage     = "t3ExponentialMovingAverage"
+	kaufmanAdaptiveMovingAverage   = "kaufmanAdaptiveMovingAverageMovingAverage"
+	bollingerBands                 = "bollingerBands"
+	variance                       = "variance"
+	standardDeviation              = "standardDeviation"
+	goertzelSpectrum               = "goertzelSpectrum"
 )
-
-var errUnknownType = errors.New("unknown indicator type")
 
 //nolint:exhaustive,cyclop
 // String implements the Stringer interface.
@@ -48,8 +69,20 @@ func (t Type) String() string {
 	switch t {
 	case SimpleMovingAverage:
 		return simpleMovingAverage
+	case WeightedMovingAverage:
+		return weightedMovingAverage
+	case TriangleMovingAverage:
+		return triangleMovingAverage
 	case ExponentialMovingAverage:
 		return exponentialMovingAverage
+	case DoubleExponentialMovingAverage:
+		return doubleExponentialMovingAverage
+	case TripleExponentialMovingAverage:
+		return tripleExponentialMovingAverage
+	case T3ExponentialMovingAverage:
+		return t3ExponentialMovingAverage
+	case KaufmanAdaptiveMovingAverage:
+		return kaufmanAdaptiveMovingAverage
 	case BollingerBands:
 		return bollingerBands
 	case Variance:
@@ -70,17 +103,21 @@ func (t Type) IsKnown() bool {
 
 // MarshalJSON implements the Marshaler interface.
 func (t Type) MarshalJSON() ([]byte, error) {
+	const (
+		errFmt = "cannot marshal '%s': unknown indicator type"
+		extra  = 2   // Two bytes for quotes.
+		dqc    = '"' // Double quote character.
+	)
+
 	s := t.String()
 	if s == unknown {
-		return nil, fmt.Errorf("cannot marshal '%s': %w", s, errUnknownType)
+		return nil, fmt.Errorf(errFmt, s)
 	}
 
-	const extra = 2 // Two bytes for quotes.
-
 	b := make([]byte, 0, len(s)+extra)
-	b = append(b, '"')
+	b = append(b, dqc)
 	b = append(b, s...)
-	b = append(b, '"')
+	b = append(b, dqc)
 
 	return b, nil
 }
@@ -88,14 +125,31 @@ func (t Type) MarshalJSON() ([]byte, error) {
 //nolint:cyclop
 // UnmarshalJSON implements the Unmarshaler interface.
 func (t *Type) UnmarshalJSON(data []byte) error {
-	d := bytes.Trim(data, "\"")
+	const (
+		errFmt = "cannot unmarshal '%s': unknown indicator type"
+		dqs    = "\"" // Double quote string.
+	)
+
+	d := bytes.Trim(data, dqs)
 	s := string(d)
 
 	switch s {
 	case simpleMovingAverage:
 		*t = SimpleMovingAverage
+	case weightedMovingAverage:
+		*t = WeightedMovingAverage
+	case triangleMovingAverage:
+		*t = TriangleMovingAverage
 	case exponentialMovingAverage:
 		*t = ExponentialMovingAverage
+	case doubleExponentialMovingAverage:
+		*t = DoubleExponentialMovingAverage
+	case tripleExponentialMovingAverage:
+		*t = TripleExponentialMovingAverage
+	case t3ExponentialMovingAverage:
+		*t = T3ExponentialMovingAverage
+	case kaufmanAdaptiveMovingAverage:
+		*t = KaufmanAdaptiveMovingAverage
 	case bollingerBands:
 		*t = BollingerBands
 	case variance:
@@ -105,7 +159,7 @@ func (t *Type) UnmarshalJSON(data []byte) error {
 	case goertzelSpectrum:
 		*t = GoertzelSpectrum
 	default:
-		return fmt.Errorf("cannot unmarshal '%s': %w", s, errUnknownType)
+		return fmt.Errorf(errFmt, s)
 	}
 
 	return nil
