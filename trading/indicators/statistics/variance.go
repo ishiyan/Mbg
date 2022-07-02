@@ -113,7 +113,7 @@ func (v *Variance) Metadata() indicator.Metadata {
 	}
 }
 
-// Update updatess the value of the variance, σ², given the next sample.
+// Update updates the value of the variance, σ², given the next sample.
 //
 // Depending on the isUnbiased, the value is the unbiased sample variance or the population variance.
 //

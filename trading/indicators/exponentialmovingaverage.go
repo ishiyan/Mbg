@@ -160,7 +160,7 @@ func (s *ExponentialMovingAverage) Metadata() indicator.Metadata {
 	}
 }
 
-// Update updatess the value of the exponential moving average given the next sample.
+// Update updates the value of the exponential moving average given the next sample.
 //
 // The indicator is not primed during the first ℓ-1 updates.
 func (s *ExponentialMovingAverage) Update(sample float64) float64 {
