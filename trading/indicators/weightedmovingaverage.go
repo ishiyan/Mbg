@@ -82,7 +82,7 @@ func NewWeightedMovingAverage(p *WeightedMovingAverageParams) (*WeightedMovingAv
 
 	name := fmt.Sprintf(fmtn, length)
 	desc := "Weighted moving average " + name
-	divider := float64(length) * float64(length+1) / 2.
+	divider := float64(length) * float64(length+1) / 2. //nolint:gomnd
 
 	return &WeightedMovingAverage{
 		mu:           sync.RWMutex{},

@@ -37,6 +37,7 @@ func testTriangularMovingAverageTime() time.Time {
 	return time.Date(2021, time.April, 1, 0, 0, 0, 0, &time.Location{})
 }
 
+//nolint:dupl
 func testTriangularMovingAverageInput() []float64 {
 	return []float64{
 		91.500000, 94.815000, 94.375000, 95.095000, 93.780000, 94.625000, 92.530000, 92.750000, 90.315000, 92.470000,
@@ -228,7 +229,7 @@ func TestTriangularMovingAverageUpdate(t *testing.T) { //nolint: funlen
 	})
 }
 
-func TestTriangularMovingAverageUpdateXls(t *testing.T) { //nolint: funlen
+func TestTriangularMovingAverageUpdateXls(t *testing.T) {
 	t.Parallel()
 
 	check := func(index int, exp, act float64) {
@@ -346,7 +347,7 @@ func TestTriangularMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen
 	})
 }
 
-func TestTriangularMovingAverageIsPrimed(t *testing.T) { //nolint:funlen
+func TestTriangularMovingAverageIsPrimed(t *testing.T) { //nolint:dupl
 	t.Parallel()
 
 	input := testTriangularMovingAverageInput()

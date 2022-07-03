@@ -64,7 +64,7 @@ type TriangularMovingAverage struct {
 }
 
 // NewTriangularMovingAverage returns an instnce of the indicator created using supplied parameters.
-func NewTriangularMovingAverage(p *TriangularMovingAverageParams) (*TriangularMovingAverage, error) {
+func NewTriangularMovingAverage(p *TriangularMovingAverageParams) (*TriangularMovingAverage, error) { //nolint:funlen
 	const (
 		invalid = "invalid triangular moving average parameters"
 		fmts    = "%s: %s"
@@ -88,16 +88,16 @@ func NewTriangularMovingAverage(p *TriangularMovingAverageParams) (*TriangularMo
 
 	lengthHalf := length >> 1
 	l := 1 + lengthHalf
-	isOdd := length%2 == 1
+	isOdd := length%2 == 1 //nolint:gomnd
 
 	if isOdd {
 		// Let period = 5 and l=(int)(period/2), then the formula for a "triangular" series is:
 		// 1+2+3+2+1 = l*(l+1) + l+1 = (l+1)*(l+1) = 3*3 = 9.
-		factor = 1. / float64(l*l)
+		factor = 1. / float64(l*l) //nolint:gomnd
 	} else {
 		// Let period = 6 and l=(int)(period/2), then  the formula for a "triangular" series is:
 		// 1+2+3+3+2+1 = l*(l+1) = 3*4 = 12.
-		factor = 1. / float64(lengthHalf*l)
+		factor = 1. / float64(lengthHalf*l) //nolint:gomnd
 		lengthHalf--
 	}
 

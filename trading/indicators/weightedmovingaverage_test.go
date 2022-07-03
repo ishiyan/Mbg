@@ -45,6 +45,7 @@ func testWeightedMovingAverageTime() time.Time {
 	return time.Date(2021, time.April, 1, 0, 0, 0, 0, &time.Location{})
 }
 
+//nolint:dupl
 func testWeightedMovingAverageInput() []float64 {
 	return []float64{
 		91.500000, 94.815000, 94.375000, 95.095000, 93.780000, 94.625000, 92.530000, 92.750000, 90.315000, 92.470000,
@@ -237,7 +238,7 @@ func TestWeightedMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen
 	})
 }
 
-func TestWeightedMovingAverageIsPrimed(t *testing.T) { //nolint:funlen
+func TestWeightedMovingAverageIsPrimed(t *testing.T) { //nolint:dupl
 	t.Parallel()
 
 	input := testWeightedMovingAverageInput()

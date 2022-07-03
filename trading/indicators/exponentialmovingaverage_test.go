@@ -78,7 +78,7 @@ func testExponentialMovingAverageTime() time.Time {
 	return time.Date(2021, time.April, 1, 0, 0, 0, 0, &time.Location{})
 }
 
-func testExponentialMovingAverageInput() []float64 {
+func testExponentialMovingAverageInput() []float64 { //nolint:dupl
 	return []float64{
 		91.500000, 94.815000, 94.375000, 95.095000, 93.780000, 94.625000, 92.530000, 92.750000, 90.315000, 92.470000,
 		96.125000, 97.250000, 98.500000, 89.875000, 91.000000, 92.815000, 89.155000, 89.345000, 91.625000, 89.875000,
