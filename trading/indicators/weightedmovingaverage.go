@@ -85,12 +85,17 @@ func NewWeightedMovingAverage(p *WeightedMovingAverageParams) (*WeightedMovingAv
 	divider := float64(length) * float64(length+1) / 2.
 
 	return &WeightedMovingAverage{
+		mu:           sync.RWMutex{},
 		name:         name,
 		description:  desc,
 		window:       make([]float64, length),
-		windowLength: length,
-		lastIndex:    length - 1,
+		windowSum:    0,
+		windowSub:    0,
 		divider:      divider,
+		windowLength: length,
+		windowCount:  0,
+		lastIndex:    length - 1,
+		primed:       false,
 		barFunc:      barFunc,
 		quoteFunc:    quoteFunc,
 		tradeFunc:    tradeFunc,
@@ -122,7 +127,7 @@ func (w *WeightedMovingAverage) Metadata() indicator.Metadata {
 	}
 }
 
-// Update updates the value of the simple moving average given the next sample.
+// Update updates the value of the moving average given the next sample.
 //
 // The indicator is not primed during the first ℓ-1 updates.
 func (w *WeightedMovingAverage) Update(sample float64) float64 {

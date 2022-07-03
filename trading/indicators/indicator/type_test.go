@@ -14,7 +14,7 @@ func TestTypeString(t *testing.T) {
 	}{
 		{SimpleMovingAverage, simpleMovingAverage},
 		{WeightedMovingAverage, weightedMovingAverage},
-		{TriangleMovingAverage, triangleMovingAverage},
+		{TriangularMovingAverage, triangularMovingAverage},
 		{ExponentialMovingAverage, exponentialMovingAverage},
 		{DoubleExponentialMovingAverage, doubleExponentialMovingAverage},
 		{TripleExponentialMovingAverage, tripleExponentialMovingAverage},
@@ -49,7 +49,7 @@ func TestTypeIsKnown(t *testing.T) {
 	}{
 		{SimpleMovingAverage, true},
 		{WeightedMovingAverage, true},
-		{TriangleMovingAverage, true},
+		{TriangularMovingAverage, true},
 		{ExponentialMovingAverage, true},
 		{DoubleExponentialMovingAverage, true},
 		{TripleExponentialMovingAverage, true},
@@ -88,7 +88,7 @@ func TestTypeMarshalJSON(t *testing.T) {
 	}{
 		{SimpleMovingAverage, dqs + simpleMovingAverage + dqs, true},
 		{WeightedMovingAverage, dqs + weightedMovingAverage + dqs, true},
-		{TriangleMovingAverage, dqs + triangleMovingAverage + dqs, true},
+		{TriangularMovingAverage, dqs + triangularMovingAverage + dqs, true},
 		{ExponentialMovingAverage, dqs + exponentialMovingAverage + dqs, true},
 		{DoubleExponentialMovingAverage, dqs + doubleExponentialMovingAverage + dqs, true},
 		{TripleExponentialMovingAverage, dqs + tripleExponentialMovingAverage + dqs, true},
@@ -140,7 +140,7 @@ func TestTypeUnmarshalJSON(t *testing.T) {
 	}{
 		{SimpleMovingAverage, dqs + simpleMovingAverage + dqs, true},
 		{WeightedMovingAverage, dqs + weightedMovingAverage + dqs, true},
-		{TriangleMovingAverage, dqs + triangleMovingAverage + dqs, true},
+		{TriangularMovingAverage, dqs + triangularMovingAverage + dqs, true},
 		{ExponentialMovingAverage, dqs + exponentialMovingAverage + dqs, true},
 		{DoubleExponentialMovingAverage, dqs + doubleExponentialMovingAverage + dqs, true},
 		{TripleExponentialMovingAverage, dqs + tripleExponentialMovingAverage + dqs, true},

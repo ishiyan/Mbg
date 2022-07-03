@@ -15,8 +15,8 @@ const (
 	// WeightedMovingAverage identifies the Weighted Moving Average (WMA) indicator.
 	WeightedMovingAverage
 
-	// TriangleMovingAverage identifies the Triangle Moving Average (TRIMA) indicator.
-	TriangleMovingAverage
+	// TriangularMovingAverage identifies the Triangular Moving Average (TRIMA) indicator.
+	TriangularMovingAverage
 
 	// ExponentialMovingAverage identifies the Exponential Moving Average (EMA) indicator.
 	ExponentialMovingAverage
@@ -51,7 +51,7 @@ const (
 	unknown                        = "unknown"
 	simpleMovingAverage            = "simpleMovingAverage"
 	weightedMovingAverage          = "weightedMovingAverage"
-	triangleMovingAverage          = "triangleMovingAverage"
+	triangularMovingAverage        = "triangularMovingAverage"
 	exponentialMovingAverage       = "exponentialMovingAverage"
 	doubleExponentialMovingAverage = "doubleExponentialMovingAverage"
 	tripleExponentialMovingAverage = "tripleExponentialMovingAverage"
@@ -71,8 +71,8 @@ func (t Type) String() string {
 		return simpleMovingAverage
 	case WeightedMovingAverage:
 		return weightedMovingAverage
-	case TriangleMovingAverage:
-		return triangleMovingAverage
+	case TriangularMovingAverage:
+		return triangularMovingAverage
 	case ExponentialMovingAverage:
 		return exponentialMovingAverage
 	case DoubleExponentialMovingAverage:
@@ -138,8 +138,8 @@ func (t *Type) UnmarshalJSON(data []byte) error {
 		*t = SimpleMovingAverage
 	case weightedMovingAverage:
 		*t = WeightedMovingAverage
-	case triangleMovingAverage:
-		*t = TriangleMovingAverage
+	case triangularMovingAverage:
+		*t = TriangularMovingAverage
 	case exponentialMovingAverage:
 		*t = ExponentialMovingAverage
 	case doubleExponentialMovingAverage:
