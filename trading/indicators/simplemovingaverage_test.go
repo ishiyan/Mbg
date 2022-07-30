@@ -125,11 +125,11 @@ func TestSimpleMovingAverageUpdate(t *testing.T) { //nolint: funlen
 		sma := testSimpleMovingAverageCreate(10)
 		expected := testSimpleMovingAverageExpected10()
 
-		for i := 0; i < 8; i++ {
+		for i := 0; i < 9; i++ {
 			checkNaN(i, sma.Update(input[i]))
 		}
 
-		for i := 8; i < len(input); i++ {
+		for i := 9; i < len(input); i++ {
 			exp := expected[i]
 			act := sma.Update(input[i])
 			check(i, exp, act)
