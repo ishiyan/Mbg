@@ -9,7 +9,7 @@ import (
 //
 // All slices have the same spectrum length.
 type FrequencyResponse struct {
-	// NormalizedFrequency is a frequency expressed in units of 'cycles per sample'.
+	// NormalizedFrequency is a frequency in units of cycles per 2 samples, 1 being the Nyquist frequency.
 	NormalizedFrequency []float64 // spectrumLength
 	PowerLinear         []float64 // spectrumLength
 	PowerDecibel        []float64 // spectrumLength
