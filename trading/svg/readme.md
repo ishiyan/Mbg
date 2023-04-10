@@ -76,3 +76,18 @@ This statistical concept originally created by John Sweeney to measure the disti
 
 Maximum Adverse Excursion
 This is the maximum potential loss that the trade had before the trade closed in profit. For example, a trade closed with 25 points in profit but during the time it was open, at one point, it was losing 100 points - that was the Maximum Adverse Excursion for that trade.
+
+### Links
+
+- [https://www.tradingdiarypro.com/mae-mfe-explained/](https://www.tradingdiarypro.com/mae-mfe-explained/)
+- [https://ramblingquant.com/2018/12/14/entry-efficiency/](https://ramblingquant.com/2018/12/14/entry-efficiency/)
+
+
+## SMA/TRIMA/WMA Weights
+
+| name | figure |
+| ---- | ------ |
+| SMA-5 | ![weights-sma-5](sma-trima-wma/weights-sma-5.svg) |
+| WMA-5 | ![weights-wma-5](sma-trima-wma/weights-wma-5.svg) |
+| TRIMA-5 | ![weights-trima-5](sma-trima-wma/weights-trima-5.svg) |
+| TRIMA-6 | ![weights-trima-6](sma-trima-wma/weights-trima-6.svg) |
