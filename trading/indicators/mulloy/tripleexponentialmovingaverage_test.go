@@ -1,5 +1,5 @@
 //nolint:testpackage
-package indicators
+package mulloy
 
 //nolint: gofumpt
 import (
@@ -74,11 +74,11 @@ import (
 //   /* Last 3 value with 3 unstable, period 10 */
 //   { 0, TA_ANY_MA_TEST, 3, 249, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   2, 108.97, 249, 3 }
 
-func testExponentialMovingAverageTime() time.Time {
+func testTripleExponentialMovingAverageTime() time.Time {
 	return time.Date(2021, time.April, 1, 0, 0, 0, 0, &time.Location{})
 }
 
-func testExponentialMovingAverageInput() []float64 { //nolint:dupl
+func testTripleExponentialMovingAverageInput() []float64 { //nolint:dupl
 	return []float64{
 		91.500000, 94.815000, 94.375000, 95.095000, 93.780000, 94.625000, 92.530000, 92.750000, 90.315000, 92.470000,
 		96.125000, 97.250000, 98.500000, 89.875000, 91.000000, 92.815000, 89.155000, 89.345000, 91.625000, 89.875000,
@@ -110,7 +110,7 @@ func testExponentialMovingAverageInput() []float64 { //nolint:dupl
 	}
 }
 
-func TestExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
+func TestTripleExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
 	t.Parallel()
 
 	check := func(index int, exp, act float64) {
@@ -129,7 +129,7 @@ func TestExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
 		}
 	}
 
-	input := testExponentialMovingAverageInput()
+	input := testTripleExponentialMovingAverageInput()
 
 	t.Run("length = 2, firstIsAverage = true", func(t *testing.T) {
 		const (
@@ -140,10 +140,10 @@ func TestExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
 		)
 
 		t.Parallel()
-		ema := testExponentialMovingAverageCreateLength(2, true)
+		tema := testTripleExponentialMovingAverageCreateLength(2, true)
 
 		for i := 0; i < len(input); i++ {
-			act := ema.Update(input[i])
+			act := tema.Update(input[i])
 
 			switch i {
 			case 0:
@@ -160,7 +160,7 @@ func TestExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
 			}
 		}
 
-		checkNaN(0, ema.Update(math.NaN()))
+		checkNaN(0, tema.Update(math.NaN()))
 	})
 
 	t.Run("length = 10, firstIsAverage = true", func(t *testing.T) {
@@ -172,14 +172,14 @@ func TestExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
 		)
 
 		t.Parallel()
-		ema := testExponentialMovingAverageCreateLength(10, true)
+		tema := testTripleExponentialMovingAverageCreateLength(10, true)
 
 		for i := 0; i < 9; i++ {
-			checkNaN(i, ema.Update(input[i]))
+			checkNaN(i, tema.Update(input[i]))
 		}
 
 		for i := 9; i < len(input); i++ {
-			act := ema.Update(input[i])
+			act := tema.Update(input[i])
 
 			switch i {
 			case 9:
@@ -193,7 +193,7 @@ func TestExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
 			}
 		}
 
-		checkNaN(0, ema.Update(math.NaN()))
+		checkNaN(0, tema.Update(math.NaN()))
 	})
 
 	t.Run("length = 2, firstIsAverage = false (Metastock)", func(t *testing.T) {
@@ -206,10 +206,10 @@ func TestExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
 		)
 
 		t.Parallel()
-		ema := testExponentialMovingAverageCreateLength(2, false)
+		tema := testTripleExponentialMovingAverageCreateLength(2, false)
 
 		for i := 0; i < len(input); i++ {
-			act := ema.Update(input[i])
+			act := tema.Update(input[i])
 
 			switch i {
 			case 0:
@@ -226,7 +226,7 @@ func TestExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
 			}
 		}
 
-		checkNaN(0, ema.Update(math.NaN()))
+		checkNaN(0, tema.Update(math.NaN()))
 	})
 
 	t.Run("length = 10, firstIsAverage = false (Metastock)", func(t *testing.T) {
@@ -240,14 +240,14 @@ func TestExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
 		)
 
 		t.Parallel()
-		ema := testExponentialMovingAverageCreateLength(10, false)
+		tema := testTripleExponentialMovingAverageCreateLength(10, false)
 
 		for i := 0; i < 9; i++ {
-			checkNaN(i, ema.Update(input[i]))
+			checkNaN(i, tema.Update(input[i]))
 		}
 
 		for i := 9; i < len(input); i++ {
-			act := ema.Update(input[i])
+			act := tema.Update(input[i])
 
 			switch i {
 			case 9:
@@ -263,11 +263,11 @@ func TestExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
 			}
 		}
 
-		checkNaN(0, ema.Update(math.NaN()))
+		checkNaN(0, tema.Update(math.NaN()))
 	})
 }
 
-func TestExponentialMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen
+func TestTripleExponentialMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen
 	t.Parallel()
 
 	const (
@@ -277,7 +277,7 @@ func TestExponentialMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen
 		exp   = alpha * inp
 	)
 
-	time := testExponentialMovingAverageTime()
+	time := testTripleExponentialMovingAverageTime()
 	check := func(act indicator.Output) {
 		t.Helper()
 
@@ -303,47 +303,47 @@ func TestExponentialMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen
 		t.Parallel()
 
 		s := data.Scalar{Time: time, Value: inp}
-		ema := testExponentialMovingAverageCreateLength(l, false)
-		ema.Update(0.)
-		ema.Update(0.)
-		check(ema.UpdateScalar(&s))
+		tema := testTripleExponentialMovingAverageCreateLength(l, false)
+		tema.Update(0.)
+		tema.Update(0.)
+		check(tema.UpdateScalar(&s))
 	})
 
 	t.Run("update bar", func(t *testing.T) {
 		t.Parallel()
 
 		b := data.Bar{Time: time, Close: inp}
-		ema := testExponentialMovingAverageCreateLength(l, false)
-		ema.Update(0.)
-		ema.Update(0.)
-		check(ema.UpdateBar(&b))
+		tema := testTripleExponentialMovingAverageCreateLength(l, false)
+		tema.Update(0.)
+		tema.Update(0.)
+		check(tema.UpdateBar(&b))
 	})
 
 	t.Run("update quote", func(t *testing.T) {
 		t.Parallel()
 
 		q := data.Quote{Time: time, Bid: inp}
-		ema := testExponentialMovingAverageCreateLength(l, false)
-		ema.Update(0.)
-		ema.Update(0.)
-		check(ema.UpdateQuote(&q))
+		tema := testTripleExponentialMovingAverageCreateLength(l, false)
+		tema.Update(0.)
+		tema.Update(0.)
+		check(tema.UpdateQuote(&q))
 	})
 
 	t.Run("update trade", func(t *testing.T) {
 		t.Parallel()
 
 		r := data.Trade{Time: time, Price: inp}
-		ema := testExponentialMovingAverageCreateLength(l, false)
-		ema.Update(0.)
-		ema.Update(0.)
-		check(ema.UpdateTrade(&r))
+		tema := testTripleExponentialMovingAverageCreateLength(l, false)
+		tema.Update(0.)
+		tema.Update(0.)
+		check(tema.UpdateTrade(&r))
 	})
 }
 
-func TestExponentialMovingAverageIsPrimed(t *testing.T) {
+func TestTripleExponentialMovingAverageIsPrimed(t *testing.T) {
 	t.Parallel()
 
-	input := testExponentialMovingAverageInput()
+	input := testTripleExponentialMovingAverageInput()
 	check := func(index int, exp, act bool) {
 		t.Helper()
 
@@ -354,40 +354,40 @@ func TestExponentialMovingAverageIsPrimed(t *testing.T) {
 
 	t.Run("length = 10, firstIsAverage = true", func(t *testing.T) {
 		t.Parallel()
-		ema := testExponentialMovingAverageCreateLength(10, true)
+		tema := testTripleExponentialMovingAverageCreateLength(10, true)
 
-		check(0, false, ema.IsPrimed())
+		check(0, false, tema.IsPrimed())
 
 		for i := 0; i < 9; i++ {
-			ema.Update(input[i])
-			check(i+1, false, ema.IsPrimed())
+			tema.Update(input[i])
+			check(i+1, false, tema.IsPrimed())
 		}
 
 		for i := 9; i < len(input); i++ {
-			ema.Update(input[i])
-			check(i+1, true, ema.IsPrimed())
+			tema.Update(input[i])
+			check(i+1, true, tema.IsPrimed())
 		}
 	})
 
 	t.Run("length = 10, firstIsAverage = false (Metastock)", func(t *testing.T) {
 		t.Parallel()
-		ema := testExponentialMovingAverageCreateLength(10, false)
+		tema := testTripleExponentialMovingAverageCreateLength(10, false)
 
-		check(0, false, ema.IsPrimed())
+		check(0, false, tema.IsPrimed())
 
 		for i := 0; i < 9; i++ {
-			ema.Update(input[i])
-			check(i+1, false, ema.IsPrimed())
+			tema.Update(input[i])
+			check(i+1, false, tema.IsPrimed())
 		}
 
 		for i := 9; i < len(input); i++ {
-			ema.Update(input[i])
-			check(i+1, true, ema.IsPrimed())
+			tema.Update(input[i])
+			check(i+1, true, tema.IsPrimed())
 		}
 	})
 }
 
-func TestExponentialMovingAverageMetadata(t *testing.T) {
+func TestTripleExponentialMovingAverageMetadata(t *testing.T) {
 	t.Parallel()
 
 	check := func(what string, exp, act any) {
@@ -400,15 +400,15 @@ func TestExponentialMovingAverageMetadata(t *testing.T) {
 
 	t.Run("length = 10, firstIsAverage = true", func(t *testing.T) {
 		t.Parallel()
-		ema := testExponentialMovingAverageCreateLength(10, true)
-		act := ema.Metadata()
+		tema := testTripleExponentialMovingAverageCreateLength(10, true)
+		act := tema.Metadata()
 
-		check("Type", indicator.ExponentialMovingAverage, act.Type)
+		check("Type", indicator.TripleExponentialMovingAverage, act.Type)
 		check("len(Outputs)", 1, len(act.Outputs))
-		check("Outputs[0].Kind", int(ExponentialMovingAverageValue), act.Outputs[0].Kind)
+		check("Outputs[0].Kind", int(TripleExponentialMovingAverageValue), act.Outputs[0].Kind)
 		check("Outputs[0].Type", output.Scalar, act.Outputs[0].Type)
-		check("Outputs[0].Name", "ema(10)", act.Outputs[0].Name)
-		check("Outputs[0].Description", "Exponential moving average ema(10)", act.Outputs[0].Description)
+		check("Outputs[0].Name", "tema(10)", act.Outputs[0].Name)
+		check("Outputs[0].Description", "Triple exponential moving average tema(10)", act.Outputs[0].Description)
 	})
 
 	t.Run("alpha = 2/11 = 0.18181818..., firstIsAverage = false", func(t *testing.T) {
@@ -417,19 +417,19 @@ func TestExponentialMovingAverageMetadata(t *testing.T) {
 		// α = 2 / (ℓ + 1) = 2/11 = 0.18181818...
 		const alpha = 2. / 11.
 
-		ema := testExponentialMovingAverageCreateAlpha(alpha, false)
-		act := ema.Metadata()
+		tema := testTripleExponentialMovingAverageCreateAlpha(alpha, false)
+		act := tema.Metadata()
 
-		check("Type", indicator.ExponentialMovingAverage, act.Type)
+		check("Type", indicator.TripleExponentialMovingAverage, act.Type)
 		check("len(Outputs)", 1, len(act.Outputs))
-		check("Outputs[0].Kind", int(ExponentialMovingAverageValue), act.Outputs[0].Kind)
+		check("Outputs[0].Kind", int(TripleExponentialMovingAverageValue), act.Outputs[0].Kind)
 		check("Outputs[0].Type", output.Scalar, act.Outputs[0].Type)
-		check("Outputs[0].Name", "ema(10, 0.18181818)", act.Outputs[0].Name)
-		check("Outputs[0].Description", "Exponential moving average ema(10, 0.18181818)", act.Outputs[0].Description)
+		check("Outputs[0].Name", "tema(10, 0.18181818)", act.Outputs[0].Name)
+		check("Outputs[0].Description", "Triple exponential moving average tema(10, 0.18181818)", act.Outputs[0].Description)
 	})
 }
 
-func TestNewExponentialMovingAverage(t *testing.T) { //nolint: funlen
+func TestNewTripleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 	t.Parallel()
 
 	const (
@@ -439,11 +439,11 @@ func TestNewExponentialMovingAverage(t *testing.T) { //nolint: funlen
 		length                     = 10
 		alpha                      = 2. / 11.
 
-		errlen   = "invalid exponential moving average parameters: length should be positive"
-		erralpha = "invalid exponential moving average parameters: smoothing factor should be in range [0, 1]"
-		errbc    = "invalid exponential moving average parameters: 9999: unknown bar component"
-		errqc    = "invalid exponential moving average parameters: 9999: unknown quote component"
-		errtc    = "invalid exponential moving average parameters: 9999: unknown trade component"
+		errlen   = "invalid double exponential moving average parameters: length should be positive"
+		erralpha = "invalid double exponential moving average parameters: smoothing factor should be in range [0, 1]"
+		errbc    = "invalid double exponential moving average parameters: 9999: unknown bar component"
+		errqc    = "invalid double exponential moving average parameters: 9999: unknown quote component"
+		errtc    = "invalid double exponential moving average parameters: 9999: unknown trade component"
 	)
 
 	check := func(name string, exp, act any) {
@@ -456,235 +456,235 @@ func TestNewExponentialMovingAverage(t *testing.T) { //nolint: funlen
 
 	t.Run("length > 1, firstIsAverage = false", func(t *testing.T) { //nolint:dupl
 		t.Parallel()
-		params := ExponentialMovingAverageLengthParams{
+		params := TripleExponentialMovingAverageLengthParams{
 			Length: length, FirstIsAverage: false, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
 
-		ema, err := NewExponentialMovingAverageLength(&params)
+		tema, err := NewTripleExponentialMovingAverageLength(&params)
 		check("err == nil", true, err == nil)
-		check("name", "ema(10)", ema.name)
-		check("description", "Exponential moving average ema(10)", ema.description)
-		check("firstIsAverage", false, ema.firstIsAverage)
-		check("primed", false, ema.primed)
-		check("length", length, ema.length)
-		check("smoothingFactor", alpha, ema.smoothingFactor)
-		check("count", 0, ema.count)
-		check("sum", 0., ema.sum)
-		check("value", 0., ema.value)
-		check("barFunc == nil", false, ema.barFunc == nil)
-		check("quoteFunc == nil", false, ema.quoteFunc == nil)
-		check("tradeFunc == nil", false, ema.tradeFunc == nil)
+		check("name", "tema(10)", tema.name)
+		check("description", "Triple Exponential moving average tema(10)", tema.description)
+		check("firstIsAverage", false, tema.firstIsAverage)
+		check("primed", false, tema.primed)
+		check("length", length, tema.length)
+		check("smoothingFactor", alpha, tema.smoothingFactor)
+		check("count", 0, tema.count)
+		check("sum", 0., tema.sum)
+		check("value", 0., tema.value)
+		check("barFunc == nil", false, tema.barFunc == nil)
+		check("quoteFunc == nil", false, tema.quoteFunc == nil)
+		check("tradeFunc == nil", false, tema.tradeFunc == nil)
 	})
 
 	t.Run("length = 1, firstIsAverage = true", func(t *testing.T) { //nolint:dupl
 		t.Parallel()
-		params := ExponentialMovingAverageLengthParams{
+		params := TripleExponentialMovingAverageLengthParams{
 			Length: 1, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
 
-		ema, err := NewExponentialMovingAverageLength(&params)
+		tema, err := NewTripleExponentialMovingAverageLength(&params)
 		check("err == nil", true, err == nil)
-		check("name", "ema(1)", ema.name)
-		check("description", "Exponential moving average ema(1)", ema.description)
-		check("firstIsAverage", true, ema.firstIsAverage)
-		check("primed", false, ema.primed)
-		check("length", 1, ema.length)
-		check("smoothingFactor", 1., ema.smoothingFactor)
-		check("count", 0, ema.count)
-		check("sum", 0., ema.sum)
-		check("value", 0., ema.value)
-		check("barFunc == nil", false, ema.barFunc == nil)
-		check("quoteFunc == nil", false, ema.quoteFunc == nil)
-		check("tradeFunc == nil", false, ema.tradeFunc == nil)
+		check("name", "tema(1)", tema.name)
+		check("description", "Triple exponential moving average tema(1)", tema.description)
+		check("firstIsAverage", true, tema.firstIsAverage)
+		check("primed", false, tema.primed)
+		check("length", 1, tema.length)
+		check("smoothingFactor", 1., tema.smoothingFactor)
+		check("count", 0, tema.count)
+		check("sum", 0., tema.sum)
+		check("value", 0., tema.value)
+		check("barFunc == nil", false, tema.barFunc == nil)
+		check("quoteFunc == nil", false, tema.quoteFunc == nil)
+		check("tradeFunc == nil", false, tema.tradeFunc == nil)
 	})
 
 	t.Run("length = 0", func(t *testing.T) {
 		t.Parallel()
-		params := ExponentialMovingAverageLengthParams{
+		params := TripleExponentialMovingAverageLengthParams{
 			Length: 0, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
 
-		ema, err := NewExponentialMovingAverageLength(&params)
-		check("ema == nil", true, ema == nil)
+		tema, err := NewTripleExponentialMovingAverageLength(&params)
+		check("tema == nil", true, tema == nil)
 		check("err", errlen, err.Error())
 	})
 
 	t.Run("length < 0", func(t *testing.T) {
 		t.Parallel()
-		params := ExponentialMovingAverageLengthParams{
+		params := TripleExponentialMovingAverageLengthParams{
 			Length: -1, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
 
-		ema, err := NewExponentialMovingAverageLength(&params)
-		check("ema == nil", true, ema == nil)
+		tema, err := NewTripleExponentialMovingAverageLength(&params)
+		check("tema == nil", true, tema == nil)
 		check("err", errlen, err.Error())
 	})
 
 	t.Run("epsilon < α ≤ 1", func(t *testing.T) { //nolint:dupl
 		t.Parallel()
-		params := ExponentialMovingAverageSmoothingFactorParams{
+		params := TripleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: alpha, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
 
-		ema, err := NewExponentialMovingAverageSmoothingFactor(&params)
+		tema, err := NewTripleExponentialMovingAverageSmoothingFactor(&params)
 		check("err == nil", true, err == nil)
-		check("name", "ema(10, 0.18181818)", ema.name)
-		check("description", "Exponential moving average ema(10, 0.18181818)", ema.description)
-		check("firstIsAverage", true, ema.firstIsAverage)
-		check("primed", false, ema.primed)
-		check("length", length, ema.length)
-		check("smoothingFactor", alpha, ema.smoothingFactor)
-		check("count", 0, ema.count)
-		check("sum", 0., ema.sum)
-		check("value", 0., ema.value)
-		check("barFunc == nil", false, ema.barFunc == nil)
-		check("quoteFunc == nil", false, ema.quoteFunc == nil)
-		check("tradeFunc == nil", false, ema.tradeFunc == nil)
+		check("name", "tema(10, 0.18181818)", tema.name)
+		check("description", "Triple exponential moving average tema(10, 0.18181818)", tema.description)
+		check("firstIsAverage", true, tema.firstIsAverage)
+		check("primed", false, tema.primed)
+		check("length", length, tema.length)
+		check("smoothingFactor", alpha, tema.smoothingFactor)
+		check("count", 0, tema.count)
+		check("sum", 0., tema.sum)
+		check("value", 0., tema.value)
+		check("barFunc == nil", false, tema.barFunc == nil)
+		check("quoteFunc == nil", false, tema.quoteFunc == nil)
+		check("tradeFunc == nil", false, tema.tradeFunc == nil)
 	})
 
 	t.Run("0 < α < epsilon", func(t *testing.T) { //nolint:dupl
 		t.Parallel()
-		params := ExponentialMovingAverageSmoothingFactorParams{
+		params := TripleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 0.000000001, FirstIsAverage: false, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
 
-		ema, err := NewExponentialMovingAverageSmoothingFactor(&params)
+		tema, err := NewTripleExponentialMovingAverageSmoothingFactor(&params)
 		check("err == nil", true, err == nil)
-		check("name", "ema(199999999, 0.00000001)", ema.name)
-		check("description", "Exponential moving average ema(199999999, 0.00000001)", ema.description)
-		check("firstIsAverage", false, ema.firstIsAverage)
-		check("primed", false, ema.primed)
-		check("length", 199999999, ema.length) // 2./0.00000001 - 1.
-		check("smoothingFactor", 0.00000001, ema.smoothingFactor)
-		check("count", 0, ema.count)
-		check("sum", 0., ema.sum)
-		check("value", 0., ema.value)
-		check("barFunc == nil", false, ema.barFunc == nil)
-		check("quoteFunc == nil", false, ema.quoteFunc == nil)
-		check("tradeFunc == nil", false, ema.tradeFunc == nil)
+		check("name", "tema(199999999, 0.00000001)", tema.name)
+		check("description", "Triple exponential moving average tema(199999999, 0.00000001)", tema.description)
+		check("firstIsAverage", false, tema.firstIsAverage)
+		check("primed", false, tema.primed)
+		check("length", 199999999, tema.length) // 2./0.00000001 - 1.
+		check("smoothingFactor", 0.00000001, tema.smoothingFactor)
+		check("count", 0, tema.count)
+		check("sum", 0., tema.sum)
+		check("value", 0., tema.value)
+		check("barFunc == nil", false, tema.barFunc == nil)
+		check("quoteFunc == nil", false, tema.quoteFunc == nil)
+		check("tradeFunc == nil", false, tema.tradeFunc == nil)
 	})
 
 	t.Run("α = 0", func(t *testing.T) { //nolint:dupl
 		t.Parallel()
-		params := ExponentialMovingAverageSmoothingFactorParams{
+		params := TripleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 0, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
 
-		ema, err := NewExponentialMovingAverageSmoothingFactor(&params)
+		tema, err := NewTripleExponentialMovingAverageSmoothingFactor(&params)
 		check("err == nil", true, err == nil)
-		check("name", "ema(199999999, 0.00000001)", ema.name)
-		check("description", "Exponential moving average ema(199999999, 0.00000001)", ema.description)
-		check("firstIsAverage", true, ema.firstIsAverage)
-		check("primed", false, ema.primed)
-		check("length", 199999999, ema.length) // 2./0.00000001 - 1.
-		check("smoothingFactor", 0.00000001, ema.smoothingFactor)
-		check("count", 0, ema.count)
-		check("sum", 0., ema.sum)
-		check("value", 0., ema.value)
-		check("barFunc == nil", false, ema.barFunc == nil)
-		check("quoteFunc == nil", false, ema.quoteFunc == nil)
-		check("tradeFunc == nil", false, ema.tradeFunc == nil)
+		check("name", "tema(199999999, 0.00000001)", tema.name)
+		check("description", "Triple exponential moving average tema(199999999, 0.00000001)", tema.description)
+		check("firstIsAverage", true, tema.firstIsAverage)
+		check("primed", false, tema.primed)
+		check("length", 199999999, tema.length) // 2./0.00000001 - 1.
+		check("smoothingFactor", 0.00000001, tema.smoothingFactor)
+		check("count", 0, tema.count)
+		check("sum", 0., tema.sum)
+		check("value", 0., tema.value)
+		check("barFunc == nil", false, tema.barFunc == nil)
+		check("quoteFunc == nil", false, tema.quoteFunc == nil)
+		check("tradeFunc == nil", false, tema.tradeFunc == nil)
 	})
 
 	t.Run("α = 1", func(t *testing.T) { //nolint:dupl
 		t.Parallel()
-		params := ExponentialMovingAverageSmoothingFactorParams{
+		params := TripleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 1, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
 
-		ema, err := NewExponentialMovingAverageSmoothingFactor(&params)
+		tema, err := NewTripleExponentialMovingAverageSmoothingFactor(&params)
 		check("err == nil", true, err == nil)
-		check("name", "ema(1, 1.00000000)", ema.name)
-		check("description", "Exponential moving average ema(1, 1.00000000)", ema.description)
-		check("firstIsAverage", true, ema.firstIsAverage)
-		check("primed", false, ema.primed)
-		check("length", 1, ema.length) // 2./1 - 1.
-		check("smoothingFactor", 1., ema.smoothingFactor)
-		check("count", 0, ema.count)
-		check("sum", 0., ema.sum)
-		check("value", 0., ema.value)
-		check("barFunc == nil", false, ema.barFunc == nil)
-		check("quoteFunc == nil", false, ema.quoteFunc == nil)
-		check("tradeFunc == nil", false, ema.tradeFunc == nil)
+		check("name", "tema(1, 1.00000000)", tema.name)
+		check("description", "Triple exponential moving average tema(1, 1.00000000)", tema.description)
+		check("firstIsAverage", true, tema.firstIsAverage)
+		check("primed", false, tema.primed)
+		check("length", 1, tema.length) // 2./1 - 1.
+		check("smoothingFactor", 1., tema.smoothingFactor)
+		check("count", 0, tema.count)
+		check("sum", 0., tema.sum)
+		check("value", 0., tema.value)
+		check("barFunc == nil", false, tema.barFunc == nil)
+		check("quoteFunc == nil", false, tema.quoteFunc == nil)
+		check("tradeFunc == nil", false, tema.tradeFunc == nil)
 	})
 
 	t.Run("α < 0", func(t *testing.T) {
 		t.Parallel()
-		params := ExponentialMovingAverageSmoothingFactorParams{
+		params := TripleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: -1, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
 
-		ema, err := NewExponentialMovingAverageSmoothingFactor(&params)
-		check("ema == nil", true, ema == nil)
+		tema, err := NewTripleExponentialMovingAverageSmoothingFactor(&params)
+		check("tema == nil", true, tema == nil)
 		check("err", erralpha, err.Error())
 	})
 
 	t.Run("α > 1", func(t *testing.T) {
 		t.Parallel()
-		params := ExponentialMovingAverageSmoothingFactorParams{
+		params := TripleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 2, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
 
-		ema, err := NewExponentialMovingAverageSmoothingFactor(&params)
-		check("ema == nil", true, ema == nil)
+		tema, err := NewTripleExponentialMovingAverageSmoothingFactor(&params)
+		check("tema == nil", true, tema == nil)
 		check("err", erralpha, err.Error())
 	})
 
 	t.Run("invalid bar component", func(t *testing.T) {
 		t.Parallel()
-		params := ExponentialMovingAverageSmoothingFactorParams{
+		params := TripleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 1, FirstIsAverage: true,
 			BarComponent: data.BarComponent(9999), QuoteComponent: qc, TradeComponent: tc,
 		}
 
-		ema, err := NewExponentialMovingAverageSmoothingFactor(&params)
-		check("ema == nil", true, ema == nil)
+		tema, err := NewTripleExponentialMovingAverageSmoothingFactor(&params)
+		check("tema == nil", true, tema == nil)
 		check("err", errbc, err.Error())
 	})
 
 	t.Run("invalid quote component", func(t *testing.T) {
 		t.Parallel()
-		params := ExponentialMovingAverageSmoothingFactorParams{
+		params := TripleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 1, FirstIsAverage: true,
 			BarComponent: bc, QuoteComponent: data.QuoteComponent(9999), TradeComponent: tc,
 		}
 
-		ema, err := NewExponentialMovingAverageSmoothingFactor(&params)
-		check("ema == nil", true, ema == nil)
+		tema, err := NewTripleExponentialMovingAverageSmoothingFactor(&params)
+		check("tema == nil", true, tema == nil)
 		check("err", errqc, err.Error())
 	})
 
 	t.Run("invalid trade component", func(t *testing.T) {
 		t.Parallel()
-		params := ExponentialMovingAverageSmoothingFactorParams{
+		params := TripleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 1, FirstIsAverage: true,
 			BarComponent: bc, QuoteComponent: qc, TradeComponent: data.TradeComponent(9999),
 		}
 
-		ema, err := NewExponentialMovingAverageSmoothingFactor(&params)
-		check("ema == nil", true, ema == nil)
+		tema, err := NewTripleExponentialMovingAverageSmoothingFactor(&params)
+		check("tema == nil", true, tema == nil)
 		check("err", errtc, err.Error())
 	})
 }
 
-func testExponentialMovingAverageCreateLength(length int, firstIsAverage bool) *ExponentialMovingAverage {
-	params := ExponentialMovingAverageLengthParams{
+func testTripleExponentialMovingAverageCreateLength(length int, firstIsAverage bool) *TripleExponentialMovingAverage {
+	params := TripleExponentialMovingAverageLengthParams{
 		Length: length, FirstIsAverage: firstIsAverage, BarComponent: data.BarClosePrice,
 		QuoteComponent: data.QuoteBidPrice, TradeComponent: data.TradePrice,
 	}
 
-	ema, _ := NewExponentialMovingAverageLength(&params)
+	tema, _ := NewTripleExponentialMovingAverageLength(&params)
 
-	return ema
+	return tema
 }
 
-func testExponentialMovingAverageCreateAlpha(alpha float64, firstIsAverage bool) *ExponentialMovingAverage {
-	params := ExponentialMovingAverageSmoothingFactorParams{
+func testTripleExponentialMovingAverageCreateAlpha(alpha float64, firstIsAverage bool) *TripleExponentialMovingAverage {
+	params := TripleExponentialMovingAverageSmoothingFactorParams{
 		SmoothingFactor: alpha, FirstIsAverage: firstIsAverage, BarComponent: data.BarClosePrice,
 		QuoteComponent: data.QuoteBidPrice, TradeComponent: data.TradePrice,
 	}
 
-	ema, _ := NewExponentialMovingAverageSmoothingFactor(&params)
+	tema, _ := NewTripleExponentialMovingAverageSmoothingFactor(&params)
 
-	return ema
+	return tema
 }
