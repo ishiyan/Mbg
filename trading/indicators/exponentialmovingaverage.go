@@ -50,7 +50,7 @@ type ExponentialMovingAverage struct {
 }
 
 // NewExponentialMovingAverageLength returns an instnce of the indicator
-// created using supplied parameters with nased on length.
+// created using supplied parameters based on length.
 func NewExponentialMovingAverageLength(
 	p *ExponentialMovingAverageLengthParams,
 ) (*ExponentialMovingAverage, error) {

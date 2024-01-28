@@ -33,6 +33,9 @@ const (
 	// KaufmanAdaptiveMovingAverage identifies the Kaufman Adaptive Moving Average (KAMA) indicator.
 	KaufmanAdaptiveMovingAverage
 
+	// JurikMovingAverage identifies the Jurik Moving Average (JMA) indicator.
+	JurikMovingAverage
+
 	// BollingerBands identifies the Bollinger Bands (BB) indicator.
 	BollingerBands
 
@@ -63,8 +66,9 @@ const (
 	goertzelSpectrum               = "goertzelSpectrum"
 )
 
-//nolint:exhaustive,cyclop
 // String implements the Stringer interface.
+//
+//nolint:exhaustive,cyclop
 func (t Type) String() string {
 	switch t {
 	case SimpleMovingAverage:
@@ -122,8 +126,9 @@ func (t Type) MarshalJSON() ([]byte, error) {
 	return b, nil
 }
 
-//nolint:cyclop
 // UnmarshalJSON implements the Unmarshaler interface.
+//
+//nolint:cyclop
 func (t *Type) UnmarshalJSON(data []byte) error {
 	const (
 		errFmt = "cannot unmarshal '%s': unknown indicator type"

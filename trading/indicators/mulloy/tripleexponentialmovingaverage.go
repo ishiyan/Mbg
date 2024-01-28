@@ -50,7 +50,7 @@ type TripleExponentialMovingAverage struct {
 }
 
 // NewTripleExponentialMovingAverageLength returns an instnce of the indicator
-// created using supplied parameters with nased on length.
+// created using supplied parameters based on length.
 func NewTripleExponentialMovingAverageLength(
 	p *TripleExponentialMovingAverageLengthParams,
 ) (*TripleExponentialMovingAverage, error) {

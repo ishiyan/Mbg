@@ -50,7 +50,7 @@ type DoubleExponentialMovingAverage struct {
 }
 
 // NewDoubleExponentialMovingAverageLength returns an instnce of the indicator
-// created using supplied parameters with nased on length.
+// created using supplied parameters based on length.
 func NewDoubleExponentialMovingAverageLength(
 	p *DoubleExponentialMovingAverageLengthParams,
 ) (*DoubleExponentialMovingAverage, error) {
