@@ -36,6 +36,9 @@ const (
 	// JurikMovingAverage identifies the Jurik Moving Average (JMA) indicator.
 	JurikMovingAverage
 
+	// Momentum identifies the momentum (MOM) indicator.
+	Momentum
+
 	// BollingerBands identifies the Bollinger Bands (BB) indicator.
 	BollingerBands
 
