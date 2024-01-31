@@ -39,6 +39,9 @@ const (
 	// Momentum identifies the momentum (MOM) indicator.
 	Momentum
 
+	// RateOfChange identifies the Rate of Change (ROC) indicator.
+	RateOfChange
+
 	// BollingerBands identifies the Bollinger Bands (BB) indicator.
 	BollingerBands
 
@@ -63,6 +66,9 @@ const (
 	tripleExponentialMovingAverage = "tripleExponentialMovingAverage"
 	t3ExponentialMovingAverage     = "t3ExponentialMovingAverage"
 	kaufmanAdaptiveMovingAverage   = "kaufmanAdaptiveMovingAverageMovingAverage"
+	jurikMovingAverage             = "jurikMovingAverage"
+	momentum                       = "momentum"
+	rateOfChange                   = "rateOfChange"
 	bollingerBands                 = "bollingerBands"
 	variance                       = "variance"
 	standardDeviation              = "standardDeviation"
