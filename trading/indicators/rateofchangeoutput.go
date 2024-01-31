@@ -38,7 +38,7 @@ func (o RateOfChangeOutput) IsKnown() bool {
 // MarshalJSON implements the Marshaler interface.
 func (o RateOfChangeOutput) MarshalJSON() ([]byte, error) {
 	const (
-		errFmt = "cannot marshal '%s': unknown simple moving average output"
+		errFmt = "cannot marshal '%s': unknown rate of change output"
 		extra  = 2   // Two bytes for quotes.
 		dqc    = '"' // Double quote character.
 	)
@@ -59,7 +59,7 @@ func (o RateOfChangeOutput) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements the Unmarshaler interface.
 func (o *RateOfChangeOutput) UnmarshalJSON(data []byte) error {
 	const (
-		errFmt = "cannot unmarshal '%s': unknown simple moving average output"
+		errFmt = "cannot unmarshal '%s': unknown rate of change output"
 		dqs    = "\"" // Double quote string.
 	)
 

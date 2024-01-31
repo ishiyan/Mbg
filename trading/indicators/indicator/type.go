@@ -42,6 +42,9 @@ const (
 	// RateOfChange identifies the Rate of Change (ROC) indicator.
 	RateOfChange
 
+	// RateOfChangePercent identifies the Rate of Change Percent (ROCP) indicator.
+	RateOfChangePercent
+
 	// BollingerBands identifies the Bollinger Bands (BB) indicator.
 	BollingerBands
 
@@ -69,6 +72,7 @@ const (
 	jurikMovingAverage             = "jurikMovingAverage"
 	momentum                       = "momentum"
 	rateOfChange                   = "rateOfChange"
+	rateOfChangePercent            = "rateOfChangePercent"
 	bollingerBands                 = "bollingerBands"
 	variance                       = "variance"
 	standardDeviation              = "standardDeviation"
@@ -96,6 +100,14 @@ func (t Type) String() string {
 		return t3ExponentialMovingAverage
 	case KaufmanAdaptiveMovingAverage:
 		return kaufmanAdaptiveMovingAverage
+	case JurikMovingAverage:
+		return jurikMovingAverage
+	case Momentum:
+		return momentum
+	case RateOfChange:
+		return rateOfChange
+	case RateOfChangePercent:
+		return rateOfChangePercent
 	case BollingerBands:
 		return bollingerBands
 	case Variance:
@@ -164,6 +176,14 @@ func (t *Type) UnmarshalJSON(data []byte) error {
 		*t = T3ExponentialMovingAverage
 	case kaufmanAdaptiveMovingAverage:
 		*t = KaufmanAdaptiveMovingAverage
+	case jurikMovingAverage:
+		*t = JurikMovingAverage
+	case momentum:
+		*t = Momentum
+	case rateOfChange:
+		*t = RateOfChange
+	case rateOfChangePercent:
+		*t = RateOfChangePercent
 	case bollingerBands:
 		*t = BollingerBands
 	case variance:
