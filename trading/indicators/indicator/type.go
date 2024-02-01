@@ -45,6 +45,12 @@ const (
 	// RateOfChangePercent identifies the Rate of Change Percent (ROCP) indicator.
 	RateOfChangePercent
 
+	// RelativeStrengthIndex identifies the Relative Strength Index (RSI) indicator.
+	RelativeStrengthIndex
+
+	// ChandeMomentumOscillator identifies the Chande Momentum Oscillator (CMO) indicator.
+	ChandeMomentumOscillator
+
 	// BollingerBands identifies the Bollinger Bands (BB) indicator.
 	BollingerBands
 
@@ -73,6 +79,8 @@ const (
 	momentum                       = "momentum"
 	rateOfChange                   = "rateOfChange"
 	rateOfChangePercent            = "rateOfChangePercent"
+	relativeStrengthIndex          = "relativeStrengthIndex"
+	chandeMomentumOscillator       = "chandeMomentumOscillator"
 	bollingerBands                 = "bollingerBands"
 	variance                       = "variance"
 	standardDeviation              = "standardDeviation"
@@ -108,6 +116,10 @@ func (t Type) String() string {
 		return rateOfChange
 	case RateOfChangePercent:
 		return rateOfChangePercent
+	case RelativeStrengthIndex:
+		return relativeStrengthIndex
+	case ChandeMomentumOscillator:
+		return chandeMomentumOscillator
 	case BollingerBands:
 		return bollingerBands
 	case Variance:
@@ -184,6 +196,10 @@ func (t *Type) UnmarshalJSON(data []byte) error {
 		*t = RateOfChange
 	case rateOfChangePercent:
 		*t = RateOfChangePercent
+	case relativeStrengthIndex:
+		*t = RelativeStrengthIndex
+	case chandeMomentumOscillator:
+		*t = ChandeMomentumOscillator
 	case bollingerBands:
 		*t = BollingerBands
 	case variance:

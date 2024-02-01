@@ -38,7 +38,7 @@ func (o MomentumOutput) IsKnown() bool {
 // MarshalJSON implements the Marshaler interface.
 func (o MomentumOutput) MarshalJSON() ([]byte, error) {
 	const (
-		errFmt = "cannot marshal '%s': unknown simple moving average output"
+		errFmt = "cannot marshal '%s': unknown momentum output"
 		extra  = 2   // Two bytes for quotes.
 		dqc    = '"' // Double quote character.
 	)
@@ -59,7 +59,7 @@ func (o MomentumOutput) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements the Unmarshaler interface.
 func (o *MomentumOutput) UnmarshalJSON(data []byte) error {
 	const (
-		errFmt = "cannot unmarshal '%s': unknown simple moving average output"
+		errFmt = "cannot unmarshal '%s': unknown momentum output"
 		dqs    = "\"" // Double quote string.
 	)
 
