@@ -11,24 +11,27 @@ import (
 	"mbg/trading/indicators/indicator/output"
 )
 
-// RelativeStrengthIndex is the absolute (not normalized) difference between today's sample and the sample ℓ periods ago.
+// RelativeStrengthIndex is a momentum indicator based on the average of up samples
+// and down samples over a specified period ℓ (commonly 14 samples).
 //
-// This implementation calculates the value of the MOM using the formula:
+// The calculation formula is:
 //
-// MOMᵢ = Pᵢ - Pᵢ₋ℓ,
+// RSIᵢ = 100 - 100 / (1 + RSᵢ),
 //
-// where ℓ is the length.
+// where RSᵢ (Relative Strength) is the average gain divided by the average loss
+// over the chosen period [i-ℓ, i].
 //
 // The indicator is not primed during the first ℓ updates.
 type RelativeStrengthIndex struct {
 	mu           sync.RWMutex
 	name         string
 	description  string
+	prevSample   float64
 	window       []float64
-	windowSum    float64
+	windowGain   float64
+	windowLoss   float64
 	windowLength int
 	windowCount  int
-	lastIndex    int
 	primed       bool
 	barFunc      data.BarFunc
 	quoteFunc    data.QuoteFunc
@@ -75,9 +78,8 @@ func NewRelativeStrengthIndex(p *RelativeStrengthIndexParams) (*RelativeStrength
 	return &RelativeStrengthIndex{
 		name:         name,
 		description:  desc,
-		window:       make([]float64, length+1),
-		windowLength: length + 1,
-		lastIndex:    length,
+		window:       make([]float64, length),
+		windowLength: length,
 		barFunc:      barFunc,
 		quoteFunc:    quoteFunc,
 		tradeFunc:    tradeFunc,
@@ -108,7 +110,7 @@ func (s *RelativeStrengthIndex) Metadata() indicator.Metadata {
 	}
 }
 
-// Update updates the value of the momentum given the next sample.
+// Update updates the value of the relative strength index given the next sample.
 //
 // The indicator is not primed during the first ℓ updates.
 func (s *RelativeStrengthIndex) Update(sample float64) float64 {
@@ -120,22 +122,73 @@ func (s *RelativeStrengthIndex) Update(sample float64) float64 {
 	defer s.mu.Unlock()
 
 	if s.primed {
-		for i := 0; i < s.lastIndex; i++ {
+		d := s.window[0]
+		if d < 0 {
+			s.windowLoss += d
+		} else if d > 0 {
+			s.windowGain -= d
+		}
+
+		j := s.windowLength - 1
+		for i := 0; i < j; i++ {
 			s.window[i] = s.window[i+1]
 		}
 
-		s.window[s.lastIndex] = sample
-		return sample - s.window[0]
-	} else {
-		s.window[s.windowCount] = sample
-		s.windowCount++
+		d = sample - s.prevSample
+		s.prevSample = sample
+		s.window[j] = d
 
-		if s.windowLength == s.windowCount {
-			s.primed = true
-			return sample - s.window[0]
+		if d < 0 {
+			s.windowLoss -= d
+		} else if d > 0 {
+			s.windowGain += d
 		}
 
-		return math.NaN()
+		d = float64(s.windowLength)
+		l := s.windowLoss / d
+		g := s.windowGain / d
+
+		d = g + l
+		if d == 0 {
+			return 0
+		}
+
+		return 100.0 * g / d
+	} else {
+		// Not primed.
+		s.windowCount++
+
+		if s.windowCount == 1 { // The very first sample.
+			s.prevSample = sample
+			return math.NaN()
+		}
+
+		d := sample - s.prevSample
+		s.window[s.windowCount-2] = d
+		s.prevSample = sample
+
+		if d < 0 {
+			s.windowLoss -= d
+		} else if d > 0 {
+			s.windowGain += d
+		}
+
+		if s.windowCount <= s.windowLength {
+			return math.NaN()
+		}
+
+		s.primed = true
+
+		d = float64(s.windowLength)
+		l := s.windowLoss / d
+		g := s.windowGain / d
+
+		d = g + l
+		if d == 0 {
+			return 0
+		}
+
+		return 100.0 * g / d
 	}
 }
 
