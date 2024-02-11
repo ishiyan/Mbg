@@ -175,6 +175,45 @@ func testRelativeStrengthIndexLength9Output() []float64 {
 	}
 }
 
+//nolint:dupl
+func testRelativeStrengthIndexWildersInput() []float64 {
+	// Wilder, J.W.
+	// New Concepts in Technical Trading Systems
+	// isbn 9780894590276
+	// 1978, Trend Research
+	// page 66, figure 6.2
+	return []float64{
+		54.80, 56.80, 57.85, 59.85, 60.57, 61.10, 62.17, 60.60, 62.35, 62.15,
+		62.35, 61.45, 62.80, 61.37, 62.50, 62.57, 60.80, 59.37, 60.36, 62.35,
+		62.17, 62.55, 64.55, 64.37, 65.30, 64.42, 62.90, 61.60, 62.05, 60.05,
+		59.70, 60.90, 58.77, 58.70, 57.72, 58.10, 58.20,
+	}
+}
+
+//nolint:dupl
+func testRelativeStrengthIndexWildersLength14Output() []float64 {
+	// In the book, Wilders used arithmetics rounded to two decimals,
+	// so his results from the calculation table in the book differ significantly.
+	// I had to re-calculate them up to 14 decimals.
+	return []float64{
+		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
+		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
+		math.NaN(), math.NaN(),
+
+		// 74.36, 74.55, 65.75, 59.68, 61.98, 66.44,
+		74.21383647798743, 74.33551617873653, 65.87128621880292, 59.93370363734096, 62.45677174308054, 66.96062437023612,
+
+		// 65.75, 62.00, 71.43, 70.50, 72.14, 62.95,
+		66.1871774218351, 67.05240534144353, 71.22574951012443, 70.36192525500732, 72.2355094014648, 67.86385192416176,
+
+		// 60.18, 55.56, 56.71, 49.49, 48.19, 52.38,
+		60.99711681820988, 55.797065884596314, 57.15856129532193, 49.81469554163673, 48.63700020987803, 52.76061067430726,
+
+		// 50.00, 43.50, 45.36, 42.53, 44.13, 44.75,
+		45.74095904168621, 45.52658414281808, 42.52193087354462, 44.06351307530983, 44.48547400444356, 44.48547400444356,
+	}
+}
+
 func TestRelativeStrengthIndexUpdate(t *testing.T) { //nolint: funlen
 	t.Parallel()
 
@@ -215,7 +254,27 @@ func TestRelativeStrengthIndexUpdate(t *testing.T) { //nolint: funlen
 		checkNaN(0, rsi.Update(math.NaN()))
 	})
 
-	t.Run("length = 14", func(t *testing.T) {
+	t.Run("length = 14 (Wilders book implementation)", func(t *testing.T) {
+		input1 := testRelativeStrengthIndexWildersInput()
+		output := testRelativeStrengthIndexWildersLength14Output()
+
+		t.Parallel()
+		rsi := testRelativeStrengthIndexCreate(14)
+
+		for i := 0; i < len(input1); i++ {
+			act := rsi.Update(input1[i])
+
+			if i < 14 {
+				checkNaN(i, act)
+			} else {
+				check(i, output[i], act)
+			}
+		}
+
+		checkNaN(0, rsi.Update(math.NaN()))
+	})
+
+	t.Run("length = 14 (TA-Lib tests)", func(t *testing.T) {
 		const ( // Values from index=0 to index=13 are NaN.
 			i14value  = 49.14733969986360 // Index=14 value, 49.14.
 			i15value  = 52.32555279533660 // Index=15 value, 52.32.
@@ -475,9 +534,8 @@ func TestNewRelativeStrengthIndex(t *testing.T) { //nolint: funlen
 		check("name", "rsi(5)", rsi.name)
 		check("description", "Relative Strength Index rsi(5)", rsi.description)
 		check("primed", false, rsi.primed)
-		check("len(window)", length, len(rsi.window))
-		check("windowLength", length, rsi.windowLength)
-		check("windowCount", 0, rsi.windowCount)
+		check("length", length, rsi.length)
+		check("count", 0, rsi.count)
 		check("barFunc == nil", false, rsi.barFunc == nil)
 		check("quoteFunc == nil", false, rsi.quoteFunc == nil)
 		check("tradeFunc == nil", false, rsi.tradeFunc == nil)
@@ -494,9 +552,8 @@ func TestNewRelativeStrengthIndex(t *testing.T) { //nolint: funlen
 		check("name", "rsi(1)", rsi.name)
 		check("description", "Relative Strength Index rsi(1)", rsi.description)
 		check("primed", false, rsi.primed)
-		check("len(window)", 1, len(rsi.window))
-		check("windowLength", 1, rsi.windowLength)
-		check("windowCount", 0, rsi.windowCount)
+		check("length", 1, rsi.length)
+		check("count", 0, rsi.count)
 		check("barFunc == nil", false, rsi.barFunc == nil)
 		check("quoteFunc == nil", false, rsi.quoteFunc == nil)
 		check("tradeFunc == nil", false, rsi.tradeFunc == nil)

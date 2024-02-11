@@ -17,42 +17,45 @@ import (
 //    test_data.c, TA_SREF_close_daily_ref_0_PRIV[252].
 //
 // Output data, length=14.
-// Taken from TA-Lib (http://ta-lib.org/) tests, test_mom.c.
+// Taken from TA-Lib (http://ta-lib.org/) tests, test_rsi.c.
 //
-// static TA_Test tableTest[] =
-// {
-//    /**********************/
-//    /*      MOM TEST      */
-//    /**********************/
+// /**********************/
+// /*      CMO TEST      */
+// /**********************/
+// { 1, TA_CMO_TEST, 0, 0, 251, 14, TA_COMPATIBILITY_DEFAULT, TA_SUCCESS,      0, -1.70,  14,  252-14 },
+// { 1, TA_CMO_TEST, 0, 0, 251, 14, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,    0, -5.76,  13,  252-13 },
 //
-// #ifndef TA_FUNC_NO_RANGE_CHECK
-//    /* Test out of range. */
-//    { 0, TA_MOM_TEST, -1, 3, 14, TA_OUT_OF_RANGE_START_INDEX, 0, 0, 0, 0},
-//    { 0, TA_MOM_TEST,  3, -1, 14, TA_OUT_OF_RANGE_END_INDEX,   0, 0, 0, 0},
-//    { 0, TA_MOM_TEST,  4, 3, 14, TA_OUT_OF_RANGE_END_INDEX,   0, 0, 0, 0},
-// #endif
-//    { 1, TA_MOM_TEST, 0, 251, 14, TA_SUCCESS,      0, -0.50,  14,  252-14 }, /* First Value */
-//    { 0, TA_MOM_TEST, 0, 251, 14, TA_SUCCESS,      1, -2.00,  14,  252-14 },
-//    { 0, TA_MOM_TEST, 0, 251, 14, TA_SUCCESS,      2, -5.22,  14,  252-14 },
-//    { 0, TA_MOM_TEST, 0, 251, 14, TA_SUCCESS, 252-15, -1.13,  14,  252-14 },  /* Last Value */
-//    /* No output value. */
-//    { 0, TA_MOM_TEST, 1, 1,  14, TA_SUCCESS, 0, 0, 0, 0},
-//    /* One value tests. */
-//    { 0, TA_MOM_TEST, 14,  14, 14, TA_SUCCESS, 0, -0.50,     14, 1},
-//    /* Index too low test. */
-//    { 0, TA_MOM_TEST, 0,  15, 14, TA_SUCCESS, 0, -0.50,     14, 2},
-//    { 0, TA_MOM_TEST, 1,  15, 14, TA_SUCCESS, 0, -0.50,     14, 2},
-//    { 0, TA_MOM_TEST, 2,  16, 14, TA_SUCCESS, 0, -0.50,     14, 3},
-//    { 0, TA_MOM_TEST, 2,  16, 14, TA_SUCCESS, 1, -2.00,     14, 3},
-//    { 0, TA_MOM_TEST, 2,  16, 14, TA_SUCCESS, 2, -5.22,     14, 3},
-//    { 0, TA_MOM_TEST, 0,  14, 14, TA_SUCCESS, 0, -0.50,     14, 1},
-//    { 0, TA_MOM_TEST, 0,  13, 14, TA_SUCCESS, 0, -0.50,     14, 0},
-//    /* Middle of data test. */
-//    { 0, TA_MOM_TEST, 20,  21, 14, TA_SUCCESS, 0, -4.15,    20, 2 },
-//    { 0, TA_MOM_TEST, 20,  21, 14, TA_SUCCESS, 1, -5.12,    20, 2 },
+// TA Lib uses incorrect CMO calculation which is incompatible with Chande's book.
+// TA Lib smoothes the CMO values in the same way as RSI does, but Chande didn't smoothed the values.
+// We don't use TA Lib test data here.
 
 func testChandeMomentumOscillatorTime() time.Time {
 	return time.Date(2021, time.April, 1, 0, 0, 0, 0, &time.Location{})
+}
+
+//nolint:dupl
+func testChandeMomentumOscillatorBookLength10Input() []float64 {
+	// Chande, T.S. and Kroll, S.
+	// The New Technical Trader: Boost Your Profit by Plugging Into the Latest Indicators
+	// ISBN 9780471597803
+	// Wiley Finance, 1994
+	// Page 96, Table 5.1 Calculating 10-day CMO Using T-Bond06/93 Data
+	return []float64{
+		101.0313, 101.0313, 101.1250, 101.9687, 102.7813,
+		103.0000, 102.9687, 103.0625, 102.9375, 102.7188,
+		102.7500, 102.9063, 102.9687,
+	}
+}
+
+//nolint:dupl
+func testChandeMomentumOscillatorBookLength10Output() []float64 {
+	return []float64{
+		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
+		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
+
+		// 69.62, 71.43, 71.08,
+		69.61963786608334, 71.42857142857143, 71.08377992828775,
+	}
 }
 
 //nolint:dupl
@@ -107,36 +110,19 @@ func TestChandeMomentumOscillatorUpdate(t *testing.T) { //nolint: funlen
 		}
 	}
 
-	input := testChandeMomentumOscillatorInput()
-
-	t.Run("length = 14", func(t *testing.T) {
-		const ( // Values from index=0 to index=13 are NaN.
-			i14value  = -0.50 // Index=14 value.
-			i15value  = -2.00 // Index=15 value.
-			i16value  = -5.22 // Index=16 value.
-			i251value = -1.13 // Index=251 (last) value.
-		)
-
+	t.Run("length = 10 (book)", func(t *testing.T) {
 		t.Parallel()
-		cmo := testChandeMomentumOscillatorCreate(14)
+		input := testChandeMomentumOscillatorBookLength10Input()
+		output := testChandeMomentumOscillatorBookLength10Output()
+		cmo := testChandeMomentumOscillatorCreate(10)
 
-		for i := 0; i < 13; i++ {
+		for i := 0; i < 10; i++ {
 			checkNaN(i, cmo.Update(input[i]))
 		}
 
-		for i := 13; i < len(input); i++ {
+		for i := 10; i < len(input); i++ {
 			act := cmo.Update(input[i])
-
-			switch i {
-			case 14:
-				check(i, i14value, act)
-			case 15:
-				check(i, i15value, act)
-			case 16:
-				check(i, i16value, act)
-			case 251:
-				check(i, i251value, act)
-			}
+			check(i, output[i], act)
 		}
 
 		checkNaN(0, cmo.Update(math.NaN()))
@@ -369,9 +355,8 @@ func TestNewChandeMomentumOscillator(t *testing.T) { //nolint: funlen
 		check("name", "cmo(5)", cmo.name)
 		check("description", "Chande Momentum Oscillator cmo(5)", cmo.description)
 		check("primed", false, cmo.primed)
-		check("lastIndex", length, cmo.lastIndex)
-		check("len(window)", length+1, len(cmo.window))
-		check("windowLength", length+1, cmo.windowLength)
+		check("len(window)", length, len(cmo.window))
+		check("windowLength", length, cmo.windowLength)
 		check("windowCount", 0, cmo.windowCount)
 		check("barFunc == nil", false, cmo.barFunc == nil)
 		check("quoteFunc == nil", false, cmo.quoteFunc == nil)
@@ -389,9 +374,8 @@ func TestNewChandeMomentumOscillator(t *testing.T) { //nolint: funlen
 		check("name", "cmo(1)", cmo.name)
 		check("description", "Chande Momentum Oscillator cmo(1)", cmo.description)
 		check("primed", false, cmo.primed)
-		check("lastIndex", 1, cmo.lastIndex)
-		check("len(window)", 2, len(cmo.window))
-		check("windowLength", 2, cmo.windowLength)
+		check("len(window)", 1, len(cmo.window))
+		check("windowLength", 1, cmo.windowLength)
 		check("windowCount", 0, cmo.windowCount)
 		check("barFunc == nil", false, cmo.barFunc == nil)
 		check("quoteFunc == nil", false, cmo.quoteFunc == nil)
