@@ -21,7 +21,7 @@ const (
 	// It may become active again.
 	Inactive
 
-	// Suspended indeicates an instrument has been temporarily disabled for trading.
+	// Suspended indicates an instrument has been temporarily disabled for trading.
 	Suspended
 
 	// PendingExpiry indicates an instrument is currently still active but will expire after the current business day.
@@ -41,12 +41,12 @@ const (
 	//
 	// A delisted instrument would not trade on the exchange but it may still be traded over-the-counter.
 	//
-	// Delisting rules varY from exchange to exchange, which may include non-compliance of
+	// Delisting rules vary from exchange to exchange, which may include non-compliance of
 	// capitalization, revenue, consecutive minimum closing price.
 	// The instrument may become listed again once the instrument is back in compliance.
 	Delisted
 
-	// KnockedOut indicates an instrument has breached a predefined price threshold..
+	// KnockedOut indicates an instrument has breached a predefined price threshold.
 	KnockedOut
 
 	// KnockOutRevoked indicates an instrument reinstated, i.e. threshold has not been breached.
@@ -70,8 +70,9 @@ const (
 
 var errUnknownInstrumentStatus = errors.New("unknown instrument status")
 
-//nolint:exhaustive,cyclop
 // String implements the Stringer interface.
+//
+//nolint:exhaustive,cyclop
 func (i InstrumentStatus) String() string {
 	switch i {
 	case Active:
@@ -121,8 +122,9 @@ func (i InstrumentStatus) MarshalJSON() ([]byte, error) {
 	return b, nil
 }
 
-//nolint:cyclop
 // UnmarshalJSON implements the Unmarshaler interface.
+//
+//nolint:cyclop
 func (i *InstrumentStatus) UnmarshalJSON(data []byte) error {
 	d := bytes.Trim(data, "\"")
 	s := string(d)
