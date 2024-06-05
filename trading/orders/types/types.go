@@ -45,7 +45,7 @@ const (
 	// current market price.
 	//
 	// A stop order may not get filled if the price never
-	// reaches the siscified stop price.
+	// reaches the specified stop price.
 	Stop
 
 	// StopLimit (stop-limit) order is a buy (sell) order
