@@ -53,7 +53,7 @@ func (a *Account) Balance() float64 {
 	return a.balance.Current()
 }
 
-// BalanceHistory is a time series of the total ot all transactions expressed in the home currency.
+// BalanceHistory is a time series of the total of all transactions expressed in the home currency.
 func (a *Account) BalanceHistory() []data.Scalar {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
