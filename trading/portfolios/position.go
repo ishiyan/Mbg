@@ -377,7 +377,7 @@ func (p *Position) Quantity() float64 {
 }
 
 // CashFlow is the cash flow
-// (the sum of cash flows af all order executions) in instrument's currency.
+// (the sum of cash flows of all order executions) in instrument's currency.
 func (p *Position) CashFlow() float64 {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
