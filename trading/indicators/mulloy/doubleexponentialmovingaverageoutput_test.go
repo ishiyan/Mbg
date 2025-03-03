@@ -1,5 +1,4 @@
-//nolint:testpackage,dupl
-package mulloy
+package mulloy //nolint:testpackage, dupl
 
 import (
 	"testing"

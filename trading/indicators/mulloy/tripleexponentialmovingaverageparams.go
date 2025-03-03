@@ -1,6 +1,6 @@
 package mulloy
 
-import "mbg/trading/data"
+import "mbg/trading/data" //nolint:depguard
 
 // TripleExponentialMovingAverageLengthParams describes parameters to create an instance of the indicator
 // based on length.

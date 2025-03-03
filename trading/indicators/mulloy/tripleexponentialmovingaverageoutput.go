@@ -1,5 +1,4 @@
-//nolint:dupl
-package mulloy
+package mulloy //nolint:dupl
 
 import (
 	"bytes"
@@ -10,7 +9,7 @@ import (
 type TripleExponentialMovingAverageOutput int
 
 const (
-	// The scalar value of the the moving average.
+	// The scalar value of the moving average.
 	TripleExponentialMovingAverageValue TripleExponentialMovingAverageOutput = iota + 1
 	tripleExponentialMovingAverageLast
 )

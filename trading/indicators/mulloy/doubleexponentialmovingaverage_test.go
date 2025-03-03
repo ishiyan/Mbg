@@ -1,15 +1,13 @@
-//nolint:testpackage
-package mulloy
+package mulloy //nolint:testpackage, gci, gofmt, gofumpt, goimports
 
-//nolint: gofumpt
 import (
 	"math"
 	"testing"
 	"time"
 
-	"mbg/trading/data"
-	"mbg/trading/indicators/indicator"
-	"mbg/trading/indicators/indicator/output"
+	"mbg/trading/data"                        //nolint:depguard
+	"mbg/trading/indicators/indicator"        //nolint:depguard
+	"mbg/trading/indicators/indicator/output" //nolint:depguard
 )
 
 //nolint:lll
@@ -20,59 +18,31 @@ import (
 //    test_ma.c.
 //
 //   /*******************************/
-//   /*   EMA TEST - Classic        */
+//   /*  DEMA TEST - Metastock      */
 //   /*******************************/
+//
 //   /* No output value. */
-//   { 0, TA_ANY_MA_TEST, 0, 1, 1,  14, TA_MAType_EMA, TA_COMPATIBILITY_DEFAULT, TA_SUCCESS, 0, 0, 0, 0},
-//   #ifndef TA_FUNC_NO_RANGE_CHECK
-//   { 0, TA_ANY_MA_TEST, 0, 0, 251,  0, TA_MAType_EMA, TA_COMPATIBILITY_DEFAULT, TA_BAD_PARAM, 0, 0, 0, 0 },
-//   #endif
-//   /* Misc tests: period 2, 10 */
-//   { 1, TA_ANY_MA_TEST, 0, 0, 251,  2, TA_MAType_EMA, TA_COMPATIBILITY_DEFAULT, TA_SUCCESS,   0,  93.15, 1, 251 }, /* First Value */
-//   { 0, TA_ANY_MA_TEST, 0, 0, 251,  2, TA_MAType_EMA, TA_COMPATIBILITY_DEFAULT, TA_SUCCESS,   1,  93.96, 1, 251 },
-//   { 0, TA_ANY_MA_TEST, 0, 0, 251,  2, TA_MAType_EMA, TA_COMPATIBILITY_DEFAULT, TA_SUCCESS, 250, 108.21, 1, 251 }, /* Last Value */
+//   { 0, TA_ANY_MA_TEST, 0, 1, 1,  14, TA_MAType_DEMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS, 0, 0, 0, 0},
+//#ifndef TA_FUNC_NO_RANGE_CHECK
+//   { 0, TA_ANY_MA_TEST, 0, 0, 251,  0, TA_MAType_DEMA, TA_COMPATIBILITY_METASTOCK, TA_BAD_PARAM, 0, 0, 0, 0 },
+//#endif
 //
-//   { 1, TA_ANY_MA_TEST, 0, 0, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_DEFAULT, TA_SUCCESS,    0,  93.22,  9, 243 }, /* First Value */
-//   { 0, TA_ANY_MA_TEST, 0, 0, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_DEFAULT, TA_SUCCESS,    1,  93.75,  9, 243 },
-//   { 0, TA_ANY_MA_TEST, 0, 0, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_DEFAULT, TA_SUCCESS,   20,  86.46,  9, 243 },
-//   { 0, TA_ANY_MA_TEST, 0, 0, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_DEFAULT, TA_SUCCESS,  242, 108.97,  9, 243 }, /* Last Value */
-//   /*******************************/
-//   /*   EMA TEST - Metastock      */
-//   /*******************************/
-//   /* No output value. */
-//   { 0, TA_ANY_MA_TEST, 0, 1, 1,  14, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS, 0, 0, 0, 0},
-//   #ifndef TA_FUNC_NO_RANGE_CHECK
-//   { 0, TA_ANY_MA_TEST, 0, 0, 251,  0, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_BAD_PARAM, 0, 0, 0, 0 },
-//   #endif
-//   /* Test with 1 unstable price bar. Test for period 2, 10 */
-//   { 1, TA_ANY_MA_TEST, 1, 0, 251,  2, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   0,  94.15, 1+1, 251-1 }, /* First Value */
-//   { 0, TA_ANY_MA_TEST, 1, 0, 251,  2, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   1,  94.78, 1+1, 251-1 },
-//   { 0, TA_ANY_MA_TEST, 1, 0, 251,  2, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS, 250-1, 108.21, 1+1, 251-1 }, /* Last Value */
+//   /* Test with period 14 */
+//   { 0, TA_ANY_MA_TEST, 0, 0, 251, 14, TA_MAType_DEMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   0,  83.785, 26, 252-26 }, /* First Value */
+//   { 0, TA_ANY_MA_TEST, 0, 0, 251, 14, TA_MAType_DEMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   1,  84.768, 26, 252-26 },
+//   { 0, TA_ANY_MA_TEST, 0, 0, 251, 14, TA_MAType_DEMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS, 252-27, 109.467, 26, 252-26 }, /* Last Value */
 //
-//   { 1, TA_ANY_MA_TEST, 1, 0, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,    0,  93.24,  9+1, 243-1 }, /* First Value */
-//   { 0, TA_ANY_MA_TEST, 1, 0, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,    1,  93.97,  9+1, 243-1 },
-//   { 0, TA_ANY_MA_TEST, 1, 0, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   20,  86.23,  9+1, 243-1 },
-//   { 0, TA_ANY_MA_TEST, 1, 0, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS, 242-1, 108.97,  9+1, 243-1 }, /* Last Value */
+//   /* Test with 1 unstable price bar. Test for period 2, 14 */
+//   { 1, TA_ANY_MA_TEST, 1, 0, 251,  2, TA_MAType_DEMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   0,  93.960, 4, 252-4 }, /* First Value */
+//   { 0, TA_ANY_MA_TEST, 1, 0, 251,  2, TA_MAType_DEMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   1,  94.522, 4, 252-4 },
+//   { 0, TA_ANY_MA_TEST, 1, 0, 251,  2, TA_MAType_DEMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS, 252-5, 107.94, 4, 252-4 }, /* Last Value */
 //
-//   /* Test with 2 unstable price bar. Test for period 2, 10 */
-//   { 0, TA_ANY_MA_TEST, 2, 0, 251,  2, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   0,  94.78, 1+2, 251-2 }, /* First Value */
-//   { 0, TA_ANY_MA_TEST, 2, 0, 251,  2, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   1,  94.11, 1+2, 251-2 },
-//   { 0, TA_ANY_MA_TEST, 2, 0, 251,  2, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS, 250-2, 108.21, 1+2, 251-2 }, /* Last Value */
-//
-//   { 0, TA_ANY_MA_TEST, 2, 0, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,    0,  93.97,  9+2, 243-2 }, /* First Value */
-//   { 0, TA_ANY_MA_TEST, 2, 0, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,    1,  94.79,  9+2, 243-2 },
-//   { 0, TA_ANY_MA_TEST, 2, 0, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   20,  86.39,  9+2, 243-2 },
-//   { 0, TA_ANY_MA_TEST, 2, 0, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,  242-2, 108.97,  9+2, 243-2 }, /* Last Value */
-//
-//   /* Last 3 value with 1 unstable, period 10 */
-//   { 0, TA_ANY_MA_TEST, 1, 249, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   1, 109.22, 249, 3 },
-//   { 0, TA_ANY_MA_TEST, 1, 249, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   2, 108.97, 249, 3 },
-//
-//   /* Last 3 value with 2 unstable, period 10 */
-//   { 0, TA_ANY_MA_TEST, 2, 249, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   2, 108.97, 249, 3 },
-//
-//   /* Last 3 value with 3 unstable, period 10 */
-//   { 0, TA_ANY_MA_TEST, 3, 249, 251,  10, TA_MAType_EMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   2, 108.97, 249, 3 }
+//   { 1, TA_ANY_MA_TEST, 1, 0, 251,  14, TA_MAType_DEMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,    0,  84.91,  (13*2)+2, 252-((13*2)+2) }, /* First Value */
+//   { 0, TA_ANY_MA_TEST, 1, 0, 251,  14, TA_MAType_DEMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,    1,  84.97,  (13*2)+2, 252-((13*2)+2) },
+//   { 0, TA_ANY_MA_TEST, 1, 0, 251,  14, TA_MAType_DEMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,    2,  84.80,  (13*2)+2, 252-((13*2)+2) },
+//   { 0, TA_ANY_MA_TEST, 1, 0, 251,  14, TA_MAType_DEMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,    3,  85.14,  (13*2)+2, 252-((13*2)+2) },
+//   { 0, TA_ANY_MA_TEST, 1, 0, 251,  14, TA_MAType_DEMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS,   20,  89.83,  (13*2)+2, 252-((13*2)+2) },
+//   { 0, TA_ANY_MA_TEST, 1, 0, 251,  14, TA_MAType_DEMA, TA_COMPATIBILITY_METASTOCK, TA_SUCCESS, 252-((13*2)+2+1), 109.4676, (13*2)+2, 252-((13*2)+2) }, /* Last Value */
 
 func testDoubleExponentialMovingAverageTime() time.Time {
 	return time.Date(2021, time.April, 1, 0, 0, 0, 0, &time.Location{})
@@ -110,7 +80,7 @@ func testDoubleExponentialMovingAverageInput() []float64 { //nolint:dupl
 	}
 }
 
-func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
+func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint:cyclop, funlen, gocognit, gocyclo
 	t.Parallel()
 
 	check := func(index int, exp, act float64) {
@@ -133,28 +103,32 @@ func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
 
 	t.Run("length = 2, firstIsAverage = true", func(t *testing.T) {
 		const (
-			i1value   = 93.15  // Index=1 value.
-			i2value   = 93.96  // Index=2 value.
-			i3value   = 94.71  // Index=3 value.
-			i251value = 108.21 // Index=251 (last) value.
+			i4value   = 78.483 // Index=4 value.
+			i5value   = 89.362 // Index=5 value.
+			i251value = 107.94 // Index=251 (last) value.
+			l         = 2
+			l2m1      = l*2 - 1
 		)
 
 		t.Parallel()
-		dema := testDoubleExponentialMovingAverageCreateLength(2, true)
 
-		for i := 0; i < len(input); i++ {
+		dema := testDoubleExponentialMovingAverageCreateLength(l, true)
+
+		for i := 0; i < l2m1; i++ {
+			checkNaN(i, dema.Update(input[i]))
+		}
+
+		for i := l2m1; i < len(input); i++ {
 			act := dema.Update(input[i])
 
 			switch i {
 			case 0:
 				checkNaN(i, act)
 				check(i, input[1], act)
-			case 1:
-				check(i, i1value, act)
-			case 2:
-				check(i, i2value, act)
-			case 3:
-				check(i, i3value, act)
+			case 4:
+				check(i, i4value, act)
+			case 5:
+				check(i, i5value, act)
 			case 251:
 				check(i, i251value, act)
 			}
@@ -163,31 +137,40 @@ func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
 		checkNaN(0, dema.Update(math.NaN()))
 	})
 
-	t.Run("length = 10, firstIsAverage = true", func(t *testing.T) {
+	t.Run("length = 14, firstIsAverage = true", func(t *testing.T) { //nolint:dupl
 		const (
-			i9value   = 93.22  // Index=9 value.
-			i10value  = 93.75  // Index=10 value.
-			i29value  = 86.46  // Index=29 value.
-			i251value = 108.97 // Index=251 (last) value.
+			i28value  = 78.512   // Index=28 value.
+			i29value  = 79.430   // Index=29 value.
+			i30value  = 79.992   // Index=30 value.
+			i31value  = 80.974   // Index=31 value.
+			i48value  = 89.470   // Index=48 value.
+			i251value = 109.4676 // Index=251 (last) value.
+			l         = 14
+			lprimed   = l*2 - 1
 		)
 
 		t.Parallel()
-		dema := testDoubleExponentialMovingAverageCreateLength(10, true)
 
-		for i := 0; i < 9; i++ {
+		dema := testDoubleExponentialMovingAverageCreateLength(l, true)
+
+		for i := 0; i < lprimed; i++ {
 			checkNaN(i, dema.Update(input[i]))
 		}
 
-		for i := 9; i < len(input); i++ {
+		for i := lprimed; i < len(input); i++ {
 			act := dema.Update(input[i])
 
 			switch i {
-			case 9:
-				check(i, i9value, act)
-			case 10:
-				check(i, i10value, act)
+			case 28:
+				check(i, i28value, act)
 			case 29:
 				check(i, i29value, act)
+			case 30:
+				check(i, i30value, act)
+			case 31:
+				check(i, i31value, act)
+			case 48:
+				check(i, i48value, act)
 			case 251:
 				check(i, i251value, act)
 			}
@@ -199,28 +182,32 @@ func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
 	t.Run("length = 2, firstIsAverage = false (Metastock)", func(t *testing.T) {
 		const (
 			// The very first value is the input value.
-			i1value   = 93.71  // Index=1 value.
-			i2value   = 94.15  // Index=2 value.
-			i3value   = 94.78  // Index=3 value.
-			i251value = 108.21 // Index=251 (last) value.
+			i4value   = 97.445 // Index=4 value.
+			i5value   = 95.679 // Index=5 value.
+			i251value = 107.94 // Index=251 (last) value.
+			l         = 2
+			lprimed   = l*2 - 1
 		)
 
 		t.Parallel()
-		dema := testDoubleExponentialMovingAverageCreateLength(2, false)
 
-		for i := 0; i < len(input); i++ {
+		dema := testDoubleExponentialMovingAverageCreateLength(l, false)
+
+		for i := 0; i < lprimed; i++ {
+			checkNaN(i, dema.Update(input[i]))
+		}
+
+		for i := lprimed; i < len(input); i++ {
 			act := dema.Update(input[i])
 
 			switch i {
 			case 0:
 				checkNaN(i, act)
 				check(i, input[1], act)
-			case 1:
-				check(i, i1value, act)
-			case 2:
-				check(i, i2value, act)
-			case 3:
-				check(i, i3value, act)
+			case 4:
+				check(i, i4value, act)
+			case 5:
+				check(i, i5value, act)
 			case 251:
 				check(i, i251value, act)
 			}
@@ -229,35 +216,41 @@ func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen
 		checkNaN(0, dema.Update(math.NaN()))
 	})
 
-	t.Run("length = 10, firstIsAverage = false (Metastock)", func(t *testing.T) {
+	t.Run("length = 14, firstIsAverage = false (Metastock)", func(t *testing.T) { //nolint:dupl
 		const (
 			// The very first value is the input value.
-			i9value   = 92.60  // Index=9 value.
-			i10value  = 93.24  // Index=10 value.
-			i11value  = 93.97  // Index=11 value.
-			i30value  = 86.23  // Index=30 value.
-			i251value = 108.97 // Index=251 (last) value.
+			i28value  = 95.821   // Index=28 value.
+			i29value  = 94.433   // Index=29 value.
+			i30value  = 92.997   // Index=30 value.
+			i31value  = 92.246   // Index=31 value.
+			i48value  = 90.462   // Index=48 value.
+			i251value = 109.4676 // Index=251 (last) value.
+			l         = 14
+			lprimed   = l*2 - 1
 		)
 
 		t.Parallel()
-		dema := testDoubleExponentialMovingAverageCreateLength(10, false)
 
-		for i := 0; i < 9; i++ {
+		dema := testDoubleExponentialMovingAverageCreateLength(l, false)
+
+		for i := 0; i < lprimed; i++ {
 			checkNaN(i, dema.Update(input[i]))
 		}
 
-		for i := 9; i < len(input); i++ {
+		for i := lprimed; i < len(input); i++ {
 			act := dema.Update(input[i])
 
 			switch i {
-			case 9:
-				check(i, i9value, act)
-			case 10:
-				check(i, i10value, act)
-			case 11:
-				check(i, i11value, act)
+			case 28:
+				check(i, i28value, act)
+			case 29:
+				check(i, i29value, act)
 			case 30:
 				check(i, i30value, act)
+			case 31:
+				check(i, i31value, act)
+			case 48:
+				check(i, i48value, act)
 			case 251:
 				check(i, i251value, act)
 			}
@@ -274,7 +267,7 @@ func TestDoubleExponentialMovingAverageUpdateEntity(t *testing.T) { //nolint: fu
 		l     = 2
 		alpha = 2. / float64(l+1)
 		inp   = 3.
-		exp   = alpha * inp
+		exp   = 2.666666666666667
 	)
 
 	time := testDoubleExponentialMovingAverageTime()
@@ -306,6 +299,7 @@ func TestDoubleExponentialMovingAverageUpdateEntity(t *testing.T) { //nolint: fu
 		dema := testDoubleExponentialMovingAverageCreateLength(l, false)
 		dema.Update(0.)
 		dema.Update(0.)
+		dema.Update(0.)
 		check(dema.UpdateScalar(&s))
 	})
 
@@ -314,6 +308,7 @@ func TestDoubleExponentialMovingAverageUpdateEntity(t *testing.T) { //nolint: fu
 
 		b := data.Bar{Time: time, Close: inp}
 		dema := testDoubleExponentialMovingAverageCreateLength(l, false)
+		dema.Update(0.)
 		dema.Update(0.)
 		dema.Update(0.)
 		check(dema.UpdateBar(&b))
@@ -326,6 +321,7 @@ func TestDoubleExponentialMovingAverageUpdateEntity(t *testing.T) { //nolint: fu
 		dema := testDoubleExponentialMovingAverageCreateLength(l, false)
 		dema.Update(0.)
 		dema.Update(0.)
+		dema.Update(0.)
 		check(dema.UpdateQuote(&q))
 	})
 
@@ -334,6 +330,7 @@ func TestDoubleExponentialMovingAverageUpdateEntity(t *testing.T) { //nolint: fu
 
 		r := data.Trade{Time: time, Price: inp}
 		dema := testDoubleExponentialMovingAverageCreateLength(l, false)
+		dema.Update(0.)
 		dema.Update(0.)
 		dema.Update(0.)
 		check(dema.UpdateTrade(&r))
@@ -352,42 +349,49 @@ func TestDoubleExponentialMovingAverageIsPrimed(t *testing.T) {
 		}
 	}
 
-	t.Run("length = 10, firstIsAverage = true", func(t *testing.T) {
+	const (
+		l       = 14
+		lprimed = l*2 - 1
+	)
+
+	t.Run("length = 14, firstIsAverage = true", func(t *testing.T) {
 		t.Parallel()
-		dema := testDoubleExponentialMovingAverageCreateLength(10, true)
+
+		dema := testDoubleExponentialMovingAverageCreateLength(l, true)
 
 		check(0, false, dema.IsPrimed())
 
-		for i := 0; i < 9; i++ {
+		for i := 0; i < lprimed; i++ {
 			dema.Update(input[i])
 			check(i+1, false, dema.IsPrimed())
 		}
 
-		for i := 9; i < len(input); i++ {
+		for i := lprimed; i < len(input); i++ {
 			dema.Update(input[i])
 			check(i+1, true, dema.IsPrimed())
 		}
 	})
 
-	t.Run("length = 10, firstIsAverage = false (Metastock)", func(t *testing.T) {
+	t.Run("length = 14, firstIsAverage = false (Metastock)", func(t *testing.T) {
 		t.Parallel()
-		dema := testDoubleExponentialMovingAverageCreateLength(10, false)
+
+		dema := testDoubleExponentialMovingAverageCreateLength(l, false)
 
 		check(0, false, dema.IsPrimed())
 
-		for i := 0; i < 9; i++ {
+		for i := 0; i < lprimed; i++ {
 			dema.Update(input[i])
 			check(i+1, false, dema.IsPrimed())
 		}
 
-		for i := 9; i < len(input); i++ {
+		for i := lprimed; i < len(input); i++ {
 			dema.Update(input[i])
 			check(i+1, true, dema.IsPrimed())
 		}
 	})
 }
 
-func TestDoubleExponentialMovingAverageMetadata(t *testing.T) {
+func TestDoubleExponentialMovingAverageMetadata(t *testing.T) { //nolint:dupl
 	t.Parallel()
 
 	check := func(what string, exp, act any) {
@@ -400,6 +404,7 @@ func TestDoubleExponentialMovingAverageMetadata(t *testing.T) {
 
 	t.Run("length = 10, firstIsAverage = true", func(t *testing.T) {
 		t.Parallel()
+
 		dema := testDoubleExponentialMovingAverageCreateLength(10, true)
 		act := dema.Metadata()
 
@@ -429,7 +434,7 @@ func TestDoubleExponentialMovingAverageMetadata(t *testing.T) {
 	})
 }
 
-func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
+func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, maintidx
 	t.Parallel()
 
 	const (
@@ -456,6 +461,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 
 	t.Run("length > 1, firstIsAverage = false", func(t *testing.T) { //nolint:dupl
 		t.Parallel()
+
 		params := DoubleExponentialMovingAverageLengthParams{
 			Length: length, FirstIsAverage: false, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
@@ -463,14 +469,18 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 		dema, err := NewDoubleExponentialMovingAverageLength(&params)
 		check("err == nil", true, err == nil)
 		check("name", "dema(10)", dema.name)
-		check("description", "Double Exponential moving average dema(10)", dema.description)
+		check("description", "Double exponential moving average dema(10)", dema.description)
 		check("firstIsAverage", false, dema.firstIsAverage)
 		check("primed", false, dema.primed)
 		check("length", length, dema.length)
+		check("length2", length+length, dema.length2)
 		check("smoothingFactor", alpha, dema.smoothingFactor)
-		check("count", 0, dema.count)
-		check("sum", 0., dema.sum)
-		check("value", 0., dema.value)
+		check("count1", 0, dema.count1)
+		check("count2", 0, dema.count2)
+		check("sum1", 0., dema.sum1)
+		check("sum2", 0., dema.sum2)
+		check("value1", 0., dema.value1)
+		check("value2", 0., dema.value2)
 		check("barFunc == nil", false, dema.barFunc == nil)
 		check("quoteFunc == nil", false, dema.quoteFunc == nil)
 		check("tradeFunc == nil", false, dema.tradeFunc == nil)
@@ -478,6 +488,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 
 	t.Run("length = 1, firstIsAverage = true", func(t *testing.T) { //nolint:dupl
 		t.Parallel()
+
 		params := DoubleExponentialMovingAverageLengthParams{
 			Length: 1, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
@@ -489,10 +500,14 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 		check("firstIsAverage", true, dema.firstIsAverage)
 		check("primed", false, dema.primed)
 		check("length", 1, dema.length)
+		check("length2", dema.length+dema.length, dema.length2)
 		check("smoothingFactor", 1., dema.smoothingFactor)
-		check("count", 0, dema.count)
-		check("sum", 0., dema.sum)
-		check("value", 0., dema.value)
+		check("count1", 0, dema.count1)
+		check("count2", 0, dema.count2)
+		check("sum1", 0., dema.sum1)
+		check("sum2", 0., dema.sum2)
+		check("value1", 0., dema.value1)
+		check("value2", 0., dema.value2)
 		check("barFunc == nil", false, dema.barFunc == nil)
 		check("quoteFunc == nil", false, dema.quoteFunc == nil)
 		check("tradeFunc == nil", false, dema.tradeFunc == nil)
@@ -500,6 +515,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 
 	t.Run("length = 0", func(t *testing.T) {
 		t.Parallel()
+
 		params := DoubleExponentialMovingAverageLengthParams{
 			Length: 0, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
@@ -511,6 +527,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 
 	t.Run("length < 0", func(t *testing.T) {
 		t.Parallel()
+
 		params := DoubleExponentialMovingAverageLengthParams{
 			Length: -1, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
@@ -522,6 +539,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 
 	t.Run("epsilon < α ≤ 1", func(t *testing.T) { //nolint:dupl
 		t.Parallel()
+
 		params := DoubleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: alpha, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
@@ -533,10 +551,14 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 		check("firstIsAverage", true, dema.firstIsAverage)
 		check("primed", false, dema.primed)
 		check("length", length, dema.length)
+		check("length2", length+length, dema.length2)
 		check("smoothingFactor", alpha, dema.smoothingFactor)
-		check("count", 0, dema.count)
-		check("sum", 0., dema.sum)
-		check("value", 0., dema.value)
+		check("count1", 0, dema.count1)
+		check("count2", 0, dema.count2)
+		check("sum1", 0., dema.sum1)
+		check("sum2", 0., dema.sum2)
+		check("value1", 0., dema.value1)
+		check("value2", 0., dema.value2)
 		check("barFunc == nil", false, dema.barFunc == nil)
 		check("quoteFunc == nil", false, dema.quoteFunc == nil)
 		check("tradeFunc == nil", false, dema.tradeFunc == nil)
@@ -544,6 +566,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 
 	t.Run("0 < α < epsilon", func(t *testing.T) { //nolint:dupl
 		t.Parallel()
+
 		params := DoubleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 0.000000001, FirstIsAverage: false, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
@@ -555,10 +578,14 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 		check("firstIsAverage", false, dema.firstIsAverage)
 		check("primed", false, dema.primed)
 		check("length", 199999999, dema.length) // 2./0.00000001 - 1.
+		check("length2", dema.length+dema.length, dema.length2)
 		check("smoothingFactor", 0.00000001, dema.smoothingFactor)
-		check("count", 0, dema.count)
-		check("sum", 0., dema.sum)
-		check("value", 0., dema.value)
+		check("count1", 0, dema.count1)
+		check("count2", 0, dema.count2)
+		check("sum1", 0., dema.sum1)
+		check("sum2", 0., dema.sum2)
+		check("value1", 0., dema.value1)
+		check("value2", 0., dema.value2)
 		check("barFunc == nil", false, dema.barFunc == nil)
 		check("quoteFunc == nil", false, dema.quoteFunc == nil)
 		check("tradeFunc == nil", false, dema.tradeFunc == nil)
@@ -566,6 +593,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 
 	t.Run("α = 0", func(t *testing.T) { //nolint:dupl
 		t.Parallel()
+
 		params := DoubleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 0, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
@@ -577,10 +605,14 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 		check("firstIsAverage", true, dema.firstIsAverage)
 		check("primed", false, dema.primed)
 		check("length", 199999999, dema.length) // 2./0.00000001 - 1.
+		check("length2", dema.length+dema.length, dema.length2)
 		check("smoothingFactor", 0.00000001, dema.smoothingFactor)
-		check("count", 0, dema.count)
-		check("sum", 0., dema.sum)
-		check("value", 0., dema.value)
+		check("count1", 0, dema.count1)
+		check("count2", 0, dema.count2)
+		check("sum1", 0., dema.sum1)
+		check("sum2", 0., dema.sum2)
+		check("value1", 0., dema.value1)
+		check("value2", 0., dema.value2)
 		check("barFunc == nil", false, dema.barFunc == nil)
 		check("quoteFunc == nil", false, dema.quoteFunc == nil)
 		check("tradeFunc == nil", false, dema.tradeFunc == nil)
@@ -588,6 +620,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 
 	t.Run("α = 1", func(t *testing.T) { //nolint:dupl
 		t.Parallel()
+
 		params := DoubleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 1, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
@@ -599,10 +632,14 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 		check("firstIsAverage", true, dema.firstIsAverage)
 		check("primed", false, dema.primed)
 		check("length", 1, dema.length) // 2./1 - 1.
+		check("length2", dema.length+dema.length, dema.length2)
 		check("smoothingFactor", 1., dema.smoothingFactor)
-		check("count", 0, dema.count)
-		check("sum", 0., dema.sum)
-		check("value", 0., dema.value)
+		check("count1", 0, dema.count1)
+		check("count2", 0, dema.count2)
+		check("sum1", 0., dema.sum1)
+		check("sum2", 0., dema.sum2)
+		check("value1", 0., dema.value1)
+		check("value2", 0., dema.value2)
 		check("barFunc == nil", false, dema.barFunc == nil)
 		check("quoteFunc == nil", false, dema.quoteFunc == nil)
 		check("tradeFunc == nil", false, dema.tradeFunc == nil)
@@ -610,6 +647,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 
 	t.Run("α < 0", func(t *testing.T) {
 		t.Parallel()
+
 		params := DoubleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: -1, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
@@ -621,6 +659,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 
 	t.Run("α > 1", func(t *testing.T) {
 		t.Parallel()
+
 		params := DoubleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 2, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
@@ -632,6 +671,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 
 	t.Run("invalid bar component", func(t *testing.T) {
 		t.Parallel()
+
 		params := DoubleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 1, FirstIsAverage: true,
 			BarComponent: data.BarComponent(9999), QuoteComponent: qc, TradeComponent: tc,
@@ -644,6 +684,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 
 	t.Run("invalid quote component", func(t *testing.T) {
 		t.Parallel()
+
 		params := DoubleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 1, FirstIsAverage: true,
 			BarComponent: bc, QuoteComponent: data.QuoteComponent(9999), TradeComponent: tc,
@@ -656,6 +697,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 
 	t.Run("invalid trade component", func(t *testing.T) {
 		t.Parallel()
+
 		params := DoubleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 1, FirstIsAverage: true,
 			BarComponent: bc, QuoteComponent: qc, TradeComponent: data.TradeComponent(9999),

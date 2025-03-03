@@ -1,47 +1,52 @@
 package mulloy
 
-//nolint: gofumpt
 import (
 	"fmt"
 	"math"
 	"sync"
 
-	"mbg/trading/data"
-	"mbg/trading/indicators/indicator"
-	"mbg/trading/indicators/indicator/output"
+	"mbg/trading/data"                        //nolint:depguard
+	"mbg/trading/indicators/indicator"        //nolint:depguard
+	"mbg/trading/indicators/indicator/output" //nolint:depguard
 )
 
-// TripleExponentialMovingAverage computes the exponential, or exponentially weighted, moving average (TEMA).
+// TripleExponentialMovingAverage computes the Triple Exponential Moving Average (TEMA),
+// a smoothing indicator with less lag than a straight exponential moving average.
 //
-// Given a constant smoothing percentage factor 0 < α ≤ 1, EMA is calculated by applying a constant
-// smoothing factor α to a difference of today's sample and yesterday's EMA value:
-//    EMAᵢ = αPᵢ + (1-α)EMAᵢ₋₁ = EMAᵢ₋₁ + α(Pᵢ - EMAᵢ₋₁), 0 < α ≤ 1.
-// Thus, the weighting for each older sample is given by the geometric progression 1, α, α², α³, …,
-// giving much more importance to recent observations while not discarding older ones: all data
-// previously used are always part of the new EMA value.
+// The TEMA was developed by Patrick G. Mulloy and is described in two articles:
 //
-// α may be expressed as a percentage, so a smoothing factor of 10% is equivalent to α = 0.1. A higher α
-// discounts older observations faster. Alternatively, α may be expressed in terms of ℓ time periods (length),
-// where:
-//    α = 2 / (ℓ + 1) and ℓ = 2/α - 1.
-// The indicator is not primed during the first ℓ-1 updates.
+//	❶ Technical Analysis of Stocks & Commodities v.12:1 (11-19), Smoothing Data With Faster Moving Averages.
+//	❷ Technical Analysis of Stocks & Commodities v.12:2 (72-80), Smoothing Data With Less Lag.
 //
-// The 12- and 26-day EMAs are the most popular short-term averages, and they are used to create indicators
-// like MACD and PPO. In general, the 50- and 200-day EMAs are used as signals of long-term trends.
+// The calculation is as follows:
 //
-// The very first EMA value (the seed for subsequent values) is calculated differently. This implementation
-// allows for two algorithms for this seed.
-// ❶ Use a simple average of the first 'period'. This is the most widely documented approach.
-// ❷ Use first sample value as a seed. This is used in Metastock.
+//	EMA¹ᵢ = EMA(Pᵢ) = αPᵢ + (1-α)EMA¹ᵢ₋₁ = EMA¹ᵢ₋₁ + α(Pᵢ - EMA¹ᵢ₋₁), 0 < α ≤ 1
+//	EMA²ᵢ = EMA(EMA¹ᵢ) = αEMA¹ᵢ + (1-α)EMA²ᵢ₋₁ = EMA²ᵢ₋₁ + α(EMA¹ᵢ - EMA²ᵢ₋₁), 0 < α ≤ 1
+//	EMA³ᵢ = EMA(EMA²ᵢ) = αEMA²ᵢ + (1-α)EMA³ᵢ₋₁ = EMA³ᵢ₋₁ + α(EMA²ᵢ - EMA³ᵢ₋₁), 0 < α ≤ 1
+//	TEMAᵢ = 3(EMA¹ᵢ - EMA²ᵢ) + EMA³ᵢ
+//
+// The very first EMA value (the seed for subsequent values) is calculated differently.
+// This implementation allows for two algorithms for this seed.
+//
+//	❶ Use a simple average of the first 'period'. This is the most widely documented approach.
+//	❷ Use first sample value as a seed. This is used in Metastock.
 type TripleExponentialMovingAverage struct {
 	mu              sync.RWMutex
 	name            string
 	description     string
-	value           float64
-	sum             float64
 	smoothingFactor float64
+	sum1            float64
+	sum2            float64
+	sum3            float64
+	value1          float64
+	value2          float64
+	value3          float64
 	length          int
-	count           int
+	length2         int
+	length3         int
+	count1          int
+	count2          int
+	count3          int
 	firstIsAverage  bool
 	primed          bool
 	barFunc         data.BarFunc
@@ -77,8 +82,9 @@ func newTripleExponentialMovingAverage(length int, alpha float64, firstIsAverage
 		fmtw    = "%s: %w"
 		fmtnl   = "tema(%d)"
 		fmtna   = "tema(%d, %.8f)"
-		minlen  = 1
-		two     = 2.
+		minlen  = 2
+		two     = 2
+		three   = 3
 		epsilon = 0.00000001
 	)
 
@@ -92,7 +98,7 @@ func newTripleExponentialMovingAverage(length int, alpha float64, firstIsAverage
 
 	if math.IsNaN(alpha) {
 		if length < minlen {
-			return nil, fmt.Errorf(fmts, invalid, "length should be positive")
+			return nil, fmt.Errorf(fmts, invalid, "length should be greater than 1")
 		}
 
 		alpha = two / float64(1+length)
@@ -122,13 +128,15 @@ func newTripleExponentialMovingAverage(length int, alpha float64, firstIsAverage
 		return nil, fmt.Errorf(fmtw, invalid, err)
 	}
 
-	desc := "Triple Exponential moving average " + name
+	desc := "Triple exponential moving average " + name
 
 	return &TripleExponentialMovingAverage{
 		name:            name,
 		description:     desc,
 		smoothingFactor: alpha,
 		length:          length,
+		length2:         two * length,
+		length3:         three*length - two,
 		firstIsAverage:  firstIsAverage,
 		barFunc:         barFunc,
 		quoteFunc:       quoteFunc,
@@ -160,46 +168,123 @@ func (s *TripleExponentialMovingAverage) Metadata() indicator.Metadata {
 	}
 }
 
-// Update updates the value of the exponential moving average given the next sample.
-//
-// The indicator is not primed during the first ℓ-1 updates.
-func (s *TripleExponentialMovingAverage) Update(sample float64) float64 {
+// Update updates the value of the indicator given the next sample.
+func (s *TripleExponentialMovingAverage) Update(sample float64) float64 { //nolint:cyclop, funlen
+	const three = 3.
+
 	if math.IsNaN(sample) {
 		return sample
 	}
 
-	temp := sample
-
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if s.primed { //nolint:nestif
-		s.value += (temp - s.value) * s.smoothingFactor
-	} else {
-		s.count++
-		if s.firstIsAverage {
-			s.sum += temp
-			if s.count < s.length {
-				return math.NaN()
-			}
+	if s.primed {
+		sf := s.smoothingFactor
+		v1 := s.value1
+		v2 := s.value2
+		v3 := s.value3
+		v1 += (sample - v1) * sf
+		v2 += (v1 - v2) * sf
+		v3 += (v2 - v3) * sf
+		// fmt.Printf("4; value1: %.4f -> %.4f\n", s.value1, v1)
+		// fmt.Printf("4; value2: %.4f -> %.4f\n", s.value2, v2)
+		// fmt.Printf("4; value3: %.4f -> %.4f\n", s.value3, v3)
+		s.value1 = v1
+		s.value2 = v2
+		s.value3 = v3
 
-			s.value = s.sum / float64(s.length)
-		} else {
-			if s.count == 1 {
-				s.value = temp
-			} else {
-				s.value += (temp - s.value) * s.smoothingFactor
-			}
-
-			if s.count < s.length {
-				return math.NaN()
-			}
-		}
-
-		s.primed = true
+		// fmt.Printf("4; -> %.4f\n", three*(v1-v2)+v3)
+		return three*(v1-v2) + v3
 	}
 
-	return s.value
+	if s.firstIsAverage { //nolint:nestif
+		if s.length > s.count1 {
+			s.sum1 += sample
+			s.count1++
+
+			if s.length == s.count1 {
+				s.value1 = s.sum1 / float64(s.length)
+				s.sum2 += s.value1
+				s.count2++
+			}
+		} else if s.length > s.count2 {
+			s.value1 += (sample - s.value1) * s.smoothingFactor
+			s.sum2 += s.value1
+			s.count2++
+
+			if s.length == s.count2 {
+				s.value2 = s.sum2 / float64(s.length)
+				s.sum3 += s.value2
+				s.count3++
+			}
+		} else {
+			s.value1 += (sample - s.value1) * s.smoothingFactor
+			s.value2 += (s.value1 - s.value2) * s.smoothingFactor
+			s.sum3 += s.value2
+			s.count3++
+
+			if s.length == s.count3 {
+				s.value3 = s.sum3 / float64(s.length)
+				s.primed = true
+
+				return three*(s.value1-s.value2) + s.value3
+			}
+		}
+	} else { // Metastock
+		if s.length > s.count1 {
+			s.count1++
+			// fmt.Printf("1; count1: %d -> %d\n", s.count1-1, s.count1)
+			if s.count1 == 1 {
+				s.value1 = sample
+				// fmt.Printf("1; value1: 0 -> %.4f\n", s.value1)
+			} else {
+				// v := s.value1
+				s.value1 += (sample - s.value1) * s.smoothingFactor
+				// fmt.Printf("1; value1: %.4f -> %.4f\n", v, s.value1)
+			}
+
+			if s.length == s.count1 {
+				s.value2 = s.value1
+				// fmt.Printf("1; value2: 0 -> %.4f\n", s.value2)
+			}
+		} else if s.length2 > s.count1 {
+			// fmt.Printf("2; count1: %d -> %d\n", s.count1, s.count1+1)
+			// v := s.value1
+			s.value1 += (sample - s.value1) * s.smoothingFactor
+			// fmt.Printf("2; value1: %.4f -> %.4f\n", v, s.value1)
+			// v = s.value2
+			s.value2 += (s.value1 - s.value2) * s.smoothingFactor
+			// fmt.Printf("2; value2: %.4f -> %.4f\n", v, s.value2)
+			s.count1++
+
+			if s.length2 == s.count1 {
+				s.value3 = s.value2
+				// fmt.Printf("2; value2: 0 -> %.4f\n", s.value2)
+			}
+		} else {
+			// fmt.Printf("3; count1: %d -> %d\n", s.count1, s.count1+1)
+			// v := s.value1
+			s.value1 += (sample - s.value1) * s.smoothingFactor
+			// fmt.Printf("3; value1: %.4f -> %.4f\n", v, s.value1)
+			// v = s.value2
+			s.value2 += (s.value1 - s.value2) * s.smoothingFactor
+			// fmt.Printf("3; value2: %.4f -> %.4f\n", v, s.value2)
+			// v = s.value3
+			s.value3 += (s.value2 - s.value3) * s.smoothingFactor
+			// fmt.Printf("3; value3: %.4f -> %.4f\n", v, s.value3)
+			s.count1++
+
+			if s.length3 == s.count1 {
+				// fmt.Printf("3; primed -> %.4f\n", three*(s.value1-s.value2)+s.value3)
+				s.primed = true
+
+				return three*(s.value1-s.value2) + s.value3
+			}
+		}
+	}
+
+	return math.NaN()
 }
 
 // UpdateScalar updates the indicator given the next scalar sample.
