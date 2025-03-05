@@ -10,6 +10,9 @@ import (
 	"mbg/trading/indicators/indicator/output" //nolint:depguard
 )
 
+// https://store.traders.com/-v12-c01-smoothi-pdf.html
+// https://store.traders.com/-v12-c02-smoothi-pdf.html
+
 // TripleExponentialMovingAverage computes the Triple Exponential Moving Average (TEMA),
 // a smoothing indicator with less lag than a straight exponential moving average.
 //
@@ -35,18 +38,14 @@ type TripleExponentialMovingAverage struct {
 	name            string
 	description     string
 	smoothingFactor float64
-	sum1            float64
-	sum2            float64
-	sum3            float64
-	value1          float64
-	value2          float64
-	value3          float64
+	sum             float64
+	ema1            float64
+	ema2            float64
+	ema3            float64
 	length          int
 	length2         int
 	length3         int
-	count1          int
-	count2          int
-	count3          int
+	count           int
 	firstIsAverage  bool
 	primed          bool
 	barFunc         data.BarFunc
@@ -135,7 +134,7 @@ func newTripleExponentialMovingAverage(length int, alpha float64, firstIsAverage
 		description:     desc,
 		smoothingFactor: alpha,
 		length:          length,
-		length2:         two * length,
+		length2:         two*length - 1,
 		length3:         three*length - two,
 		firstIsAverage:  firstIsAverage,
 		barFunc:         barFunc,
@@ -181,105 +180,73 @@ func (s *TripleExponentialMovingAverage) Update(sample float64) float64 { //noli
 
 	if s.primed {
 		sf := s.smoothingFactor
-		v1 := s.value1
-		v2 := s.value2
-		v3 := s.value3
+		v1 := s.ema1
+		v2 := s.ema2
+		v3 := s.ema3
 		v1 += (sample - v1) * sf
 		v2 += (v1 - v2) * sf
 		v3 += (v2 - v3) * sf
-		// fmt.Printf("4; value1: %.4f -> %.4f\n", s.value1, v1)
-		// fmt.Printf("4; value2: %.4f -> %.4f\n", s.value2, v2)
-		// fmt.Printf("4; value3: %.4f -> %.4f\n", s.value3, v3)
-		s.value1 = v1
-		s.value2 = v2
-		s.value3 = v3
+		s.ema1 = v1
+		s.ema2 = v2
+		s.ema3 = v3
 
-		// fmt.Printf("4; -> %.4f\n", three*(v1-v2)+v3)
 		return three*(v1-v2) + v3
 	}
 
+	s.count++
 	if s.firstIsAverage { //nolint:nestif
-		if s.length > s.count1 {
-			s.sum1 += sample
-			s.count1++
-
-			if s.length == s.count1 {
-				s.value1 = s.sum1 / float64(s.length)
-				s.sum2 += s.value1
-				s.count2++
+		if s.count == 1 {
+			s.sum = sample
+		} else if s.length >= s.count {
+			s.sum += sample
+			if s.length == s.count {
+				s.ema1 = s.sum / float64(s.length)
+				s.sum = s.ema1
 			}
-		} else if s.length > s.count2 {
-			s.value1 += (sample - s.value1) * s.smoothingFactor
-			s.sum2 += s.value1
-			s.count2++
+		} else if s.length2 >= s.count {
+			s.ema1 += (sample - s.ema1) * s.smoothingFactor
+			s.sum += s.ema1
 
-			if s.length == s.count2 {
-				s.value2 = s.sum2 / float64(s.length)
-				s.sum3 += s.value2
-				s.count3++
+			if s.length2 == s.count {
+				s.ema2 = s.sum / float64(s.length)
+				s.sum = s.ema2
 			}
-		} else {
-			s.value1 += (sample - s.value1) * s.smoothingFactor
-			s.value2 += (s.value1 - s.value2) * s.smoothingFactor
-			s.sum3 += s.value2
-			s.count3++
+		} else { // if s.length3 >= s.count {
+			s.ema1 += (sample - s.ema1) * s.smoothingFactor
+			s.ema2 += (s.ema1 - s.ema2) * s.smoothingFactor
+			s.sum += s.ema2
 
-			if s.length == s.count3 {
-				s.value3 = s.sum3 / float64(s.length)
+			if s.length3 == s.count {
 				s.primed = true
+				s.ema3 = s.sum / float64(s.length)
 
-				return three*(s.value1-s.value2) + s.value3
+				return three*(s.ema1-s.ema2) + s.ema3
 			}
 		}
 	} else { // Metastock
-		if s.length > s.count1 {
-			s.count1++
-			// fmt.Printf("1; count1: %d -> %d\n", s.count1-1, s.count1)
-			if s.count1 == 1 {
-				s.value1 = sample
-				// fmt.Printf("1; value1: 0 -> %.4f\n", s.value1)
-			} else {
-				// v := s.value1
-				s.value1 += (sample - s.value1) * s.smoothingFactor
-				// fmt.Printf("1; value1: %.4f -> %.4f\n", v, s.value1)
+		if s.count == 1 {
+			s.ema1 = sample
+		} else if s.length >= s.count {
+			s.ema1 += (sample - s.ema1) * s.smoothingFactor
+			if s.length == s.count {
+				s.ema2 = s.ema1
 			}
+		} else if s.length2 >= s.count {
+			s.ema1 += (sample - s.ema1) * s.smoothingFactor
+			s.ema2 += (s.ema1 - s.ema2) * s.smoothingFactor
 
-			if s.length == s.count1 {
-				s.value2 = s.value1
-				// fmt.Printf("1; value2: 0 -> %.4f\n", s.value2)
+			if s.length2 == s.count {
+				s.ema3 = s.ema2
 			}
-		} else if s.length2 > s.count1 {
-			// fmt.Printf("2; count1: %d -> %d\n", s.count1, s.count1+1)
-			// v := s.value1
-			s.value1 += (sample - s.value1) * s.smoothingFactor
-			// fmt.Printf("2; value1: %.4f -> %.4f\n", v, s.value1)
-			// v = s.value2
-			s.value2 += (s.value1 - s.value2) * s.smoothingFactor
-			// fmt.Printf("2; value2: %.4f -> %.4f\n", v, s.value2)
-			s.count1++
+		} else { // if s.length3 >= s.count {
+			s.ema1 += (sample - s.ema1) * s.smoothingFactor
+			s.ema2 += (s.ema1 - s.ema2) * s.smoothingFactor
+			s.ema3 += (s.ema2 - s.ema3) * s.smoothingFactor
 
-			if s.length2 == s.count1 {
-				s.value3 = s.value2
-				// fmt.Printf("2; value2: 0 -> %.4f\n", s.value2)
-			}
-		} else {
-			// fmt.Printf("3; count1: %d -> %d\n", s.count1, s.count1+1)
-			// v := s.value1
-			s.value1 += (sample - s.value1) * s.smoothingFactor
-			// fmt.Printf("3; value1: %.4f -> %.4f\n", v, s.value1)
-			// v = s.value2
-			s.value2 += (s.value1 - s.value2) * s.smoothingFactor
-			// fmt.Printf("3; value2: %.4f -> %.4f\n", v, s.value2)
-			// v = s.value3
-			s.value3 += (s.value2 - s.value3) * s.smoothingFactor
-			// fmt.Printf("3; value3: %.4f -> %.4f\n", v, s.value3)
-			s.count1++
-
-			if s.length3 == s.count1 {
-				// fmt.Printf("3; primed -> %.4f\n", three*(s.value1-s.value2)+s.value3)
+			if s.length3 == s.count {
 				s.primed = true
 
-				return three*(s.value1-s.value2) + s.value3
+				return three*(s.ema1-s.ema2) + s.ema3
 			}
 		}
 	}

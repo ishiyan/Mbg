@@ -80,7 +80,105 @@ func testDoubleExponentialMovingAverageInput() []float64 { //nolint:dupl
 	}
 }
 
-func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint:cyclop, funlen, gocognit, gocyclo
+// Input and output data taken from Excel file describing DEMA calculations in
+// Technical Analysis of Stocks & Commodities v.12:2 (72-80), Smoothing Data With Less Lag.
+
+func testDoubleExponentialMovingAverageTascInput() []float64 { //nolint:dupl
+	return []float64{
+		451.61, 455.20, 453.29, 446.48, 446.17, 440.86, 441.88, 451.61, 438.43, 406.33,
+		328.45, 323.30, 326.39, 322.97, 312.49, 316.47, 292.92, 302.57, 326.91, 333.19,
+		330.47, 338.47, 340.14, 337.59, 344.66, 345.75, 353.27, 357.12, 363.40, 373.37,
+		375.48, 381.58, 372.54, 374.64, 381.83, 373.90, 374.04, 379.23, 379.42, 372.48,
+		366.03, 366.66, 376.86, 386.25, 386.92, 391.62, 394.69, 394.33, 394.59, 387.35,
+		387.33, 387.71, 378.95, 377.42, 374.43, 376.51, 381.60, 383.91, 384.98, 387.71,
+		385.67, 384.59, 388.59, 382.79, 381.02, 373.76, 367.58, 366.38, 373.91, 375.21,
+		375.80, 377.34, 381.38, 384.74, 387.09, 391.66, 397.96, 406.35, 402.37, 407.19,
+		399.96, 403.99, 405.90, 402.19, 400.94, 406.73, 410.71, 417.68, 423.76, 427.55,
+		430.74, 434.83, 442.05, 445.21, 451.63, 453.65, 447.21, 448.36, 435.29, 442.42,
+		448.90, 449.29, 452.82, 457.42, 462.48, 461.97, 466.75, 471.34, 471.31, 467.57,
+		468.07, 472.92, 483.64, 467.29, 470.67, 452.76, 452.97, 456.19, 456.72, 456.63,
+		457.10, 456.22, 443.84, 444.57, 454.82, 458.22, 439.72, 440.88, 421.33, 422.21,
+		428.84, 429.01, 419.52, 431.02, 436.76, 442.16, 437.25, 435.54, 430.90, 436.31,
+		425.79, 417.98, 428.61, 438.10, 448.31, 453.69, 462.13, 460.87, 467.55, 459.33,
+		462.29, 460.53, 468.44, 455.27, 442.59, 417.46, 408.03, 393.49, 367.33, 381.21,
+		380.38, 374.42, 362.25, 344.51, 347.36, 327.55, 337.36, 334.36, 336.45, 341.95,
+		350.85, 349.04, 359.06, 371.54, 368.83, 373.60, 371.20, 367.24, 361.80, 376.99,
+		394.28, 417.69, 436.80, 448.71, 448.95, 456.73, 475.11, 466.29, 464.15, 482.30,
+		495.79, 501.62, 501.19, 494.64, 492.10, 493.42, 481.38, 492.67, 506.11, 498.54,
+		495.07, 485.82, 475.92, 474.05, 492.71, 497.55, 492.69, 505.67, 508.31, 512.47,
+		521.06, 525.68, 516.94, 516.71, 527.19, 524.48, 520.40, 519.05, 538.90, 525.13,
+		540.93, 548.08, 531.29, 523.47, 523.90, 536.30, 540.90, 535.76, 565.71, 592.65,
+		615.70, 626.85, 624.68, 620.21, 634.95, 636.43, 629.75, 633.47, 615.95, 618.62,
+		624.28, 604.67, 590.01, 584.24, 591.81, 572.89, 578.14, 585.76, 574.43, 580.30,
+		585.31, 585.43, 569.52, 554.20, 547.84, 563.35, 567.80, 570.52, 565.61, 580.83,
+		573.74, 573.18, 563.70, 563.56, 573.44, 583.01, 589.12, 577.20, 571.63, 570.52,
+		582.61, 597.30, 605.17, 616.82, 637.16, 642.60, 649.49, 661.60, 655.79, 661.29,
+		665.88, 676.95, 677.21, 697.15, 701.64, 696.34, 700.98, 690.54, 663.61, 670.77,
+		681.37, 692.78, 682.72, 681.54, 669.85, 665.26, 666.78, 658.41, 661.42, 681.44,
+		676.37, 694.29, 700.53, 702.01, 693.19, 689.59, 694.81, 704.49, 705.81, 699.73,
+		700.24, 704.70, 718.08, 718.26, 730.96, 734.07,
+	}
+}
+
+func testDoubleExponentialMovingAverageTascExpected() []float64 { //nolint:dupl
+	return []float64{
+		448.35153846153900, 444.04591642925000, 440.14325876683900, 435.89797197112700, 432.27216108607300, 428.4823387986880,
+		425.44660726945700, 424.32221956733400, 421.62769118311400, 414.83033726696900, 397.84560812203200, 382.1684638859920,
+		368.84565318219400, 356.70263630619500, 344.61177746844000, 334.63735513171700, 322.62654116603900, 313.5428856197950,
+		309.16728032640400, 306.40916999763100, 303.80344210260600, 302.85705842249500, 302.47933821157700, 301.9983608663500,
+		302.78990505807500, 303.85376719743900, 306.06855288785400, 308.77561303182900, 312.25765711668100, 316.9458970680750,
+		321.57591953906100, 326.71142072727700, 330.12569035653100, 333.58519070887400, 337.80215498511300, 340.5277984044680,
+		343.06768310059700, 346.15558049796200, 349.01153873028100, 350.63684427250100, 351.22996990596900, 351.9095633782500,
+		354.02828445734900, 357.30961166805800, 360.37719885601600, 363.82330749394400, 367.36827960468400, 370.5060772052240,
+		373.36404591786600, 374.89789264177600, 376.27839007919300, 377.57679520685900, 377.49585696812600, 377.2161727060120,
+		376.55094999730900, 376.26572641304400, 376.74867888791700, 377.51889916397200, 378.36695413774200, 379.5197751830860,
+		380.26204411670400, 380.77401929783400, 381.80453838016000, 381.89783916607600, 381.73021452208800, 380.5468863182740,
+		378.61348759035000, 376.72417599183900, 376.12187633061000, 375.77882448754900, 375.56576179912300, 375.6040783595300,
+		376.22280474748100, 377.26090183044400, 378.52719410689100, 380.31178107033600, 382.80280950363100, 386.2185592056820,
+		388.68968311097500, 391.57096391806000, 393.09545863514500, 395.01505721352400, 396.98253167529700, 398.1889807999980,
+		399.06694346081800, 400.65594056530300, 402.61936913600500, 405.34143412934500, 408.61024741373400, 412.0365400242810,
+		415.51424471768900, 419.16284342072000, 423.40690763980300, 427.59861203811200, 432.20484084578100, 436.5487004361930,
+		439.44795618689600, 442.14025113812000, 442.61800606262200, 444.00456957917000, 446.10907426987700, 447.9842994202380,
+		450.10276104066900, 452.59015125823600, 455.47105424993300, 457.90666488479000, 460.69902426372800, 463.7810386872970,
+		466.46056524419900, 468.25088326489400, 469.85338700957900, 471.90939701285600, 475.20696719666600, 475.7478636247790,
+		476.64738188687900, 474.83071437832700, 473.18207233394000, 472.11709350392900, 471.19226477584600, 470.3071248387330,
+		469.54026481122900, 468.68900476125000, 466.12462403384000, 463.90794851838500, 463.36367692547200, 463.3352208853190,
+		460.64352553739400, 458.38651086715700, 453.56640083647600, 449.38259511285200, 446.59240449870100, 444.1271112863010,
+		440.57671800386600, 439.05789403467900, 438.53051878518600, 438.83903510058600, 438.42129375178200, 437.8127704074620,
+		436.61664122799700, 436.33158320045600, 434.58627785064100, 431.92751110847700, 431.08800595307800, 431.7085234483640,
+		433.73215766065500, 436.31460313670400, 439.82803250568000, 442.78284900168400, 446.36834819783800, 448.3858840068980,
+		450.59792288842700, 452.30746007553500, 454.94667941935000, 455.40457430577800, 453.98746320398800, 449.1249058769170,
+		443.43700745040500, 436.29198063782400, 426.19940220104200, 419.20376553191500, 412.87925527082900, 406.4284240852840,
+		398.98606031668800, 389.87305401128500, 382.21779865199500, 372.63726944189300, 365.57562357895500, 358.9385986699680,
+		353.41171943430700, 349.36487937940300, 347.12436559088100, 344.96571184576400, 344.56683470162000, 346.0847969047800,
+		347.13926492858700, 348.84281150631800, 350.09678320049600, 350.72271622664100, 350.57390590624900, 352.6749455854390,
+		357.07627619881700, 364.39354167010100, 373.68560854646800, 383.69745952526600, 392.67196847402800, 401.7848631504070,
+		412.52129623701200, 420.81120775166300, 427.86271648369300, 436.69665625267000, 446.44505917530300, 455.9052122479300,
+		464.20526001391000, 470.58971654845400, 475.83296273212400, 480.60577070724900, 483.05035493444200, 486.7476714258790,
+		491.86738627011100, 495.25492019681100, 497.68217537294300, 498.42920662615400, 497.58813352156200, 496.4813801272450,
+		498.07149481592000, 500.09582362409200, 501.12405710915600, 503.81106629945500, 506.50156901377500, 509.4116347481980,
+		513.14878775920200, 517.05529733511600, 519.20495014115900, 521.00270487807500, 524.01551076430400, 526.2293264513210,
+		527.53566046857800, 528.42388559740100, 531.96578568399100, 533.07598323047000, 536.23825968263300, 539.9951729115380,
+		540.86520045120800, 540.44295958768200, 540.04917031737300, 541.39194812915300, 543.17146574211000, 543.9513590824800,
+		548.84776223941000, 556.98145349335100, 567.43883513908500, 578.25983402526700, 587.49413439256900, 594.9774007739050,
+		603.63437180989800, 611.43929555510500, 617.31490619781300, 622.95122585062700, 625.34175380619100, 627.7206193164830,
+		630.51764053276000, 630.08382393199600, 627.48102410866800, 624.22079916214600, 622.28625349928600, 617.7613206415570,
+		614.38468371611500, 612.37795228502400, 608.89511421428100, 606.55745406191900, 605.12394595290100, 603.8033446470740,
+		600.30058855005100, 594.94307837880300, 589.21899584033200, 586.29714732194300, 584.30106513637300, 582.8872439751560,
+		580.90678087274000, 581.29620835902200, 580.61608126092800, 579.91534852930600, 577.92521224483300, 576.1209367622890,
+		575.91464550901100, 577.08945838235200, 579.00082986700000, 578.99453886348500, 578.18466172678900, 577.2959886714500,
+		578.22170195777100, 581.13509399634300, 584.84432478937700, 589.79790660897800, 597.09481554013700, 604.3466515069590,
+		611.75677616160500, 620.04441732005000, 626.54887171613800, 633.07047351406800, 639.47136354102200, 646.6832713773490,
+		653.06948442562700, 661.52172642490200, 669.60421468806700, 675.95330591677200, 682.17046475665300, 686.1144724602180,
+		685.67825370149000, 686.20461784550800, 688.08343693827800, 691.28514912652000, 692.60313200874900, 693.5105212726140,
+		692.55507025042700, 690.95652817927700, 689.66188495954300, 687.23231081390200, 685.42060562284400, 686.5917324172170,
+		686.84423902464400, 689.55973926270000, 692.80400358606700, 695.83896817833100, 697.21654979349000, 697.8619301917080,
+		699.11454339900500, 701.54579865410000, 703.83467566345300, 704.94047734821500, 705.93269153694400, 707.3883885215910,
+		710.53046953848900, 713.29140061860800, 717.49751354398500, 721.62112194478800,
+	}
+}
+
+func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint:cyclop, funlen, gocognit
 	t.Parallel()
 
 	check := func(index int, exp, act float64) {
@@ -103,28 +201,25 @@ func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint:cyclop, f
 
 	t.Run("length = 2, firstIsAverage = true", func(t *testing.T) {
 		const (
-			i4value   = 78.483 // Index=4 value.
-			i5value   = 89.362 // Index=5 value.
+			i4value   = 94.013 // Index=4 value.
+			i5value   = 94.539 // Index=5 value.
 			i251value = 107.94 // Index=251 (last) value.
 			l         = 2
-			l2m1      = l*2 - 1
+			lprimed   = 2*l - 2
 		)
 
 		t.Parallel()
 
 		dema := testDoubleExponentialMovingAverageCreateLength(l, true)
 
-		for i := 0; i < l2m1; i++ {
+		for i := 0; i < lprimed; i++ {
 			checkNaN(i, dema.Update(input[i]))
 		}
 
-		for i := l2m1; i < len(input); i++ {
+		for i := lprimed; i < len(input); i++ {
 			act := dema.Update(input[i])
 
 			switch i {
-			case 0:
-				checkNaN(i, act)
-				check(i, input[1], act)
 			case 4:
 				check(i, i4value, act)
 			case 5:
@@ -139,14 +234,14 @@ func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint:cyclop, f
 
 	t.Run("length = 14, firstIsAverage = true", func(t *testing.T) { //nolint:dupl
 		const (
-			i28value  = 78.512   // Index=28 value.
-			i29value  = 79.430   // Index=29 value.
-			i30value  = 79.992   // Index=30 value.
-			i31value  = 80.974   // Index=31 value.
-			i48value  = 89.470   // Index=48 value.
+			i28value  = 84.347   // Index=28 value.
+			i29value  = 84.487   // Index=29 value.
+			i30value  = 84.374   // Index=30 value.
+			i31value  = 84.772   // Index=31 value.
+			i48value  = 89.803   // Index=48 value.
 			i251value = 109.4676 // Index=251 (last) value.
 			l         = 14
-			lprimed   = l*2 - 1
+			lprimed   = 2*l - 2
 		)
 
 		t.Parallel()
@@ -182,11 +277,11 @@ func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint:cyclop, f
 	t.Run("length = 2, firstIsAverage = false (Metastock)", func(t *testing.T) {
 		const (
 			// The very first value is the input value.
-			i4value   = 97.445 // Index=4 value.
-			i5value   = 95.679 // Index=5 value.
+			i4value   = 93.977 /*93.960*/ // Index=4 value.
+			i5value   = 94.522 // Index=5 value.
 			i251value = 107.94 // Index=251 (last) value.
 			l         = 2
-			lprimed   = l*2 - 1
+			lprimed   = 2*l - 2
 		)
 
 		t.Parallel()
@@ -201,9 +296,6 @@ func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint:cyclop, f
 			act := dema.Update(input[i])
 
 			switch i {
-			case 0:
-				checkNaN(i, act)
-				check(i, input[1], act)
 			case 4:
 				check(i, i4value, act)
 			case 5:
@@ -219,14 +311,14 @@ func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint:cyclop, f
 	t.Run("length = 14, firstIsAverage = false (Metastock)", func(t *testing.T) { //nolint:dupl
 		const (
 			// The very first value is the input value.
-			i28value  = 95.821   // Index=28 value.
-			i29value  = 94.433   // Index=29 value.
-			i30value  = 92.997   // Index=30 value.
-			i31value  = 92.246   // Index=31 value.
-			i48value  = 90.462   // Index=48 value.
+			i28value  = 84.87    // 84.91 // Index=28 value.
+			i29value  = 84.94    // 84.97 // Index=29 value.
+			i30value  = 84.77    // 84.80 // Index=30 value.
+			i31value  = 85.12    // 85.14 // Index=31 value.
+			i48value  = 89.83    // Index=48 value.
 			i251value = 109.4676 // Index=251 (last) value.
 			l         = 14
-			lprimed   = l*2 - 1
+			lprimed   = 2*l - 2
 		)
 
 		t.Parallel()
@@ -253,6 +345,36 @@ func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint:cyclop, f
 				check(i, i48value, act)
 			case 251:
 				check(i, i251value, act)
+			}
+		}
+
+		checkNaN(0, dema.Update(math.NaN()))
+	})
+
+	t.Run("length = 26, firstIsAverage = false (Metastock)", func(t *testing.T) {
+		t.Parallel()
+
+		const (
+			l          = 26
+			lprimed    = 2*l - 2
+			firstCheck = 216
+		)
+
+		dema := testDoubleExponentialMovingAverageCreateLength(l, false)
+
+		in := testDoubleExponentialMovingAverageTascInput()
+		exp := testDoubleExponentialMovingAverageTascExpected()
+		inlen := len(in)
+
+		for i := 0; i < lprimed; i++ {
+			checkNaN(i, dema.Update(in[i]))
+		}
+
+		for i := lprimed; i < inlen; i++ {
+			act := dema.Update(in[i])
+
+			if i >= firstCheck {
+				check(i, exp[i], act)
 			}
 		}
 
@@ -351,7 +473,7 @@ func TestDoubleExponentialMovingAverageIsPrimed(t *testing.T) {
 
 	const (
 		l       = 14
-		lprimed = l*2 - 1
+		lprimed = 2*l - 2
 	)
 
 	t.Run("length = 14, firstIsAverage = true", func(t *testing.T) {
@@ -391,7 +513,7 @@ func TestDoubleExponentialMovingAverageIsPrimed(t *testing.T) {
 	})
 }
 
-func TestDoubleExponentialMovingAverageMetadata(t *testing.T) { //nolint:dupl
+func TestDoubleExponentialMovingAverageMetadata(t *testing.T) {
 	t.Parallel()
 
 	check := func(what string, exp, act any) {
@@ -473,14 +595,12 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 		check("firstIsAverage", false, dema.firstIsAverage)
 		check("primed", false, dema.primed)
 		check("length", length, dema.length)
-		check("length2", length+length, dema.length2)
+		check("length2", length+length-1, dema.length2)
 		check("smoothingFactor", alpha, dema.smoothingFactor)
-		check("count1", 0, dema.count1)
-		check("count2", 0, dema.count2)
-		check("sum1", 0., dema.sum1)
-		check("sum2", 0., dema.sum2)
-		check("value1", 0., dema.value1)
-		check("value2", 0., dema.value2)
+		check("count", 0, dema.count)
+		check("sum", 0., dema.sum)
+		check("ema1", 0., dema.ema1)
+		check("ema2", 0., dema.ema2)
 		check("barFunc == nil", false, dema.barFunc == nil)
 		check("quoteFunc == nil", false, dema.quoteFunc == nil)
 		check("tradeFunc == nil", false, dema.tradeFunc == nil)
@@ -500,14 +620,12 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 		check("firstIsAverage", true, dema.firstIsAverage)
 		check("primed", false, dema.primed)
 		check("length", 1, dema.length)
-		check("length2", dema.length+dema.length, dema.length2)
+		check("length2", dema.length+dema.length-1, dema.length2)
 		check("smoothingFactor", 1., dema.smoothingFactor)
-		check("count1", 0, dema.count1)
-		check("count2", 0, dema.count2)
-		check("sum1", 0., dema.sum1)
-		check("sum2", 0., dema.sum2)
-		check("value1", 0., dema.value1)
-		check("value2", 0., dema.value2)
+		check("count", 0, dema.count)
+		check("sum", 0., dema.sum)
+		check("ema1", 0., dema.ema1)
+		check("ema2", 0., dema.ema2)
 		check("barFunc == nil", false, dema.barFunc == nil)
 		check("quoteFunc == nil", false, dema.quoteFunc == nil)
 		check("tradeFunc == nil", false, dema.tradeFunc == nil)
@@ -551,14 +669,12 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 		check("firstIsAverage", true, dema.firstIsAverage)
 		check("primed", false, dema.primed)
 		check("length", length, dema.length)
-		check("length2", length+length, dema.length2)
+		check("length2", length+length-1, dema.length2)
 		check("smoothingFactor", alpha, dema.smoothingFactor)
-		check("count1", 0, dema.count1)
-		check("count2", 0, dema.count2)
-		check("sum1", 0., dema.sum1)
-		check("sum2", 0., dema.sum2)
-		check("value1", 0., dema.value1)
-		check("value2", 0., dema.value2)
+		check("count", 0, dema.count)
+		check("sum", 0., dema.sum)
+		check("ema1", 0., dema.ema1)
+		check("ema2", 0., dema.ema2)
 		check("barFunc == nil", false, dema.barFunc == nil)
 		check("quoteFunc == nil", false, dema.quoteFunc == nil)
 		check("tradeFunc == nil", false, dema.tradeFunc == nil)
@@ -578,14 +694,12 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 		check("firstIsAverage", false, dema.firstIsAverage)
 		check("primed", false, dema.primed)
 		check("length", 199999999, dema.length) // 2./0.00000001 - 1.
-		check("length2", dema.length+dema.length, dema.length2)
+		check("length2", dema.length+dema.length-1, dema.length2)
 		check("smoothingFactor", 0.00000001, dema.smoothingFactor)
-		check("count1", 0, dema.count1)
-		check("count2", 0, dema.count2)
-		check("sum1", 0., dema.sum1)
-		check("sum2", 0., dema.sum2)
-		check("value1", 0., dema.value1)
-		check("value2", 0., dema.value2)
+		check("count", 0, dema.count)
+		check("sum", 0., dema.sum)
+		check("ema1", 0., dema.ema1)
+		check("ema2", 0., dema.ema2)
 		check("barFunc == nil", false, dema.barFunc == nil)
 		check("quoteFunc == nil", false, dema.quoteFunc == nil)
 		check("tradeFunc == nil", false, dema.tradeFunc == nil)
@@ -605,14 +719,12 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 		check("firstIsAverage", true, dema.firstIsAverage)
 		check("primed", false, dema.primed)
 		check("length", 199999999, dema.length) // 2./0.00000001 - 1.
-		check("length2", dema.length+dema.length, dema.length2)
+		check("length2", dema.length+dema.length-1, dema.length2)
 		check("smoothingFactor", 0.00000001, dema.smoothingFactor)
-		check("count1", 0, dema.count1)
-		check("count2", 0, dema.count2)
-		check("sum1", 0., dema.sum1)
-		check("sum2", 0., dema.sum2)
-		check("value1", 0., dema.value1)
-		check("value2", 0., dema.value2)
+		check("count", 0, dema.count)
+		check("sum", 0., dema.sum)
+		check("ema1", 0., dema.ema1)
+		check("ema2", 0., dema.ema2)
 		check("barFunc == nil", false, dema.barFunc == nil)
 		check("quoteFunc == nil", false, dema.quoteFunc == nil)
 		check("tradeFunc == nil", false, dema.tradeFunc == nil)
@@ -632,14 +744,12 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 		check("firstIsAverage", true, dema.firstIsAverage)
 		check("primed", false, dema.primed)
 		check("length", 1, dema.length) // 2./1 - 1.
-		check("length2", dema.length+dema.length, dema.length2)
+		check("length2", dema.length+dema.length-1, dema.length2)
 		check("smoothingFactor", 1., dema.smoothingFactor)
-		check("count1", 0, dema.count1)
-		check("count2", 0, dema.count2)
-		check("sum1", 0., dema.sum1)
-		check("sum2", 0., dema.sum2)
-		check("value1", 0., dema.value1)
-		check("value2", 0., dema.value2)
+		check("count", 0, dema.count)
+		check("sum", 0., dema.sum)
+		check("ema1", 0., dema.ema1)
+		check("ema2", 0., dema.ema2)
 		check("barFunc == nil", false, dema.barFunc == nil)
 		check("quoteFunc == nil", false, dema.quoteFunc == nil)
 		check("tradeFunc == nil", false, dema.tradeFunc == nil)

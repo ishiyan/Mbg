@@ -10,6 +10,9 @@ import (
 	"mbg/trading/indicators/indicator/output" //nolint:depguard
 )
 
+// https://store.traders.com/-v12-c01-smoothi-pdf.html
+// https://store.traders.com/-v12-c02-smoothi-pdf.html
+
 // DoubleExponentialMovingAverage computes the Double Exponential Moving Average (DEMA),
 // a smoothing indicator with less lag than a straight exponential moving average.
 //
@@ -34,14 +37,12 @@ type DoubleExponentialMovingAverage struct {
 	name            string
 	description     string
 	smoothingFactor float64
-	sum1            float64
-	sum2            float64
-	value1          float64
-	value2          float64
+	sum             float64
+	ema1            float64
+	ema2            float64
 	length          int
 	length2         int
-	count1          int
-	count2          int
+	count           int
 	firstIsAverage  bool
 	primed          bool
 	barFunc         data.BarFunc
@@ -78,8 +79,7 @@ func newDoubleExponentialMovingAverage(length int, alpha float64, firstIsAverage
 		fmtnl   = "dema(%d)"
 		fmtna   = "dema(%d, %.8f)"
 		minlen  = 1
-		two     = 2.
-		twoInt  = 2
+		two     = 2
 		epsilon = 0.00000001
 	)
 
@@ -130,7 +130,7 @@ func newDoubleExponentialMovingAverage(length int, alpha float64, firstIsAverage
 		description:     desc,
 		smoothingFactor: alpha,
 		length:          length,
-		length2:         length * twoInt,
+		length2:         two*length - 1,
 		firstIsAverage:  firstIsAverage,
 		barFunc:         barFunc,
 		quoteFunc:       quoteFunc,
@@ -174,59 +174,54 @@ func (s *DoubleExponentialMovingAverage) Update(sample float64) float64 { //noli
 	defer s.mu.Unlock()
 
 	if s.primed {
-		v1 := s.value1
-		v2 := s.value2
+		v1 := s.ema1
+		v2 := s.ema2
 		sf := s.smoothingFactor
 		v1 += (sample - v1) * sf
 		v2 += (v1 - v2) * sf
-		s.value1 = v1
-		s.value2 = v2
+		s.ema1 = v1
+		s.ema2 = v2
 
 		return two*v1 - v2
 	}
 
+	s.count++
 	if s.firstIsAverage { //nolint:nestif
-		if s.length > s.count1 {
-			s.sum1 += sample
-			s.count1++
-
-			if s.length == s.count1 {
-				s.value1 = s.sum1 / float64(s.length)
-				s.sum2 += s.value1
+		if s.count == 1 {
+			s.sum = sample
+		} else if s.length >= s.count {
+			s.sum += sample
+			if s.length == s.count {
+				s.ema1 = s.sum / float64(s.length)
+				s.sum = s.ema1
 			}
-		} else {
-			s.value1 += (sample - s.value1) * s.smoothingFactor
-			s.sum2 += s.value1
-			s.count2++
+		} else { // if s.length2 >= s.count {
+			s.ema1 += (sample - s.ema1) * s.smoothingFactor
+			s.sum += s.ema1
 
-			if s.length == s.count2 {
-				s.value2 = s.sum2 / float64(s.length)
+			if s.length2 == s.count {
 				s.primed = true
+				s.ema2 = s.sum / float64(s.length)
 
-				return two*s.value1 - s.value2
+				return two*s.ema1 - s.ema2
 			}
 		}
-	} else {
-		if s.length > s.count1 {
-			s.count1++
-			if s.count1 == 1 {
-				s.value1 = sample
-			} else {
-				s.value1 += (sample - s.value1) * s.smoothingFactor
+	} else { // Metastock
+		if s.count == 1 {
+			s.ema1 = sample
+		} else if s.length >= s.count {
+			s.ema1 += (sample - s.ema1) * s.smoothingFactor
+			if s.length == s.count {
+				s.ema2 = s.ema1
 			}
-		} else {
-			s.value1 += (sample - s.value1) * s.smoothingFactor
-			s.count1++
+		} else { // if s.length2 >= s.count {
+			s.ema1 += (sample - s.ema1) * s.smoothingFactor
+			s.ema2 += (s.ema1 - s.ema2) * s.smoothingFactor
 
-			if s.length == s.count1 {
-				s.value2 = s.value1
-			} else {
-				s.value2 += (s.value1 - s.value2) * s.smoothingFactor
-				if s.length2 == s.count1 {
-					s.primed = true
+			if s.length2 == s.count {
+				s.primed = true
 
-					return two*s.value1 - s.value2
-				}
+				return two*s.ema1 - s.ema2
 			}
 		}
 	}

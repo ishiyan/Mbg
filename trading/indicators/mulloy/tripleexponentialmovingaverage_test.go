@@ -67,6 +67,9 @@ func testTripleExponentialMovingAverageInput() []float64 { //nolint:dupl
 	}
 }
 
+// Input and output data taken from Excel file describing TEMA calculations in
+// Technical Analysis of Stocks & Commodities v.12:2 (72-80), Smoothing Data With Less Lag.
+
 func testTripleExponentialMovingAverageTascInput() []float64 { //nolint:dupl
 	return []float64{
 		451.61, 455.20, 453.29, 446.48, 446.17, 440.86, 441.88, 451.61, 438.43, 406.33,
@@ -105,7 +108,61 @@ func testTripleExponentialMovingAverageTascInput() []float64 { //nolint:dupl
 }
 
 func testTripleExponentialMovingAverageTascExpected() []float64 { //nolint:dupl
-	return []float64{722.4268577073440}
+	return []float64{
+		447.7532551201420, 443.0945245466050, 439.3127472726470, 435.2518723371600, 432.2710763296830, 429.1642847834070,
+		427.2327936092430, 428.0821531817640, 426.5642655329860, 419.0888204711490, 397.0552029730080, 377.5576505182240,
+		361.9745888044020, 348.4345573260620, 335.2088133377440, 325.2474782643930, 312.4163246000170, 303.9761331490760,
+		302.3327376381150, 302.7780461091920, 303.1295873873310, 305.5798603729110, 308.4913425220430, 310.8923560402970,
+		314.8048544252180, 318.7458780707020, 324.0015674119110, 329.5915729975590, 335.9319183187670, 343.6388864445580,
+		350.8577411754070, 358.4417891703670, 363.1805414104080, 367.7455088517980, 373.1861445591210, 376.2355447688490,
+		378.8777238094130, 382.1966643343470, 385.0500737510610, 386.0199880574620, 385.4664676938710, 385.0630954688660,
+		386.7606315681500, 390.0879632471660, 393.0046051974930, 396.3884559283380, 399.8257956356140, 402.5906056605140,
+		404.8971093997830, 405.2573236638770, 405.4348352082500, 405.5393293145810, 403.6985510392290, 401.6858147461310,
+		399.2332589251670, 397.4583396940800, 396.8937227605320, 396.7990039945650, 396.8540479790120, 397.3812728832470,
+		397.3304482735930, 396.9828044158080, 397.4303712027860, 396.5407532508720, 395.3380643625140, 392.7402919137640,
+		389.1770493104540, 385.8243757851450, 384.4644853865600, 383.5369247504470, 382.8376548127300, 382.5327828867360,
+		383.0831742449620, 384.2262203247070, 385.6664051571090, 387.8149761522220, 390.9220104972630, 395.2736186969200,
+		398.1306093181220, 401.5101382897160, 402.8450026113750, 404.7429994134900, 406.6840088659490, 407.4996964507750,
+		407.8562638034450, 409.2718370758190, 411.2223377592010, 414.2454720799570, 417.9997648337040, 421.9010844750510,
+		425.7959721697150, 429.8622843243570, 434.7123735845690, 439.3876760131870, 444.5749888670540, 449.2837705328210,
+		451.8281999793430, 454.0768445711660, 453.1394648960810, 453.6403988952490, 455.2482749407150, 456.5529745116560,
+		458.2471043687100, 460.4974979756810, 463.3198247167110, 465.4824898200690, 468.1688721484940, 471.2640105053360,
+		473.7545600416750, 474.9598499093730, 475.9386229655560, 477.6237194345840, 481.1273356342330, 480.6075335702210,
+		480.7083781757940, 476.9598328026220, 473.6598427764300, 471.3830105758960, 469.4436422405790, 467.6778088950180,
+		466.1869203451790, 464.6629560824800, 460.7484512177790, 457.4997769166250, 456.7993806231350, 456.8801879512060,
+		453.1185493323270, 450.1238394529140, 443.5294639473960, 438.0778124441250, 434.8113851799720, 432.1002481282950,
+		427.8821658851730, 426.7093894078130, 426.9666044271660, 428.3786709465310, 428.6499108049290, 428.5976817947370,
+		427.6614820488370, 428.0389029359660, 426.2569774599580, 423.1826844740630, 422.8079829336740, 424.5158328614040,
+		428.1526165009020, 432.4359102736830, 437.8890978161300, 442.3277477172340, 447.5163606932100, 450.2598986990470,
+		453.1995417039280, 455.3257606490070, 458.7412031649510, 458.9083294879620, 456.3876814850100, 449.0020212527150,
+		440.7007074664930, 430.5880606622500, 416.5574924193970, 407.4618991600910, 399.5999731084520, 391.7619551784840,
+		382.6849532665060, 371.4193465810620, 362.5491004860270, 351.0858326066390, 343.5306536601080, 336.7060553904140,
+		331.5697033687270, 328.5916293748200, 328.1659309303330, 327.7134822766880, 329.6661880359370, 334.1735396735250,
+		337.7171067877820, 341.9525151507030, 345.2801347422690, 347.4864096473240, 348.4089353944940, 352.4715022936610,
+		359.6437750494890, 370.7187792893960, 384.2174856020850, 398.2649742882960, 410.3291818830410, 422.2041735834390,
+		436.0642920845510, 445.9791022193630, 453.8542925013730, 464.1409773143540, 475.5116683919040, 486.2050385165940,
+		495.0002824311040, 500.8851448275950, 505.0892659755070, 508.6441565462490, 508.8881063398530, 511.1102184547510,
+		515.4803199000990, 517.3620973848650, 517.9582991886640, 516.2693891414160, 512.5017825798550, 508.6287386116080,
+		508.9219085413370, 509.9539303000130, 509.6271950441720, 511.8220468709190, 514.0531069701780, 516.6303502169080,
+		520.4188040492950, 524.4256651970370, 525.8615874608350, 526.8482836504300, 529.6632272156770, 531.3291171208500,
+		531.7291245148990, 531.6123636566610, 535.4317283632810, 535.6965931458210, 539.0122889799320, 543.1625967914890,
+		543.0887282359920, 541.2445272085140, 539.5951294541200, 540.5943601920610, 542.2647031712210, 542.5049907577120,
+		548.7575882556430, 559.5400748269270, 573.3828311898380, 587.3628066700000, 598.6773223018580, 607.2012867208510,
+		617.2724617258430, 625.9183206616810, 631.6425297119310, 636.9967130502720, 637.6511497076610, 638.4440887489340,
+		639.9847319924860, 636.9671443863560, 631.0788306206600, 624.5905612461490, 620.3711259462000, 612.6642532373130,
+		606.9803858250660, 603.5504136542150, 598.1684962141560, 594.6804040431330, 592.6589779791590, 590.9007193859220,
+		586.0736699387440, 578.7519999955740, 571.1621459896420, 567.8780533963640, 566.0240475868220, 565.0479875886150,
+		563.2558487447470, 564.9182040537270, 564.9419232335930, 564.9033172490690, 562.9714639654380, 561.3444190672690,
+		562.0493702926070, 564.6897845007230, 568.2692111791840, 568.9249261644460, 568.3754084295420, 567.7114068935060,
+		569.6721409681630, 574.4162120998910, 580.1287360645910, 587.4332425342710, 597.8730958467790, 607.9008554252090,
+		617.8427593724600, 628.7577708984370, 636.7827864177300, 644.6366409719390, 652.1369657690020, 660.6526607728910,
+		667.7922906004490, 677.7930709491740, 687.0432881814140, 693.6107068815170, 699.9132090201550, 702.8707414283780,
+		699.5586247104060, 697.9134933988580, 698.4276967655690, 700.9738971925200, 700.8421111924630, 700.2525004338070,
+		697.1157865027220, 693.2759670760080, 690.1145591352280, 685.5164675913590, 682.0540392673490, 683.0929241384810,
+		682.8287321788800, 686.1920670589830, 690.2580846191070, 693.9387492751950, 695.1588249035000, 695.3438938025540,
+		696.4641731616050, 699.3098411306030, 701.9106649481450, 702.7730246635760, 703.5041100516600, 704.9405620736560,
+		708.8231880495950, 712.0786288263990, 717.3717979207160, 722.4268577073440,
+	}
 }
 
 func TestTripleExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen, cyclop
@@ -114,7 +171,7 @@ func TestTripleExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen, 
 	check := func(index int, exp, act float64) {
 		t.Helper()
 
-		if math.Abs(exp-act) > 1e-2 {
+		if math.Abs(exp-act) > 1e-3 {
 			t.Errorf("[%v] is incorrect: expected %v, actual %v", index, exp, act)
 		}
 	}
@@ -165,64 +222,61 @@ func TestTripleExponentialMovingAverageUpdate(t *testing.T) { //nolint: funlen, 
 		checkNaN(0, tema.Update(math.NaN()))
 	})
 
-	/*
-		t.Run("length = 14, firstIsAverage = false (Metastock)", func(t *testing.T) {
-			t.Parallel()
+	t.Run("length = 14, firstIsAverage = false (Metastock)", func(t *testing.T) {
+		t.Parallel()
 
-			const (
-				i39value  = 84.721  // Index=39 value.
-				i40value  = 84.089  // Index=40 value.
-				i251value = 108.418 // Index=251 (last) value.
-			)
+		const (
+			i39value  = 84.721  // Index=39 value.
+			i40value  = 84.089  // Index=40 value.
+			i251value = 108.418 // Index=251 (last) value.
+		)
 
-			tema := testTripleExponentialMovingAverageCreateLength(l, false)
-			t.Logf("length=%d, length2=%d, length3=%d", tema.length, tema.length2, tema.length3)
+		tema := testTripleExponentialMovingAverageCreateLength(l, false)
 
-			for i := 0; i < lprimed; i++ {
-				t.Logf("i=%d, primed=%v, count1=%d, count2=%d, count3=%d, sum1=%v, sum2=%v, sum3=%v, value1=%v, value2=%v, value3=%v", i, tema.primed, tema.count1, tema.count2, tema.count3, tema.sum1, tema.sum2, tema.sum3, tema.value1, tema.value2, tema.value3)
-				checkNaN(i, tema.Update(input[i]))
+		for i := 0; i < lprimed; i++ {
+			checkNaN(i, tema.Update(input[i]))
+		}
+
+		for i := lprimed; i < len(input); i++ {
+			act := tema.Update(input[i])
+
+			switch i {
+			case 39:
+				check(i, i39value, act)
+			case 40:
+				check(i, i40value, act)
+			case 251:
+				check(i, i251value, act)
 			}
+		}
 
-			for i := lprimed; i < len(input); i++ {
-				t.Logf("i=%d, primed=%v, count1=%d, count2=%d, count3=%d, sum1=%v, sum2=%v, sum3=%v, value1=%v, value2=%v, value3=%v", i, tema.primed, tema.count1, tema.count2, tema.count3, tema.sum1, tema.sum2, tema.sum3, tema.value1, tema.value2, tema.value3)
-				act := tema.Update(input[i])
-				t.Logf("i=%d, act=%v", i, act)
+		checkNaN(0, tema.Update(math.NaN()))
+	})
 
-				switch i {
-				case 39:
-					check(i, i39value, act)
-				case 40:
-					check(i, i40value, act)
-				case 251:
-					check(i, i251value, act)
-				}
-			}
-
-			checkNaN(0, tema.Update(math.NaN()))
-		})
-	*/
 	t.Run("length = 26, firstIsAverage = false (Metastock)", func(t *testing.T) {
 		t.Parallel()
 
 		const (
-			lastValue = 722.4268577073440
+			l          = 26
+			lprimed    = 3*l - 3
+			firstCheck = 216
 		)
 
-		tema := testTripleExponentialMovingAverageCreateLength(26, false)
-		t.Logf("length=%d, length2=%d, length3=%d", tema.length, tema.length2, tema.length3)
+		tema := testTripleExponentialMovingAverageCreateLength(l, false)
 
 		in := testTripleExponentialMovingAverageTascInput()
+		exp := testTripleExponentialMovingAverageTascExpected()
 		inlen := len(in)
-		t.Logf("inlen=%d", inlen)
 
-		for i := 0; i < inlen; i++ {
-			t.Logf("i=%d, act=%v primed=%v, count1=%d, count2=%d, count3=%d, sum1=%v, sum2=%v, sum3=%v, value1=%v, value2=%v, value3=%v", i, 3.*(tema.value1-tema.value2)+tema.value3, tema.primed, tema.count1, tema.count2, tema.count3, tema.sum1, tema.sum2, tema.sum3, tema.value1, tema.value2, tema.value3)
+		for i := 0; i < lprimed; i++ {
+			checkNaN(i, tema.Update(in[i]))
+		}
+
+		for i := lprimed; i < inlen; i++ {
 			act := tema.Update(in[i])
-			t.Logf("i=%d, -> act=%v", i, act)
 
-			switch i {
-			case inlen - 1:
-				check(i, lastValue, act)
+			if i >= firstCheck {
+				check(i, exp[i], act)
 			}
 		}
 
@@ -234,15 +288,16 @@ func TestTripleExponentialMovingAverageUpdateEntity(t *testing.T) { //nolint: fu
 	t.Parallel()
 
 	const (
-		l       = 2
-		lprimed = 3*l - 3
-		alpha   = 2. / float64(l+1)
-		inp     = 3.
-		exp     = 2.6666666666666665
+		l        = 2
+		lprimed  = 3*l - 3
+		alpha    = 2. / float64(l+1)
+		inp      = 3.
+		expFalse = 2.888888888888889
+		expTrue  = 2.6666666666666665
 	)
 
 	time := testTripleExponentialMovingAverageTime()
-	check := func(act indicator.Output) {
+	check := func(exp float64, act indicator.Output) {
 		t.Helper()
 
 		if len(act) != 1 {
@@ -273,7 +328,7 @@ func TestTripleExponentialMovingAverageUpdateEntity(t *testing.T) { //nolint: fu
 			tema.Update(0.)
 		}
 
-		check(tema.UpdateScalar(&s))
+		check(expFalse, tema.UpdateScalar(&s))
 	})
 
 	t.Run("update bar", func(t *testing.T) {
@@ -286,20 +341,20 @@ func TestTripleExponentialMovingAverageUpdateEntity(t *testing.T) { //nolint: fu
 			tema.Update(0.)
 		}
 
-		check(tema.UpdateBar(&b))
+		check(expTrue, tema.UpdateBar(&b))
 	})
 
 	t.Run("update quote", func(t *testing.T) {
 		t.Parallel()
 
 		q := data.Quote{Time: time, Bid: inp}
-		tema := testTripleExponentialMovingAverageCreateLength(l, true)
+		tema := testTripleExponentialMovingAverageCreateLength(l, false)
 
 		for i := 0; i < lprimed; i++ {
 			tema.Update(0.)
 		}
 
-		check(tema.UpdateQuote(&q))
+		check(expFalse, tema.UpdateQuote(&q))
 	})
 
 	t.Run("update trade", func(t *testing.T) {
@@ -312,7 +367,7 @@ func TestTripleExponentialMovingAverageUpdateEntity(t *testing.T) { //nolint: fu
 			tema.Update(0.)
 		}
 
-		check(tema.UpdateTrade(&r))
+		check(expTrue, tema.UpdateTrade(&r))
 	})
 }
 
@@ -452,18 +507,14 @@ func TestNewTripleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 		check("firstIsAverage", false, tema.firstIsAverage)
 		check("primed", false, tema.primed)
 		check("length", length, tema.length)
-		check("length2", tema.length+tema.length, tema.length2)
-		check("length3", tema.length2+tema.length-2, tema.length3)
+		check("length2", tema.length+tema.length-1, tema.length2)
+		check("length3", tema.length+tema.length+tema.length-2, tema.length3)
 		check("smoothingFactor", alpha, tema.smoothingFactor)
-		check("count1", 0, tema.count1)
-		check("count2", 0, tema.count2)
-		check("count3", 0, tema.count3)
-		check("sum1", 0., tema.sum1)
-		check("sum2", 0., tema.sum2)
-		check("sum3", 0., tema.sum3)
-		check("value1", 0., tema.value1)
-		check("value2", 0., tema.value2)
-		check("value3", 0., tema.value3)
+		check("count", 0, tema.count)
+		check("sum", 0., tema.sum)
+		check("ema1", 0., tema.ema1)
+		check("ema2", 0., tema.ema2)
+		check("ema3", 0., tema.ema3)
 		check("barFunc == nil", false, tema.barFunc == nil)
 		check("quoteFunc == nil", false, tema.quoteFunc == nil)
 		check("tradeFunc == nil", false, tema.tradeFunc == nil)
@@ -519,18 +570,14 @@ func TestNewTripleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 		check("firstIsAverage", true, tema.firstIsAverage)
 		check("primed", false, tema.primed)
 		check("length", length, tema.length)
-		check("length2", tema.length+tema.length, tema.length2)
-		check("length3", tema.length2+tema.length-2, tema.length3)
+		check("length2", tema.length+tema.length-1, tema.length2)
+		check("length3", tema.length+tema.length+tema.length-2, tema.length3)
 		check("smoothingFactor", alpha, tema.smoothingFactor)
-		check("count1", 0, tema.count1)
-		check("count2", 0, tema.count2)
-		check("count3", 0, tema.count3)
-		check("sum1", 0., tema.sum1)
-		check("sum2", 0., tema.sum2)
-		check("sum3", 0., tema.sum3)
-		check("value1", 0., tema.value1)
-		check("value2", 0., tema.value2)
-		check("value3", 0., tema.value3)
+		check("count", 0, tema.count)
+		check("sum", 0., tema.sum)
+		check("ema1", 0., tema.ema1)
+		check("ema2", 0., tema.ema2)
+		check("ema3", 0., tema.ema3)
 		check("barFunc == nil", false, tema.barFunc == nil)
 		check("quoteFunc == nil", false, tema.quoteFunc == nil)
 		check("tradeFunc == nil", false, tema.tradeFunc == nil)
@@ -550,18 +597,14 @@ func TestNewTripleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 		check("firstIsAverage", false, tema.firstIsAverage)
 		check("primed", false, tema.primed)
 		check("length", 199999999, tema.length) // 2./0.00000001 - 1.
-		check("length2", tema.length+tema.length, tema.length2)
-		check("length3", tema.length2+tema.length-2, tema.length3)
+		check("length2", tema.length+tema.length-1, tema.length2)
+		check("length3", tema.length+tema.length+tema.length-2, tema.length3)
 		check("smoothingFactor", 0.00000001, tema.smoothingFactor)
-		check("count1", 0, tema.count1)
-		check("count2", 0, tema.count2)
-		check("count3", 0, tema.count3)
-		check("sum1", 0., tema.sum1)
-		check("sum2", 0., tema.sum2)
-		check("sum3", 0., tema.sum3)
-		check("value1", 0., tema.value1)
-		check("value2", 0., tema.value2)
-		check("value3", 0., tema.value3)
+		check("count", 0, tema.count)
+		check("sum", 0., tema.sum)
+		check("ema1", 0., tema.ema1)
+		check("ema2", 0., tema.ema2)
+		check("ema3", 0., tema.ema3)
 		check("barFunc == nil", false, tema.barFunc == nil)
 		check("quoteFunc == nil", false, tema.quoteFunc == nil)
 		check("tradeFunc == nil", false, tema.tradeFunc == nil)
@@ -581,18 +624,14 @@ func TestNewTripleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 		check("firstIsAverage", true, tema.firstIsAverage)
 		check("primed", false, tema.primed)
 		check("length", 199999999, tema.length) // 2./0.00000001 - 1.
-		check("length2", tema.length+tema.length, tema.length2)
-		check("length3", tema.length2+tema.length-2, tema.length3)
+		check("length2", tema.length+tema.length-1, tema.length2)
+		check("length3", tema.length+tema.length+tema.length-2, tema.length3)
 		check("smoothingFactor", 0.00000001, tema.smoothingFactor)
-		check("count1", 0, tema.count1)
-		check("count2", 0, tema.count2)
-		check("count3", 0, tema.count3)
-		check("sum1", 0., tema.sum1)
-		check("sum2", 0., tema.sum2)
-		check("sum3", 0., tema.sum3)
-		check("value1", 0., tema.value1)
-		check("value2", 0., tema.value2)
-		check("value3", 0., tema.value3)
+		check("count", 0, tema.count)
+		check("sum", 0., tema.sum)
+		check("ema1", 0., tema.ema1)
+		check("ema2", 0., tema.ema2)
+		check("ema3", 0., tema.ema3)
 		check("barFunc == nil", false, tema.barFunc == nil)
 		check("quoteFunc == nil", false, tema.quoteFunc == nil)
 		check("tradeFunc == nil", false, tema.tradeFunc == nil)
@@ -612,18 +651,14 @@ func TestNewTripleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 		check("firstIsAverage", true, tema.firstIsAverage)
 		check("primed", false, tema.primed)
 		check("length", 1, tema.length) // 2./1 - 1.
-		check("length2", tema.length+tema.length, tema.length2)
-		check("length3", tema.length2+tema.length-2, tema.length3)
+		check("length2", tema.length+tema.length-1, tema.length2)
+		check("length3", tema.length+tema.length+tema.length-2, tema.length3)
 		check("smoothingFactor", 1., tema.smoothingFactor)
-		check("count1", 0, tema.count1)
-		check("count2", 0, tema.count2)
-		check("count3", 0, tema.count3)
-		check("sum1", 0., tema.sum1)
-		check("sum2", 0., tema.sum2)
-		check("sum3", 0., tema.sum3)
-		check("value1", 0., tema.value1)
-		check("value2", 0., tema.value2)
-		check("value3", 0., tema.value3)
+		check("count", 0, tema.count)
+		check("sum", 0., tema.sum)
+		check("ema1", 0., tema.ema1)
+		check("ema2", 0., tema.ema2)
+		check("ema3", 0., tema.ema3)
 		check("barFunc == nil", false, tema.barFunc == nil)
 		check("quoteFunc == nil", false, tema.quoteFunc == nil)
 		check("tradeFunc == nil", false, tema.tradeFunc == nil)
