@@ -5,18 +5,18 @@ import (
 	"testing"
 )
 
-func TestT3ExponentialMovingAverageOutputString(t *testing.T) {
+func TestT2ExponentialMovingAverageOutputString(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		o    T3ExponentialMovingAverageOutput
+		o    T2ExponentialMovingAverageOutput
 		text string
 	}{
-		{T3ExponentialMovingAverageValue, t3ExponentialMovingAverageValue},
-		{t3ExponentialMovingAverageLast, t3ExponentialMovingAverageUnknown},
-		{T3ExponentialMovingAverageOutput(0), t3ExponentialMovingAverageUnknown},
-		{T3ExponentialMovingAverageOutput(9999), t3ExponentialMovingAverageUnknown},
-		{T3ExponentialMovingAverageOutput(-9999), t3ExponentialMovingAverageUnknown},
+		{T2ExponentialMovingAverageValue, t2ExponentialMovingAverageValue},
+		{t2ExponentialMovingAverageLast, t2ExponentialMovingAverageUnknown},
+		{T2ExponentialMovingAverageOutput(0), t2ExponentialMovingAverageUnknown},
+		{T2ExponentialMovingAverageOutput(9999), t2ExponentialMovingAverageUnknown},
+		{T2ExponentialMovingAverageOutput(-9999), t2ExponentialMovingAverageUnknown},
 	}
 
 	for _, tt := range tests {
@@ -29,18 +29,18 @@ func TestT3ExponentialMovingAverageOutputString(t *testing.T) {
 	}
 }
 
-func TestT3ExponentialMovingAverageOutputIsKnown(t *testing.T) {
+func TestT2ExponentialMovingAverageOutputIsKnown(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		o       T3ExponentialMovingAverageOutput
+		o       T2ExponentialMovingAverageOutput
 		boolean bool
 	}{
-		{T3ExponentialMovingAverageValue, true},
-		{t3ExponentialMovingAverageLast, false},
-		{T3ExponentialMovingAverageOutput(0), false},
-		{T3ExponentialMovingAverageOutput(9999), false},
-		{T3ExponentialMovingAverageOutput(-9999), false},
+		{T2ExponentialMovingAverageValue, true},
+		{t2ExponentialMovingAverageLast, false},
+		{T2ExponentialMovingAverageOutput(0), false},
+		{T2ExponentialMovingAverageOutput(9999), false},
+		{T2ExponentialMovingAverageOutput(-9999), false},
 	}
 
 	for _, tt := range tests {
@@ -53,22 +53,22 @@ func TestT3ExponentialMovingAverageOutputIsKnown(t *testing.T) {
 	}
 }
 
-func TestT3ExponentialMovingAverageOutputMarshalJSON(t *testing.T) {
+func TestT2ExponentialMovingAverageOutputMarshalJSON(t *testing.T) {
 	t.Parallel()
 
 	const dqs = "\""
 
 	var nilstr string
 	tests := []struct {
-		o         T3ExponentialMovingAverageOutput
+		o         T2ExponentialMovingAverageOutput
 		json      string
 		succeeded bool
 	}{
-		{T3ExponentialMovingAverageValue, dqs + t3ExponentialMovingAverageValue + dqs, true},
-		{t3ExponentialMovingAverageLast, nilstr, false},
-		{T3ExponentialMovingAverageOutput(9999), nilstr, false},
-		{T3ExponentialMovingAverageOutput(-9999), nilstr, false},
-		{T3ExponentialMovingAverageOutput(0), nilstr, false},
+		{T2ExponentialMovingAverageValue, dqs + t2ExponentialMovingAverageValue + dqs, true},
+		{t2ExponentialMovingAverageLast, nilstr, false},
+		{T2ExponentialMovingAverageOutput(9999), nilstr, false},
+		{T2ExponentialMovingAverageOutput(-9999), nilstr, false},
+		{T2ExponentialMovingAverageOutput(0), nilstr, false},
 	}
 
 	for _, tt := range tests {
@@ -94,19 +94,19 @@ func TestT3ExponentialMovingAverageOutputMarshalJSON(t *testing.T) {
 	}
 }
 
-func TestT3ExponentialMovingAverageOutputUnmarshalJSON(t *testing.T) {
+func TestT2ExponentialMovingAverageOutputUnmarshalJSON(t *testing.T) {
 	t.Parallel()
 
 	const dqs = "\""
 
-	var zero T3ExponentialMovingAverageOutput
+	var zero T2ExponentialMovingAverageOutput
 	tests := []struct {
-		o         T3ExponentialMovingAverageOutput
+		o         T2ExponentialMovingAverageOutput
 		json      string
 		succeeded bool
 	}{
-		{T3ExponentialMovingAverageValue, dqs + t3ExponentialMovingAverageValue + dqs, true},
-		{zero, dqs + t3ExponentialMovingAverageUnknown + dqs, false},
+		{T2ExponentialMovingAverageValue, dqs + t2ExponentialMovingAverageValue + dqs, true},
+		{zero, dqs + t2ExponentialMovingAverageUnknown + dqs, false},
 		{zero, dqs + "foobar" + dqs, false},
 	}
 
@@ -114,7 +114,7 @@ func TestT3ExponentialMovingAverageOutputUnmarshalJSON(t *testing.T) {
 		exp := tt.o
 		bs := []byte(tt.json)
 
-		var o T3ExponentialMovingAverageOutput
+		var o T2ExponentialMovingAverageOutput
 
 		err := o.UnmarshalJSON(bs)
 		if err != nil && tt.succeeded {

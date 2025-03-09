@@ -1,4 +1,4 @@
-package mulloy //nolint:testpackage, gci, gofmt, gofumpt, goimports
+package mulloy //nolint:testpackage
 
 import (
 	"math"
@@ -178,7 +178,7 @@ func testDoubleExponentialMovingAverageTascExpected() []float64 { //nolint:dupl
 	}
 }
 
-func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint:cyclop, funlen, gocognit
+func TestDoubleExponentialMovingAverageUpdate(t *testing.T) { //nolint:cyclop, funlen, gocognit, gocyclo, maintidx
 	t.Parallel()
 
 	check := func(index int, exp, act float64) {
@@ -459,7 +459,7 @@ func TestDoubleExponentialMovingAverageUpdateEntity(t *testing.T) { //nolint: fu
 	})
 }
 
-func TestDoubleExponentialMovingAverageIsPrimed(t *testing.T) {
+func TestDoubleExponentialMovingAverageIsPrimed(t *testing.T) { //nolint:dupl
 	t.Parallel()
 
 	input := testDoubleExponentialMovingAverageInput()
@@ -524,18 +524,21 @@ func TestDoubleExponentialMovingAverageMetadata(t *testing.T) {
 		}
 	}
 
+	checkInstance := func(act indicator.Metadata, name string) {
+		check("Type", indicator.DoubleExponentialMovingAverage, act.Type)
+		check("len(Outputs)", 1, len(act.Outputs))
+		check("Outputs[0].Kind", int(DoubleExponentialMovingAverageValue), act.Outputs[0].Kind)
+		check("Outputs[0].Type", output.Scalar, act.Outputs[0].Type)
+		check("Outputs[0].Name", name, act.Outputs[0].Name)
+		check("Outputs[0].Description", "Double exponential moving average "+name, act.Outputs[0].Description)
+	}
+
 	t.Run("length = 10, firstIsAverage = true", func(t *testing.T) {
 		t.Parallel()
 
 		dema := testDoubleExponentialMovingAverageCreateLength(10, true)
 		act := dema.Metadata()
-
-		check("Type", indicator.DoubleExponentialMovingAverage, act.Type)
-		check("len(Outputs)", 1, len(act.Outputs))
-		check("Outputs[0].Kind", int(DoubleExponentialMovingAverageValue), act.Outputs[0].Kind)
-		check("Outputs[0].Type", output.Scalar, act.Outputs[0].Type)
-		check("Outputs[0].Name", "dema(10)", act.Outputs[0].Name)
-		check("Outputs[0].Description", "Double exponential moving average dema(10)", act.Outputs[0].Description)
+		checkInstance(act, "dema(10)")
 	})
 
 	t.Run("alpha = 2/11 = 0.18181818..., firstIsAverage = false", func(t *testing.T) {
@@ -546,17 +549,11 @@ func TestDoubleExponentialMovingAverageMetadata(t *testing.T) {
 
 		dema := testDoubleExponentialMovingAverageCreateAlpha(alpha, false)
 		act := dema.Metadata()
-
-		check("Type", indicator.DoubleExponentialMovingAverage, act.Type)
-		check("len(Outputs)", 1, len(act.Outputs))
-		check("Outputs[0].Kind", int(DoubleExponentialMovingAverageValue), act.Outputs[0].Kind)
-		check("Outputs[0].Type", output.Scalar, act.Outputs[0].Type)
-		check("Outputs[0].Name", "dema(10, 0.18181818)", act.Outputs[0].Name)
-		check("Outputs[0].Description", "Double exponential moving average dema(10, 0.18181818)", act.Outputs[0].Description)
+		checkInstance(act, "dema(10, 0.18181818)")
 	})
 }
 
-func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, maintidx
+func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen
 	t.Parallel()
 
 	const (
@@ -581,18 +578,12 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 		}
 	}
 
-	t.Run("length > 1, firstIsAverage = false", func(t *testing.T) { //nolint:dupl
-		t.Parallel()
-
-		params := DoubleExponentialMovingAverageLengthParams{
-			Length: length, FirstIsAverage: false, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
-		}
-
-		dema, err := NewDoubleExponentialMovingAverageLength(&params)
-		check("err == nil", true, err == nil)
-		check("name", "dema(10)", dema.name)
-		check("description", "Double exponential moving average dema(10)", dema.description)
-		check("firstIsAverage", false, dema.firstIsAverage)
+	checkInstance := func(
+		dema *DoubleExponentialMovingAverage, name string, length int, alpha float64, firstIsAverage bool,
+	) {
+		check("name", name, dema.name)
+		check("description", "Double exponential moving average "+name, dema.description)
+		check("firstIsAverage", firstIsAverage, dema.firstIsAverage)
 		check("primed", false, dema.primed)
 		check("length", length, dema.length)
 		check("length2", length+length-1, dema.length2)
@@ -604,9 +595,21 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 		check("barFunc == nil", false, dema.barFunc == nil)
 		check("quoteFunc == nil", false, dema.quoteFunc == nil)
 		check("tradeFunc == nil", false, dema.tradeFunc == nil)
+	}
+
+	t.Run("length > 1, firstIsAverage = false", func(t *testing.T) {
+		t.Parallel()
+
+		params := DoubleExponentialMovingAverageLengthParams{
+			Length: length, FirstIsAverage: false, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
+		}
+
+		dema, err := NewDoubleExponentialMovingAverageLength(&params)
+		check("err == nil", true, err == nil)
+		checkInstance(dema, "dema(10)", length, alpha, false)
 	})
 
-	t.Run("length = 1, firstIsAverage = true", func(t *testing.T) { //nolint:dupl
+	t.Run("length = 1, firstIsAverage = true", func(t *testing.T) {
 		t.Parallel()
 
 		params := DoubleExponentialMovingAverageLengthParams{
@@ -615,20 +618,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 
 		dema, err := NewDoubleExponentialMovingAverageLength(&params)
 		check("err == nil", true, err == nil)
-		check("name", "dema(1)", dema.name)
-		check("description", "Double exponential moving average dema(1)", dema.description)
-		check("firstIsAverage", true, dema.firstIsAverage)
-		check("primed", false, dema.primed)
-		check("length", 1, dema.length)
-		check("length2", dema.length+dema.length-1, dema.length2)
-		check("smoothingFactor", 1., dema.smoothingFactor)
-		check("count", 0, dema.count)
-		check("sum", 0., dema.sum)
-		check("ema1", 0., dema.ema1)
-		check("ema2", 0., dema.ema2)
-		check("barFunc == nil", false, dema.barFunc == nil)
-		check("quoteFunc == nil", false, dema.quoteFunc == nil)
-		check("tradeFunc == nil", false, dema.tradeFunc == nil)
+		checkInstance(dema, "dema(1)", 1, 1, true)
 	})
 
 	t.Run("length = 0", func(t *testing.T) {
@@ -655,7 +645,7 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 		check("err", errlen, err.Error())
 	})
 
-	t.Run("epsilon < α ≤ 1", func(t *testing.T) { //nolint:dupl
+	t.Run("epsilon < α ≤ 1", func(t *testing.T) {
 		t.Parallel()
 
 		params := DoubleExponentialMovingAverageSmoothingFactorParams{
@@ -664,24 +654,16 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 
 		dema, err := NewDoubleExponentialMovingAverageSmoothingFactor(&params)
 		check("err == nil", true, err == nil)
-		check("name", "dema(10, 0.18181818)", dema.name)
-		check("description", "Double exponential moving average dema(10, 0.18181818)", dema.description)
-		check("firstIsAverage", true, dema.firstIsAverage)
-		check("primed", false, dema.primed)
-		check("length", length, dema.length)
-		check("length2", length+length-1, dema.length2)
-		check("smoothingFactor", alpha, dema.smoothingFactor)
-		check("count", 0, dema.count)
-		check("sum", 0., dema.sum)
-		check("ema1", 0., dema.ema1)
-		check("ema2", 0., dema.ema2)
-		check("barFunc == nil", false, dema.barFunc == nil)
-		check("quoteFunc == nil", false, dema.quoteFunc == nil)
-		check("tradeFunc == nil", false, dema.tradeFunc == nil)
+		checkInstance(dema, "dema(10, 0.18181818)", length, alpha, true)
 	})
 
-	t.Run("0 < α < epsilon", func(t *testing.T) { //nolint:dupl
+	t.Run("0 < α < epsilon", func(t *testing.T) {
 		t.Parallel()
+
+		const (
+			alpha  = 0.00000001
+			length = 199999999 // 2./0.00000001 - 1.
+		)
 
 		params := DoubleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 0.000000001, FirstIsAverage: false, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
@@ -689,24 +671,16 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 
 		dema, err := NewDoubleExponentialMovingAverageSmoothingFactor(&params)
 		check("err == nil", true, err == nil)
-		check("name", "dema(199999999, 0.00000001)", dema.name)
-		check("description", "Double exponential moving average dema(199999999, 0.00000001)", dema.description)
-		check("firstIsAverage", false, dema.firstIsAverage)
-		check("primed", false, dema.primed)
-		check("length", 199999999, dema.length) // 2./0.00000001 - 1.
-		check("length2", dema.length+dema.length-1, dema.length2)
-		check("smoothingFactor", 0.00000001, dema.smoothingFactor)
-		check("count", 0, dema.count)
-		check("sum", 0., dema.sum)
-		check("ema1", 0., dema.ema1)
-		check("ema2", 0., dema.ema2)
-		check("barFunc == nil", false, dema.barFunc == nil)
-		check("quoteFunc == nil", false, dema.quoteFunc == nil)
-		check("tradeFunc == nil", false, dema.tradeFunc == nil)
+		checkInstance(dema, "dema(199999999, 0.00000001)", length, alpha, false)
 	})
 
-	t.Run("α = 0", func(t *testing.T) { //nolint:dupl
+	t.Run("α = 0", func(t *testing.T) {
 		t.Parallel()
+
+		const (
+			alpha  = 0.00000001
+			length = 199999999 // 2./0.00000001 - 1.
+		)
 
 		params := DoubleExponentialMovingAverageSmoothingFactorParams{
 			SmoothingFactor: 0, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
@@ -714,45 +688,24 @@ func TestNewDoubleExponentialMovingAverage(t *testing.T) { //nolint: funlen, mai
 
 		dema, err := NewDoubleExponentialMovingAverageSmoothingFactor(&params)
 		check("err == nil", true, err == nil)
-		check("name", "dema(199999999, 0.00000001)", dema.name)
-		check("description", "Double exponential moving average dema(199999999, 0.00000001)", dema.description)
-		check("firstIsAverage", true, dema.firstIsAverage)
-		check("primed", false, dema.primed)
-		check("length", 199999999, dema.length) // 2./0.00000001 - 1.
-		check("length2", dema.length+dema.length-1, dema.length2)
-		check("smoothingFactor", 0.00000001, dema.smoothingFactor)
-		check("count", 0, dema.count)
-		check("sum", 0., dema.sum)
-		check("ema1", 0., dema.ema1)
-		check("ema2", 0., dema.ema2)
-		check("barFunc == nil", false, dema.barFunc == nil)
-		check("quoteFunc == nil", false, dema.quoteFunc == nil)
-		check("tradeFunc == nil", false, dema.tradeFunc == nil)
+		checkInstance(dema, "dema(199999999, 0.00000001)", length, alpha, true)
 	})
 
-	t.Run("α = 1", func(t *testing.T) { //nolint:dupl
+	t.Run("α = 1", func(t *testing.T) {
 		t.Parallel()
 
+		const (
+			alpha  = 1
+			length = 1 // 2./1 - 1.
+		)
+
 		params := DoubleExponentialMovingAverageSmoothingFactorParams{
-			SmoothingFactor: 1, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
+			SmoothingFactor: alpha, FirstIsAverage: true, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
 		}
 
 		dema, err := NewDoubleExponentialMovingAverageSmoothingFactor(&params)
 		check("err == nil", true, err == nil)
-		check("name", "dema(1, 1.00000000)", dema.name)
-		check("description", "Double exponential moving average dema(1, 1.00000000)", dema.description)
-		check("firstIsAverage", true, dema.firstIsAverage)
-		check("primed", false, dema.primed)
-		check("length", 1, dema.length) // 2./1 - 1.
-		check("length2", dema.length+dema.length-1, dema.length2)
-		check("smoothingFactor", 1., dema.smoothingFactor)
-		check("count", 0, dema.count)
-		check("sum", 0., dema.sum)
-		check("ema1", 0., dema.ema1)
-		check("ema2", 0., dema.ema2)
-		check("barFunc == nil", false, dema.barFunc == nil)
-		check("quoteFunc == nil", false, dema.quoteFunc == nil)
-		check("tradeFunc == nil", false, dema.tradeFunc == nil)
+		checkInstance(dema, "dema(1, 1.00000000)", length, alpha, true)
 	})
 
 	t.Run("α < 0", func(t *testing.T) {

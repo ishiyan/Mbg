@@ -163,7 +163,7 @@ func (s *DoubleExponentialMovingAverage) Metadata() indicator.Metadata {
 }
 
 // Update updates the value of the indicator given the next sample.
-func (s *DoubleExponentialMovingAverage) Update(sample float64) float64 { //nolint:cyclop, funlen
+func (s *DoubleExponentialMovingAverage) Update(sample float64) float64 { //nolint:cyclop
 	const two = 2.
 
 	if math.IsNaN(sample) {

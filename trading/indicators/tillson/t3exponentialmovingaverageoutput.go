@@ -1,4 +1,4 @@
-package tillson
+package tillson //nolint:dupl
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 type T3ExponentialMovingAverageOutput int
 
 const (
-	// The scalar value of the the moving average.
+	// The scalar value of the moving average.
 	T3ExponentialMovingAverageValue T3ExponentialMovingAverageOutput = iota + 1
 	t3ExponentialMovingAverageLast
 )

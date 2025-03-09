@@ -2,9 +2,9 @@ package tillson
 
 import "mbg/trading/data" //nolint:depguard
 
-// T3ExponentialMovingAverageLengthParams describes parameters to create an instance of the indicator
+// T2ExponentialMovingAverageLengthParams describes parameters to create an instance of the indicator
 // based on length.
-type T3ExponentialMovingAverageLengthParams struct {
+type T2ExponentialMovingAverageLengthParams struct {
 	// Length is the length (the number of time periods, ℓ) of the moving window to calculate the average.
 	//
 	// The value should be greater than 1.
@@ -12,8 +12,8 @@ type T3ExponentialMovingAverageLengthParams struct {
 
 	// VolumeFactor is the volume factor, v (0 ≤ ν ≤ 1), of the exponential moving average.
 	// The default value is 0.7.
-	// When ν=0, T3 is just an EMA, and when ν=1, T3 is TEMA.
-	// In between, T3 is a cooler TEMA.
+	// When ν=0, T2 is just an EMA, and when ν=1, T3 is DEMA.
+	// In between, T2 is a cooler DEMA.
 	VolumeFactor float64
 
 	// FirstIsAverage indicates whether the very first exponential moving average value is
@@ -31,9 +31,9 @@ type T3ExponentialMovingAverageLengthParams struct {
 	TradeComponent data.TradeComponent
 }
 
-// T3ExponentialMovingAverageLengthParams describes parameters to create an instance of the indicator
+// T2ExponentialMovingAverageLengthParams describes parameters to create an instance of the indicator
 // based on smoothing factor.
-type T3ExponentialMovingAverageSmoothingFactorParams struct {
+type T2ExponentialMovingAverageSmoothingFactorParams struct {
 	// SmoothingFactor is the smoothing factor, α (0 < α < 1), of the exponential moving average.
 	//
 	// The equivalent length ℓ is:
@@ -42,8 +42,8 @@ type T3ExponentialMovingAverageSmoothingFactorParams struct {
 
 	// VolumeFactor is the volume factor, v (0 ≤ ν ≤ 1), of the exponential moving average.
 	// The default value is 0.7.
-	// When ν=0, T3 is just an EMA, and when ν=1, T3 is TEMA.
-	// In between, T3 is a cooler TEMA.
+	// When ν=0, T2 is just an EMA, and when ν=1, T2 is DEMA.
+	// In between, T2 is a cooler DEMA.
 	VolumeFactor float64
 
 	// FirstIsAverage indicates whether the very first exponential moving average value is

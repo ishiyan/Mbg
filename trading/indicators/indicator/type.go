@@ -27,7 +27,10 @@ const (
 	// TripleExponentialMovingAverage identifies the Triple Exponential Moving Average (TEMA) indicator.
 	TripleExponentialMovingAverage
 
-	// T3ExponentialMovingAverage identifies the T3 Exponential Moving Average (T3EMA) indicator.
+	// T2ExponentialMovingAverage identifies the T2 Exponential Moving Average (T2) indicator.
+	T2ExponentialMovingAverage
+
+	// T3ExponentialMovingAverage identifies the T3 Exponential Moving Average (T3) indicator.
 	T3ExponentialMovingAverage
 
 	// KaufmanAdaptiveMovingAverage identifies the Kaufman Adaptive Moving Average (KAMA) indicator.
