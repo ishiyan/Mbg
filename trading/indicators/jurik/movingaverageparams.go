@@ -4,14 +4,21 @@ import "mbg/trading/data" //nolint:depguard
 
 // MovingAverageParams describes parameters to create an instance of the indicator.
 type MovingAverageParams struct {
-	// Length is the length (the number of time periods, ℓ) of the moving window to calculate the average.
+	// Length is the length (the number of time periods, ℓ) determines
+	// the degree of smoothness and it can be any positive value.
 	//
-	// The value should be greater than 1. Typical values range from 5 to 20.
+	// Small values make the moving average respond rapidly to price change
+	// and larger values produce smoother, flatter curves.
+	//
+	// The value should be greater than 1. Typical values range from 5 to 80.
 	//
 	// Irrespective from the value, the indicator needs at 30 first values to be primed.
 	Length int
 
-	// Phase controls the trade-off between lag and overshoot.
+	// Phase affects the amount of lag (delay).
+	// Lower lag tends to produce larger overshoot during price gaps, so you need
+	// to consider the trade-off between lag and overshoot and select a value for
+	// phase that balances your trading system's needs.
 	//
 	// The phase values should be in [-100, 100].
 	//
