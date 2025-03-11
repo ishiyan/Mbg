@@ -1,4 +1,3 @@
-//nolint:dupl
 package jurik
 
 import (
@@ -10,7 +9,7 @@ import (
 type MovingAverageOutput int
 
 const (
-	// The scalar value of the the moving average.
+	// The scalar value of the moving average.
 	MovingAverageValue MovingAverageOutput = iota + 1
 	movingAverageLast
 )

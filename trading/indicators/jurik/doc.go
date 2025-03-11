@@ -1,2 +1,2 @@
-// Package mulloy implements indicators developed by Mark Jurik.
+// Package jurik implements indicators developed by Mark Jurik.
 package jurik

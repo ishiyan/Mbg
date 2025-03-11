@@ -1,6 +1,6 @@
 package jurik
 
-import "mbg/trading/data"
+import "mbg/trading/data" //nolint:depguard
 
 // MovingAverageParams describes parameters to create an instance of the indicator.
 type MovingAverageParams struct {

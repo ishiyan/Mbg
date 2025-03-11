@@ -1,18 +1,16 @@
 //nolint:testpackage
 package jurik
 
-//nolint: gofumpt
 import (
 	"math"
 	"testing"
 	"time"
 
-	"mbg/trading/data"
-	"mbg/trading/indicators/indicator"
-	"mbg/trading/indicators/indicator/output"
+	"mbg/trading/data"                        //nolint:depguard
+	"mbg/trading/indicators/indicator"        //nolint:depguard
+	"mbg/trading/indicators/indicator/output" //nolint:depguard
 )
 
-//nolint:lll
 // Input data is taken from the TA-Lib (http://ta-lib.org/) tests,
 //    test_data.c, TA_SREF_close_daily_ref_0_PRIV[252].
 //
@@ -22,7 +20,7 @@ func testMovingAverageTime() time.Time {
 	return time.Date(2021, time.April, 1, 0, 0, 0, 0, &time.Location{})
 }
 
-func testMovingAverageInput() []float64 { //nolint:dupl
+func testMovingAverageInput() []float64 {
 	return []float64{
 		91.500000, 94.815000, 94.375000, 95.095000, 93.780000, 94.625000, 92.530000, 92.750000, 90.315000, 92.470000,
 		96.125000, 97.250000, 98.500000, 89.875000, 91.000000, 92.815000, 89.155000, 89.345000, 91.625000, 89.875000,
@@ -54,7 +52,8 @@ func testMovingAverageInput() []float64 { //nolint:dupl
 	}
 }
 
-func testMovingAverageLength20PhaseMin100Output() []float64 { //nolint:dupl
+//nolint:lll, dupl
+func testMovingAverageLength20PhaseMin100Output() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -101,7 +100,8 @@ func testMovingAverageLength20PhaseMin100Output() []float64 { //nolint:dupl
 	}
 }
 
-func testMovingAverageLength20PhaseMin30Output() []float64 { //nolint:dupl
+//nolint:lll, dupl
+func testMovingAverageLength20PhaseMin30Output() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -148,7 +148,8 @@ func testMovingAverageLength20PhaseMin30Output() []float64 { //nolint:dupl
 	}
 }
 
-func testMovingAverageLength20Phase0Output() []float64 { //nolint:dupl
+//nolint:lll, dupl
+func testMovingAverageLength20Phase0Output() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -195,7 +196,8 @@ func testMovingAverageLength20Phase0Output() []float64 { //nolint:dupl
 	}
 }
 
-func testMovingAverageLength20Phase30Output() []float64 { //nolint:dupl
+//nolint:lll, dupl
+func testMovingAverageLength20Phase30Output() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -242,7 +244,8 @@ func testMovingAverageLength20Phase30Output() []float64 { //nolint:dupl
 	}
 }
 
-func testMovingAverageLength20Phase100Output() []float64 { //nolint:dupl
+//nolint:lll, dupl
+func testMovingAverageLength20Phase100Output() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -289,7 +292,8 @@ func testMovingAverageLength20Phase100Output() []float64 { //nolint:dupl
 	}
 }
 
-func testMovingAverageLength2Phase1Output() []float64 { //nolint:dupl
+//nolint:lll, dupl
+func testMovingAverageLength2Phase1Output() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -336,7 +340,8 @@ func testMovingAverageLength2Phase1Output() []float64 { //nolint:dupl
 	}
 }
 
-func testMovingAverageLength5Phase1Output() []float64 { //nolint:dupl
+//nolint:lll, dupl
+func testMovingAverageLength5Phase1Output() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -383,7 +388,8 @@ func testMovingAverageLength5Phase1Output() []float64 { //nolint:dupl
 	}
 }
 
-func testMovingAverageLength10Phase1Output() []float64 { //nolint:dupl
+//nolint:lll, dupl
+func testMovingAverageLength10Phase1Output() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -430,7 +436,8 @@ func testMovingAverageLength10Phase1Output() []float64 { //nolint:dupl
 	}
 }
 
-func testMovingAverageLength25Phase1Output() []float64 { //nolint:dupl
+//nolint:lll, dupl
+func testMovingAverageLength25Phase1Output() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -477,7 +484,8 @@ func testMovingAverageLength25Phase1Output() []float64 { //nolint:dupl
 	}
 }
 
-func testMovingAverageLength50Phase1Output() []float64 { //nolint:dupl
+//nolint:lll, dupl
+func testMovingAverageLength50Phase1Output() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -524,7 +532,8 @@ func testMovingAverageLength50Phase1Output() []float64 { //nolint:dupl
 	}
 }
 
-func testMovingAverageLength75Phase1Output() []float64 { //nolint:dupl
+//nolint:lll, dupl
+func testMovingAverageLength75Phase1Output() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -571,7 +580,8 @@ func testMovingAverageLength75Phase1Output() []float64 { //nolint:dupl
 	}
 }
 
-func testMovingAverageLength100Phase1Output() []float64 { //nolint:dupl
+//nolint:lll, dupl
+func testMovingAverageLength100Phase1Output() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -618,7 +628,8 @@ func testMovingAverageLength100Phase1Output() []float64 { //nolint:dupl
 	}
 }
 
-func TestMovingAverageUpdate(t *testing.T) { //nolint: funlen
+//nolint:funlen
+func TestMovingAverageUpdate(t *testing.T) {
 	t.Parallel()
 
 	check := func(index int, exp, act float64) {
@@ -637,244 +648,120 @@ func TestMovingAverageUpdate(t *testing.T) { //nolint: funlen
 		}
 	}
 
+	run := func(jma *MovingAverage, input []float64, output []float64) {
+		t.Helper()
+
+		const lenPrimed = 30
+
+		for i := 0; i < len(input); i++ {
+			act := jma.Update(input[i])
+
+			if i < lenPrimed {
+				checkNaN(i, act)
+			} else {
+				check(i, output[i], act)
+			}
+		}
+
+		checkNaN(0, jma.Update(math.NaN()))
+	}
+
 	input := testMovingAverageInput()
 
 	t.Run("length = 20, phase = -100", func(t *testing.T) {
-		output := testMovingAverageLength20PhaseMin100Output()
-
 		t.Parallel()
+
 		jma := testMovingAverageCreate(20, -100)
-
-		for i := 0; i < len(input); i++ {
-			act := jma.Update(input[i])
-
-			if i < 30 {
-				checkNaN(i, act)
-			} else {
-				check(i, output[i], act)
-			}
-		}
-
-		checkNaN(0, jma.Update(math.NaN()))
+		run(jma, input, testMovingAverageLength20PhaseMin100Output())
 	})
 
 	t.Run("length = 20, phase = -30", func(t *testing.T) {
-		output := testMovingAverageLength20PhaseMin30Output()
-
 		t.Parallel()
+
 		jma := testMovingAverageCreate(20, -30)
-
-		for i := 0; i < len(input); i++ {
-			act := jma.Update(input[i])
-
-			if i < 30 {
-				checkNaN(i, act)
-			} else {
-				check(i, output[i], act)
-			}
-		}
-
-		checkNaN(0, jma.Update(math.NaN()))
+		run(jma, input, testMovingAverageLength20PhaseMin30Output())
 	})
 
 	t.Run("length = 20, phase = 0", func(t *testing.T) {
-		output := testMovingAverageLength20Phase0Output()
-
 		t.Parallel()
+
 		jma := testMovingAverageCreate(20, 0)
-
-		for i := 0; i < len(input); i++ {
-			act := jma.Update(input[i])
-
-			if i < 30 {
-				checkNaN(i, act)
-			} else {
-				check(i, output[i], act)
-			}
-		}
-
-		checkNaN(0, jma.Update(math.NaN()))
+		run(jma, input, testMovingAverageLength20Phase0Output())
 	})
 
 	t.Run("length = 20, phase = 30", func(t *testing.T) {
-		output := testMovingAverageLength20Phase30Output()
-
 		t.Parallel()
+
 		jma := testMovingAverageCreate(20, 30)
-
-		for i := 0; i < len(input); i++ {
-			act := jma.Update(input[i])
-
-			if i < 30 {
-				checkNaN(i, act)
-			} else {
-				check(i, output[i], act)
-			}
-		}
-
-		checkNaN(0, jma.Update(math.NaN()))
+		run(jma, input, testMovingAverageLength20Phase30Output())
 	})
 
 	t.Run("length = 20, phase = 100", func(t *testing.T) {
-		output := testMovingAverageLength20Phase100Output()
-
 		t.Parallel()
+
 		jma := testMovingAverageCreate(20, 100)
-
-		for i := 0; i < len(input); i++ {
-			act := jma.Update(input[i])
-
-			if i < 30 {
-				checkNaN(i, act)
-			} else {
-				check(i, output[i], act)
-			}
-		}
-
-		checkNaN(0, jma.Update(math.NaN()))
+		run(jma, input, testMovingAverageLength20Phase100Output())
 	})
 
 	t.Run("length = 2, phase = 1", func(t *testing.T) {
-		output := testMovingAverageLength2Phase1Output()
-
 		t.Parallel()
+
 		jma := testMovingAverageCreate(2, 1)
-
-		for i := 0; i < len(input); i++ {
-			act := jma.Update(input[i])
-
-			if i < 30 {
-				checkNaN(i, act)
-			} else {
-				check(i, output[i], act)
-			}
-		}
-
-		checkNaN(0, jma.Update(math.NaN()))
+		run(jma, input, testMovingAverageLength2Phase1Output())
 	})
 
 	t.Run("length = 5, phase = 1", func(t *testing.T) {
-		output := testMovingAverageLength5Phase1Output()
-
 		t.Parallel()
+
 		jma := testMovingAverageCreate(5, 1)
-
-		for i := 0; i < len(input); i++ {
-			act := jma.Update(input[i])
-
-			if i < 30 {
-				checkNaN(i, act)
-			} else {
-				check(i, output[i], act)
-			}
-		}
-
-		checkNaN(0, jma.Update(math.NaN()))
+		run(jma, input, testMovingAverageLength5Phase1Output())
 	})
 
 	t.Run("length = 10, phase = 1", func(t *testing.T) {
-		output := testMovingAverageLength10Phase1Output()
-
 		t.Parallel()
+
 		jma := testMovingAverageCreate(10, 1)
-
-		for i := 0; i < len(input); i++ {
-			act := jma.Update(input[i])
-
-			if i < 30 {
-				checkNaN(i, act)
-			} else {
-				check(i, output[i], act)
-			}
-		}
-
-		checkNaN(0, jma.Update(math.NaN()))
+		run(jma, input, testMovingAverageLength10Phase1Output())
 	})
 
 	t.Run("length = 25, phase = 1", func(t *testing.T) {
-		output := testMovingAverageLength25Phase1Output()
-
 		t.Parallel()
+
 		jma := testMovingAverageCreate(25, 1)
-
-		for i := 0; i < len(input); i++ {
-			act := jma.Update(input[i])
-
-			if i < 30 {
-				checkNaN(i, act)
-			} else {
-				check(i, output[i], act)
-			}
-		}
-
-		checkNaN(0, jma.Update(math.NaN()))
+		run(jma, input, testMovingAverageLength25Phase1Output())
 	})
 
 	t.Run("length = 50, phase = 1", func(t *testing.T) {
-		output := testMovingAverageLength50Phase1Output()
-
 		t.Parallel()
+
 		jma := testMovingAverageCreate(50, 1)
-
-		for i := 0; i < len(input); i++ {
-			act := jma.Update(input[i])
-
-			if i < 30 {
-				checkNaN(i, act)
-			} else {
-				check(i, output[i], act)
-			}
-		}
-
-		checkNaN(0, jma.Update(math.NaN()))
+		run(jma, input, testMovingAverageLength50Phase1Output())
 	})
 
 	t.Run("length = 75, phase = 1", func(t *testing.T) {
-		output := testMovingAverageLength75Phase1Output()
-
 		t.Parallel()
+
 		jma := testMovingAverageCreate(75, 1)
-
-		for i := 0; i < len(input); i++ {
-			act := jma.Update(input[i])
-
-			if i < 30 {
-				checkNaN(i, act)
-			} else {
-				check(i, output[i], act)
-			}
-		}
-
-		checkNaN(0, jma.Update(math.NaN()))
+		run(jma, input, testMovingAverageLength75Phase1Output())
 	})
 
 	t.Run("length = 100, phase = 1", func(t *testing.T) {
-		output := testMovingAverageLength100Phase1Output()
-
 		t.Parallel()
+
 		jma := testMovingAverageCreate(100, 1)
-
-		for i := 0; i < len(input); i++ {
-			act := jma.Update(input[i])
-
-			if i < 30 {
-				checkNaN(i, act)
-			} else {
-				check(i, output[i], act)
-			}
-		}
-
-		checkNaN(0, jma.Update(math.NaN()))
+		run(jma, input, testMovingAverageLength100Phase1Output())
 	})
 }
 
-func TestMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen
+//nolint:funlen
+func TestMovingAverageUpdateEntity(t *testing.T) {
 	t.Parallel()
 
 	const (
-		l     = 10
-		phase = 11
-		inp   = 3.
+		l         = 10
+		phase     = 11
+		inp       = 3
+		lenPrimed = 30
 	)
 
 	time := testMovingAverageTime()
@@ -895,51 +782,51 @@ func TestMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen
 		}
 	}
 
+	update := func(jma *MovingAverage) {
+		t.Helper()
+
+		for range lenPrimed {
+			jma.Update(inp)
+		}
+	}
+
 	t.Run("update scalar", func(t *testing.T) {
 		t.Parallel()
 
-		s := data.Scalar{Time: time, Value: inp}
 		jma := testMovingAverageCreate(l, phase)
-		for k := 0; k < 30; k++ {
-			jma.Update(inp)
-		}
+		update(jma)
 
+		s := data.Scalar{Time: time, Value: inp}
 		check(jma.UpdateScalar(&s))
 	})
 
 	t.Run("update bar", func(t *testing.T) {
 		t.Parallel()
 
-		b := data.Bar{Time: time, Close: inp}
 		jma := testMovingAverageCreate(l, phase)
-		for k := 0; k < 30; k++ {
-			jma.Update(inp)
-		}
+		update(jma)
 
+		b := data.Bar{Time: time, Close: inp}
 		check(jma.UpdateBar(&b))
 	})
 
 	t.Run("update quote", func(t *testing.T) {
 		t.Parallel()
 
-		q := data.Quote{Time: time, Bid: inp}
 		jma := testMovingAverageCreate(l, phase)
-		for k := 0; k < 30; k++ {
-			jma.Update(inp)
-		}
+		update(jma)
 
+		q := data.Quote{Time: time, Bid: inp}
 		check(jma.UpdateQuote(&q))
 	})
 
 	t.Run("update trade", func(t *testing.T) {
 		t.Parallel()
 
-		r := data.Trade{Time: time, Price: inp}
 		jma := testMovingAverageCreate(l, phase)
-		for k := 0; k < 30; k++ {
-			jma.Update(inp)
-		}
+		update(jma)
 
+		r := data.Trade{Time: time, Price: inp}
 		check(jma.UpdateTrade(&r))
 	})
 }
@@ -958,16 +845,18 @@ func TestMovingAverageIsPrimed(t *testing.T) {
 
 	t.Run("length = 10, phase = 30", func(t *testing.T) {
 		t.Parallel()
-		jma := testMovingAverageCreate(10, 30)
 
+		const lenPrimed = 30
+
+		jma := testMovingAverageCreate(10, 30)
 		check(0, false, jma.IsPrimed())
 
-		for i := 0; i < 30; i++ {
+		for i := 0; i < lenPrimed; i++ {
 			jma.Update(input[i])
 			check(i+1, false, jma.IsPrimed())
 		}
 
-		for i := 30; i < len(input); i++ {
+		for i := lenPrimed; i < len(input); i++ {
 			jma.Update(input[i])
 			check(i+1, true, jma.IsPrimed())
 		}
@@ -987,6 +876,7 @@ func TestMovingAverageMetadata(t *testing.T) {
 
 	t.Run("length = 10, fphase = 30", func(t *testing.T) {
 		t.Parallel()
+
 		jma := testMovingAverageCreate(10, 30)
 		act := jma.Metadata()
 
@@ -1033,176 +923,132 @@ func TestNewMovingAverage(t *testing.T) { //nolint: funlen
 		}
 	}
 
-	t.Run("length > 1, phase = 30", func(t *testing.T) { //nolint:dupl
-		t.Parallel()
-		params := MovingAverageParams{
-			Length: length10, Phase: phase30, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
-		}
+	checkInstance := func(params *MovingAverageParams, name string) {
+		t.Helper()
 
-		jma, err := NewMovingAverage(&params)
+		jma, err := NewMovingAverage(params)
 		check("err == nil", true, err == nil)
-		check("name", "jma(10, 30)", jma.name)
-		check("description", "Jurik moving average jma(10, 30)", jma.description)
+		check("name", name, jma.name)
+		check("description", "Jurik moving average "+name, jma.description)
 		check("primed", false, jma.primed)
 		check("barFunc == nil", false, jma.barFunc == nil)
 		check("quoteFunc == nil", false, jma.quoteFunc == nil)
 		check("tradeFunc == nil", false, jma.tradeFunc == nil)
+	}
+
+	checkError := func(params *MovingAverageParams, e string) {
+		t.Helper()
+
+		jma, err := NewMovingAverage(params)
+		check("jma == nil", true, jma == nil)
+		check("err", e, err.Error())
+	}
+
+	t.Run("length > 1, phase = 30", func(t *testing.T) {
+		t.Parallel()
+
+		checkInstance(&MovingAverageParams{
+			Length: length10, Phase: phase30, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
+		}, "jma(10, 30)")
 	})
 
-	t.Run("length = 1, phase = 30", func(t *testing.T) { //nolint:dupl
+	t.Run("length = 1, phase = 30", func(t *testing.T) {
 		t.Parallel()
-		params := MovingAverageParams{
-			Length: length1, Phase: phase30, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
-		}
 
-		jma, err := NewMovingAverage(&params)
-		check("err == nil", true, err == nil)
-		check("name", "jma(1, 30)", jma.name)
-		check("description", "Jurik moving average jma(1, 30)", jma.description)
-		check("primed", false, jma.primed)
-		check("barFunc == nil", false, jma.barFunc == nil)
-		check("quoteFunc == nil", false, jma.quoteFunc == nil)
-		check("tradeFunc == nil", false, jma.tradeFunc == nil)
+		checkInstance(&MovingAverageParams{
+			Length: length1, Phase: phase30, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
+		}, "jma(1, 30)")
 	})
 
 	t.Run("length = 0", func(t *testing.T) {
 		t.Parallel()
-		params := MovingAverageParams{
-			Length: length0, Phase: phase30, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
-		}
 
-		jma, err := NewMovingAverage(&params)
-		check("jma == nil", true, jma == nil)
-		check("err", errlen, err.Error())
+		checkError(&MovingAverageParams{
+			Length: length0, Phase: phase30, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
+		}, errlen)
 	})
 
 	t.Run("length < 0", func(t *testing.T) {
 		t.Parallel()
-		params := MovingAverageParams{
-			Length: lengthMin1, Phase: phase30, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
-		}
 
-		jma, err := NewMovingAverage(&params)
-		check("jma == nil", true, jma == nil)
-		check("err", errlen, err.Error())
+		checkError(&MovingAverageParams{
+			Length: lengthMin1, Phase: phase30, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
+		}, errlen)
 	})
 
 	t.Run("length = 10, phase < -100", func(t *testing.T) {
 		t.Parallel()
-		params := MovingAverageParams{
-			Length: length10, Phase: phaseMin101, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
-		}
 
-		jma, err := NewMovingAverage(&params)
-		check("jma == nil", true, jma == nil)
-		check("err", errpha, err.Error())
+		checkError(&MovingAverageParams{
+			Length: length10, Phase: phaseMin101, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
+		}, errpha)
 	})
 
 	t.Run("length = 10, phase > 100", func(t *testing.T) {
 		t.Parallel()
-		params := MovingAverageParams{
+
+		checkError(&MovingAverageParams{
 			Length: length10, Phase: phase101, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
-		}
-
-		jma, err := NewMovingAverage(&params)
-		check("jma == nil", true, jma == nil)
-		check("err", errpha, err.Error())
+		}, errpha)
 	})
 
-	t.Run("length = 10, phase = -100", func(t *testing.T) { //nolint:dupl
+	t.Run("length = 10, phase = -100", func(t *testing.T) {
 		t.Parallel()
-		params := MovingAverageParams{
+
+		checkInstance(&MovingAverageParams{
 			Length: length10, Phase: phaseMin100, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
-		}
-
-		jma, err := NewMovingAverage(&params)
-		check("err == nil", true, err == nil)
-		check("name", "jma(10, -100)", jma.name)
-		check("description", "Jurik moving average jma(10, -100)", jma.description)
-		check("barFunc == nil", false, jma.barFunc == nil)
-		check("quoteFunc == nil", false, jma.quoteFunc == nil)
-		check("tradeFunc == nil", false, jma.tradeFunc == nil)
+		}, "jma(10, -100)")
 	})
 
-	t.Run("length = 10, phase = -30", func(t *testing.T) { //nolint:dupl
+	t.Run("length = 10, phase = -30", func(t *testing.T) {
 		t.Parallel()
-		params := MovingAverageParams{
+
+		checkInstance(&MovingAverageParams{
 			Length: length10, Phase: phaseMin30, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
-		}
-
-		jma, err := NewMovingAverage(&params)
-		check("err == nil", true, err == nil)
-		check("name", "jma(10, -30)", jma.name)
-		check("description", "Jurik moving average jma(10, -30)", jma.description)
-		check("barFunc == nil", false, jma.barFunc == nil)
-		check("quoteFunc == nil", false, jma.quoteFunc == nil)
-		check("tradeFunc == nil", false, jma.tradeFunc == nil)
+		}, "jma(10, -30)")
 	})
 
-	t.Run("length = 10, phase = 0", func(t *testing.T) { //nolint:dupl
+	t.Run("length = 10, phase = 0", func(t *testing.T) {
 		t.Parallel()
-		params := MovingAverageParams{
+
+		checkInstance(&MovingAverageParams{
 			Length: length10, Phase: phase0, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
-		}
-
-		jma, err := NewMovingAverage(&params)
-		check("err == nil", true, err == nil)
-		check("name", "jma(10, 0)", jma.name)
-		check("description", "Jurik moving average jma(10, 0)", jma.description)
-		check("barFunc == nil", false, jma.barFunc == nil)
-		check("quoteFunc == nil", false, jma.quoteFunc == nil)
-		check("tradeFunc == nil", false, jma.tradeFunc == nil)
+		}, "jma(10, 0)")
 	})
 
-	t.Run("length = 10, phase = 100", func(t *testing.T) { //nolint:dupl
+	t.Run("length = 10, phase = 100", func(t *testing.T) {
 		t.Parallel()
-		params := MovingAverageParams{
-			Length: length10, Phase: phase100, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
-		}
 
-		jma, err := NewMovingAverage(&params)
-		check("err == nil", true, err == nil)
-		check("name", "jma(10, 100)", jma.name)
-		check("description", "Jurik moving average jma(10, 100)", jma.description)
-		check("barFunc == nil", false, jma.barFunc == nil)
-		check("quoteFunc == nil", false, jma.quoteFunc == nil)
-		check("tradeFunc == nil", false, jma.tradeFunc == nil)
+		checkInstance(&MovingAverageParams{
+			Length: length10, Phase: phase100, BarComponent: bc, QuoteComponent: qc, TradeComponent: tc,
+		}, "jma(10, 100)")
 	})
 
 	t.Run("invalid bar component", func(t *testing.T) {
 		t.Parallel()
-		params := MovingAverageParams{
+
+		checkError(&MovingAverageParams{
 			Length: length10, Phase: phase30,
 			BarComponent: data.BarComponent(9999), QuoteComponent: qc, TradeComponent: tc,
-		}
-
-		jma, err := NewMovingAverage(&params)
-		check("jma == nil", true, jma == nil)
-		check("err", errbc, err.Error())
+		}, errbc)
 	})
 
 	t.Run("invalid quote component", func(t *testing.T) {
 		t.Parallel()
-		params := MovingAverageParams{
+
+		checkError(&MovingAverageParams{
 			Length: length10, Phase: phase30,
 			BarComponent: bc, QuoteComponent: data.QuoteComponent(9999), TradeComponent: tc,
-		}
-
-		jma, err := NewMovingAverage(&params)
-		check("jma == nil", true, jma == nil)
-		check("err", errqc, err.Error())
+		}, errqc)
 	})
 
 	t.Run("invalid trade component", func(t *testing.T) {
 		t.Parallel()
-		params := MovingAverageParams{
+
+		checkError(&MovingAverageParams{
 			Length: length10, Phase: phase30,
 			BarComponent: bc, QuoteComponent: qc, TradeComponent: data.TradeComponent(9999),
-		}
-
-		jma, err := NewMovingAverage(&params)
-		check("jma == nil", true, jma == nil)
-		check("err", errtc, err.Error())
+		}, errtc)
 	})
 }
 

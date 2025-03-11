@@ -1,14 +1,13 @@
 package jurik
 
-//nolint: gofumpt
 import (
 	"fmt"
 	"math"
 	"sync"
 
-	"mbg/trading/data"
-	"mbg/trading/indicators/indicator"
-	"mbg/trading/indicators/indicator/output"
+	"mbg/trading/data"                        //nolint:depguard
+	"mbg/trading/indicators/indicator"        //nolint:depguard
+	"mbg/trading/indicators/indicator/output" //nolint:depguard
 )
 
 // MovingAverage computes the Jurik moving average (JMA), see http://jurikres.com/.
@@ -67,13 +66,17 @@ func newMovingAverage(length, phase int,
 	bc data.BarComponent, qc data.QuoteComponent, tc data.TradeComponent,
 ) (*MovingAverage, error) {
 	const (
-		invalid = "invalid jurik moving average parameters"
-		fmts    = "%s: %s"
-		fmtw    = "%s: %w"
-		fmtn    = "jma(%d, %d)"
-		minlen  = 1
-		two     = 2.
-		epsilon = 0.00000001
+		invalid      = "invalid jurik moving average parameters"
+		fmts         = "%s: %s"
+		fmtw         = "%s: %w"
+		fmtn         = "jma(%d, %d)"
+		minlen       = 1
+		two          = 2
+		hundred      = 100
+		onePointFive = 1.5
+		pointFive    = 0.5
+		pointNine    = 0.9
+		epsilon      = 1e-10 // 0.00000001
 	)
 
 	var (
@@ -88,7 +91,7 @@ func newMovingAverage(length, phase int,
 		return nil, fmt.Errorf(fmts, invalid, "length should be positive")
 	}
 
-	if phase < -100 || phase > 100 {
+	if phase < -hundred || phase > hundred {
 		return nil, fmt.Errorf(fmts, invalid, "phase should be in range [-100, 100]")
 	}
 
@@ -107,16 +110,20 @@ func newMovingAverage(length, phase int,
 	name = fmt.Sprintf(fmtn, length, phase)
 	desc := "Jurik moving average " + name
 
-	const c128 = 128
-	const c28 = 63
-	const c30 = 64
-	const cInit = 1000000.0
+	const (
+		c128  = 128
+		c11   = 11
+		c62   = 62
+		c28   = 63
+		c30   = 64
+		cInit = 1000000.0
+	)
 
 	// These slices will be automatically filled with zeroes.
 	list := make([]float64, c128)
 	ring := make([]float64, c128)
-	ring2 := make([]float64, 11)
-	buffer := make([]float64, 62)
+	ring2 := make([]float64, c11)
+	buffer := make([]float64, c62)
 
 	for i := 0; i <= c28; i++ {
 		list[i] = -cInit
@@ -126,37 +133,24 @@ func newMovingAverage(length, phase int,
 		list[i] = cInit
 	}
 
-	f80 := 1.0e-10
+	f80 := epsilon
 	if length > 1 {
-		f80 = (float64(length) - 1) / 2
+		f80 = (float64(length) - 1) / two
 	}
 
-	f10 := float64(phase)/100 + 1.5
-
-	/* if phase < -100 {
-		f10 = 0.5
-	} else if phase > 100 {
-		f10 = 2.5
-	} */
+	f10 := float64(phase)/hundred + onePointFive
 
 	v1 := math.Log(math.Sqrt(f80))
 	v2 := v1
-
-	v3 := v2/math.Log(2.0) + 2
-	if v3 < 0 {
-		v3 = 0
-	}
+	v3 := max(v2/math.Log(two)+two, 0)
 
 	f98 := v3
-	f88 := f98 - 2
-	if f88 < 0.5 {
-		f88 = 0.5
-	}
+	f88 := max(f98-two, pointFive)
 
 	f78 := math.Sqrt(f80) * f98
 	f90 := f78 / (f78 + 1)
-	f80 *= 0.9
-	f50 := f80 / (f80 + 2)
+	f80 *= pointNine
+	f50 := f80 / (f80 + two)
 
 	return &MovingAverage{
 		name:        name,
@@ -210,7 +204,7 @@ func (s *MovingAverage) Metadata() indicator.Metadata {
 // Update updates the value of the Jurik moving average given the next sample.
 //
 // The indicator is not primed during the first 30 updates.
-func (s *MovingAverage) Update(sample float64) float64 {
+func (s *MovingAverage) Update(sample float64) float64 { //nolint:funlen, cyclop, gocognit, gocyclo, maintidx
 	if math.IsNaN(sample) {
 		return sample
 	}
@@ -218,17 +212,21 @@ func (s *MovingAverage) Update(sample float64) float64 {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	const c2 = 2
-	const c10 = 10
-	const c29 = 29
-	const c30 = 30
-	const c31 = 31
-	const c32 = 32
-	const c61 = 61
-	const c64 = 64
-	const c96 = 96
-	const c127 = 127
-	const c128 = 128
+	const (
+		c2      = 2
+		c10     = 10
+		c29     = 29
+		c30     = 30
+		c31     = 31
+		c32     = 32
+		c61     = 61
+		c64     = 64
+		c96     = 96
+		c127    = 127
+		c128    = 128
+		two     = 2
+		epsilon = 1e-10
+	)
 
 	if s.fF0 < c61 {
 		s.fF0++
@@ -240,11 +238,12 @@ func (s *MovingAverage) Update(sample float64) float64 {
 	}
 
 	s.primed = true
-	if s.f0 == 0 {
+	if s.f0 == 0 { //nolint:nestif
 		s.fD8 = 0
 	} else {
 		s.f0 = 0
 		s.v5 = 0
+
 		for i := 1; i <= c29; i++ {
 			if s.buffer[i+1] != s.buffer[i] {
 				s.v5 = 1
@@ -274,14 +273,11 @@ func (s *MovingAverage) Update(sample float64) float64 {
 		f48 := f8 - s.f38
 		a28 := math.Abs(f28)
 		a48 := math.Abs(f48)
-		if a28 > a48 {
-			s.v2 = a28
-		} else {
-			s.v2 = a48
-		}
+		s.v2 = max(a28, a48)
 
 		fA0 := s.v2
-		v := fA0 + 1.0e-10
+		v := fA0 + epsilon
+
 		if s.s48 <= 1 {
 			s.s48 = c127
 		} else {
@@ -301,17 +297,19 @@ func (s *MovingAverage) Update(sample float64) float64 {
 		s.s8 += v - s.ring2[s.s50]
 		s.ring2[s.s50] = v
 		s20 := s.s8 / float64(s.s70)
+
 		if s.s70 > c10 {
 			s20 = s.s8 / c10
 		}
 
 		var s58, s68 int
 
-		if s.s70 > c127 {
+		if s.s70 > c127 { //nolint:nestif
 			s10 := s.ring[s.s48]
 			s.ring[s.s48] = s20
 			s68 = c64
 			s58 = s68
+
 			for s68 > 1 {
 				if s.list[s58] < s10 {
 					s68 /= c2
@@ -333,21 +331,13 @@ func (s *MovingAverage) Update(sample float64) float64 {
 				s58 = s.s28
 			}
 
-			if s.s28 > c96 {
-				s.s38 = c96
-			} else {
-				s.s38 = s.s28
-			}
-
-			if s.s30 < c32 {
-				s.s40 = c32
-			} else {
-				s.s40 = s.s30
-			}
+			s.s38 = min(s.s28, c96)
+			s.s40 = max(s.s30, c32)
 		}
 
 		s68 = c64
 		s60 := s68
+
 		for s68 > 1 {
 			if s.list[s60] >= s20 {
 				if s.list[s60-1] <= s20 {
@@ -366,7 +356,7 @@ func (s *MovingAverage) Update(sample float64) float64 {
 			}
 		}
 
-		if s.s70 > c127 {
+		if s.s70 > c127 { //nolint:nestif
 			if s58 >= s60 {
 				if s.s38+1 > s60 && s.s40-1 < s60 {
 					s.s18 += s20
@@ -424,13 +414,14 @@ func (s *MovingAverage) Update(sample float64) float64 {
 		}
 
 		f60 := s.s18 / float64(s.s38-s.s40+1)
+
 		if s.fF8+1 > c31 {
 			s.fF8 = c31
 		} else {
 			s.fF8++
 		}
 
-		if s.fF8 <= c30 {
+		if s.fF8 <= c30 { //nolint:nestif
 			if f28 > 0 {
 				s.f18 = f8
 			} else {
@@ -450,33 +441,28 @@ func (s *MovingAverage) Update(sample float64) float64 {
 
 			v4 := 1
 			s.fC0 = sample
+
 			if math.Ceil(s.f78) >= 1 {
 				v4 = int(math.Ceil(s.f78))
 			}
 
 			v2 := 1
 			fE8 := v4
+
 			if math.Floor(s.f78) >= 1 {
 				v2 = int(math.Floor(s.f78))
 			}
 
 			f68 := 1.0
 			fE0 := v2
+
 			if fE8 != fE0 {
 				v4 = fE8 - fE0
 				f68 = (s.f78 - float64(fE0)) / float64(v4)
 			}
 
-			v5 := c29
-			if fE0 <= c29 {
-				v5 = fE0
-			}
-
-			v6 := c29
-			if fE8 <= c29 {
-				v6 = fE8
-			}
-
+			v5 := min(fE0, c29)
+			v6 := min(fE8, c29)
 			s.fA8 = (sample-s.buffer[s.fF0-v5])*(1-f68)/float64(fE0) +
 				(sample-s.buffer[s.fF0-v6])*f68/float64(fE8)
 		} else {
@@ -501,6 +487,7 @@ func (s *MovingAverage) Update(sample float64) float64 {
 
 			s.f58 = s.v2
 			f70 := math.Pow(s.f90, math.Sqrt(s.f58))
+
 			if f28 > 0 {
 				s.f18 = f8
 			} else {
@@ -520,7 +507,7 @@ func (s *MovingAverage) Update(sample float64) float64 {
 		s.fC0 = (1-f30)*sample + f30*s.fC0
 		s.fC8 = (sample-s.fC0)*(1-s.f50) + s.f50*s.fC8
 		fD0 := s.f10*s.fC8 + s.fC0
-		f20 := f30 * -2
+		f20 := f30 * -two
 		f40 := f30 * f30
 		fB0 := f20 + f40 + 1
 		s.fA8 = (fD0-s.fB8)*fB0 + f40*s.fA8
