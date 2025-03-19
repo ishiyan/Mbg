@@ -34,6 +34,7 @@ type KaufmanAdaptiveMovingAverageLengthParams struct {
 	// EfficiencyRatioLength is the number of last samples used to calculate the efficiency ratio.
 	//
 	// The value should be greater than 1.
+	// The default value is 10.
 	EfficiencyRatioLength int
 
 	// FastestLength is the fastest boundary length, ℓf.
@@ -67,16 +68,27 @@ type KaufmanAdaptiveMovingAverageLengthParams struct {
 // KaufmanAdaptiveMovingAverageLengthParams describes parameters to create an instance of the indicator
 // based on smoothing factor.
 type KaufmanAdaptiveMovingAverageSmoothingFactorParams struct {
-	// SmoothingFactor is the smoothing factor, α in (0,1), of the exponential moving average.
+	// EfficiencyRatioLength is the number of last samples used to calculate the efficiency ratio.
 	//
-	// The equivalent length ℓ is:
-	//    ℓ = 2/α - 1, 0<α≤1, 1≤ℓ.
-	SmoothingFactor float64
+	// The value should be greater than 1.
+	// The default value is 10.
+	EfficiencyRatioLength int
 
-	// FirstIsAverage indicates whether the very first exponential moving average value is
-	// a simple average of the first 'period' (the most widely documented approach) or
-	// the first input value (used in Metastock).
-	FirstIsAverage bool
+	// FastestSmoothingFactor is the fastest boundary smoothing factor, αf in (0,1).
+	// The equivalent length ℓf is
+	//
+	//   ℓf = 2/αf - 1, 0 < αf ≤ 1, 1 ≤ ℓf
+	//
+	// The default value is 2/3 (0.6666...).
+	FastestSmoothingFactor float64
+
+	// SlowestSmoothingFactor is the slowest boundary smoothing factor, αs in (0,1).
+	// The equivalent length ℓs is
+	//
+	//   ℓs = 2/αs - 1, 0 < αs ≤ 1, 1 ≤ ℓs
+	//
+	// The default value is 2/31 (0.06451612903225806451612903225806).
+	SlowestSmoothingFactor float64
 
 	// BarComponent indicates the component of a bar to use when updating the indicator with a bar sample.
 	BarComponent data.BarComponent
