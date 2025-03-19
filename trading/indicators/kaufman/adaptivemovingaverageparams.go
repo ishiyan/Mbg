@@ -1,9 +1,9 @@
 package kaufman
 
-import "mbg/trading/data"
+import "mbg/trading/data" //nolint:depguard
 
-// KaufmanAdaptiveMovingAverageLengthParams describes parameters to create an instance of the indicator
-// based on length.
+// AdaptiveMovingAverageLengthParams describes parameters to create an instance of the indicator
+// based on lengths.
 //
 // Kaufman's adaptive moving average (KAMA) is an EMA with the smoothing factor, α,
 // being changed with each new sample within the fastest and the slowest boundaries.
@@ -30,7 +30,7 @@ import "mbg/trading/data"
 // See
 // Perry J. Kaufman, Smarter Trading, McGraw-Hill, Ney York, 1995, pp. 129-153
 // for a complete discussion.
-type KaufmanAdaptiveMovingAverageLengthParams struct {
+type AdaptiveMovingAverageLengthParams struct {
 	// EfficiencyRatioLength is the number of last samples used to calculate the efficiency ratio.
 	//
 	// The value should be greater than 1.
@@ -65,9 +65,9 @@ type KaufmanAdaptiveMovingAverageLengthParams struct {
 	TradeComponent data.TradeComponent
 }
 
-// KaufmanAdaptiveMovingAverageLengthParams describes parameters to create an instance of the indicator
-// based on smoothing factor.
-type KaufmanAdaptiveMovingAverageSmoothingFactorParams struct {
+// AdaptiveMovingAverageSmoothingFactorParams describes parameters to create an instance of the indicator
+// based on smoothing factors.
+type AdaptiveMovingAverageSmoothingFactorParams struct {
 	// EfficiencyRatioLength is the number of last samples used to calculate the efficiency ratio.
 	//
 	// The value should be greater than 1.

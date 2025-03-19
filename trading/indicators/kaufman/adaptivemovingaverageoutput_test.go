@@ -5,18 +5,18 @@ import (
 	"testing"
 )
 
-func TestKaufmanAdaptiveMovingAverageOutputString(t *testing.T) {
+func TestAdaptiveMovingAverageOutputString(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		o    KaufmanAdaptiveMovingAverageOutput
+		o    AdaptiveMovingAverageOutput
 		text string
 	}{
-		{KaufmanAdaptiveMovingAverageValue, kaufmanAdaptiveMovingAverageValue},
-		{kaufmanAdaptiveMovingAverageLast, kaufmanAdaptiveMovingAverageUnknown},
-		{KaufmanAdaptiveMovingAverageOutput(0), kaufmanAdaptiveMovingAverageUnknown},
-		{KaufmanAdaptiveMovingAverageOutput(9999), kaufmanAdaptiveMovingAverageUnknown},
-		{KaufmanAdaptiveMovingAverageOutput(-9999), kaufmanAdaptiveMovingAverageUnknown},
+		{AdaptiveMovingAverageValue, adaptiveMovingAverageValue},
+		{adaptiveMovingAverageLast, adaptiveMovingAverageUnknown},
+		{AdaptiveMovingAverageOutput(0), adaptiveMovingAverageUnknown},
+		{AdaptiveMovingAverageOutput(9999), adaptiveMovingAverageUnknown},
+		{AdaptiveMovingAverageOutput(-9999), adaptiveMovingAverageUnknown},
 	}
 
 	for _, tt := range tests {
@@ -29,18 +29,18 @@ func TestKaufmanAdaptiveMovingAverageOutputString(t *testing.T) {
 	}
 }
 
-func TestKaufmanAdaptiveMovingAverageOutputIsKnown(t *testing.T) {
+func TestAdaptiveMovingAverageOutputIsKnown(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		o       KaufmanAdaptiveMovingAverageOutput
+		o       AdaptiveMovingAverageOutput
 		boolean bool
 	}{
-		{KaufmanAdaptiveMovingAverageValue, true},
-		{kaufmanAdaptiveMovingAverageLast, false},
-		{KaufmanAdaptiveMovingAverageOutput(0), false},
-		{KaufmanAdaptiveMovingAverageOutput(9999), false},
-		{KaufmanAdaptiveMovingAverageOutput(-9999), false},
+		{AdaptiveMovingAverageValue, true},
+		{adaptiveMovingAverageLast, false},
+		{AdaptiveMovingAverageOutput(0), false},
+		{AdaptiveMovingAverageOutput(9999), false},
+		{AdaptiveMovingAverageOutput(-9999), false},
 	}
 
 	for _, tt := range tests {
@@ -53,22 +53,22 @@ func TestKaufmanAdaptiveMovingAverageOutputIsKnown(t *testing.T) {
 	}
 }
 
-func TestKaufmanAdaptiveMovingAverageOutputMarshalJSON(t *testing.T) {
+func TestAdaptiveMovingAverageOutputMarshalJSON(t *testing.T) {
 	t.Parallel()
 
 	const dqs = "\""
 
 	var nilstr string
 	tests := []struct {
-		o         KaufmanAdaptiveMovingAverageOutput
+		o         AdaptiveMovingAverageOutput
 		json      string
 		succeeded bool
 	}{
-		{KaufmanAdaptiveMovingAverageValue, dqs + kaufmanAdaptiveMovingAverageValue + dqs, true},
-		{kaufmanAdaptiveMovingAverageLast, nilstr, false},
-		{KaufmanAdaptiveMovingAverageOutput(9999), nilstr, false},
-		{KaufmanAdaptiveMovingAverageOutput(-9999), nilstr, false},
-		{KaufmanAdaptiveMovingAverageOutput(0), nilstr, false},
+		{AdaptiveMovingAverageValue, dqs + adaptiveMovingAverageValue + dqs, true},
+		{adaptiveMovingAverageLast, nilstr, false},
+		{AdaptiveMovingAverageOutput(9999), nilstr, false},
+		{AdaptiveMovingAverageOutput(-9999), nilstr, false},
+		{AdaptiveMovingAverageOutput(0), nilstr, false},
 	}
 
 	for _, tt := range tests {
@@ -94,19 +94,19 @@ func TestKaufmanAdaptiveMovingAverageOutputMarshalJSON(t *testing.T) {
 	}
 }
 
-func TestKaufmanAdaptiveMovingAverageOutputUnmarshalJSON(t *testing.T) {
+func TestAdaptiveMovingAverageOutputUnmarshalJSON(t *testing.T) {
 	t.Parallel()
 
 	const dqs = "\""
 
-	var zero KaufmanAdaptiveMovingAverageOutput
+	var zero AdaptiveMovingAverageOutput
 	tests := []struct {
-		o         KaufmanAdaptiveMovingAverageOutput
+		o         AdaptiveMovingAverageOutput
 		json      string
 		succeeded bool
 	}{
-		{KaufmanAdaptiveMovingAverageValue, dqs + kaufmanAdaptiveMovingAverageValue + dqs, true},
-		{zero, dqs + kaufmanAdaptiveMovingAverageUnknown + dqs, false},
+		{AdaptiveMovingAverageValue, dqs + adaptiveMovingAverageValue + dqs, true},
+		{zero, dqs + adaptiveMovingAverageUnknown + dqs, false},
 		{zero, dqs + "foobar" + dqs, false},
 	}
 
@@ -114,7 +114,7 @@ func TestKaufmanAdaptiveMovingAverageOutputUnmarshalJSON(t *testing.T) {
 		exp := tt.o
 		bs := []byte(tt.json)
 
-		var o KaufmanAdaptiveMovingAverageOutput
+		var o AdaptiveMovingAverageOutput
 
 		err := o.UnmarshalJSON(bs)
 		if err != nil && tt.succeeded {
