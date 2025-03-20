@@ -244,7 +244,7 @@ func (s *MovingAverage) Update(sample float64) float64 { //nolint:funlen, cyclop
 		s.f0 = 0
 		s.v5 = 0
 
-		for i := 1; i <= c29; i++ {
+		for i := 1; i < c30; i++ {
 			if s.buffer[i+1] != s.buffer[i] {
 				s.v5 = 1
 			}
@@ -406,7 +406,7 @@ func (s *MovingAverage) Update(sample float64) float64 { //nolint:funlen, cyclop
 			s.list[s60] = s20
 		}
 
-		if s.s70 <= c127 {
+		if s.s70 < c128 {
 			s.s18 = 0
 			for k := s.s40; k <= s.s38; k++ {
 				s.s18 += s.list[k]
