@@ -125,7 +125,7 @@ func newMovingAverage(length, phase int,
 	ring2 := make([]float64, c11)
 	buffer := make([]float64, c62)
 
-	for i := 0; i <= c28; i++ {
+	for i := range c30 {
 		list[i] = -cInit
 	}
 
@@ -467,21 +467,12 @@ func (s *MovingAverage) Update(sample float64) float64 { //nolint:funlen, cyclop
 				(sample-s.buffer[s.fF0-v6])*f68/float64(fE8)
 		} else {
 			p := math.Pow(fA0/f60, s.f88)
-			if s.f98 >= p {
-				s.v1 = p
-			} else {
-				s.v1 = s.f98
-			}
+			s.v1 = min(s.f98, p)
 
 			if s.v1 < 1 {
 				s.v2 = 1
 			} else {
-				if s.f98 >= p {
-					s.v3 = p
-				} else {
-					s.v3 = s.f98
-				}
-
+				s.v3 = min(s.f98, p)
 				s.v2 = s.v3
 			}
 

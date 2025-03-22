@@ -50,7 +50,7 @@ func testAdaptiveMovingAverageInput() []float64 {
 }
 
 // Expected data is taken from TA-Lib (http://ta-lib.org/) tests, test_KAMA.xsl, KAMA, J5…J256, 252 entries.
-// Efficiency ratio length is 10.
+// Efficiency ratio length is 10, fastest length is 2, slowest length is 30.
 
 func testAdaptiveMovingAverageExpected() []float64 {
 	return []float64{
