@@ -2,16 +2,16 @@ package hilberttransformer
 
 // CycleEstimator describes a common cycle estimator functionality.
 type CycleEstimator interface { //nolint:interfacebloat
-	// SmoothingLength returns the underlying WMA smoothing length.
+	// SmoothingLength returns the underlying WMA smoothing length in samples.
 	SmoothingLength() int
 
-	// SmoothedValue returns the current WMA-smoothed value used by underlying Hilbert transformer.
+	// Smoothed returns the current WMA-smoothed value used by underlying Hilbert transformer.
 	//
 	// The linear-Weighted Moving Average has a window size of SmoothingLength.
-	SmoothedValue() float64
+	Smoothed() float64
 
-	// DetrendedValue returns the current detrended value.
-	DetrendedValue() float64
+	// Detrended returns the current detrended value.
+	Detrended() float64
 
 	// Quadrature returns the current Quadrature component value.
 	Quadrature() float64
@@ -19,14 +19,14 @@ type CycleEstimator interface { //nolint:interfacebloat
 	// InPhase returns the current InPhase component value.
 	InPhase() float64
 
-	// Period returns the current period value.
+	// PeriodValue returns the current period value.
 	Period() float64
 
 	// Count returns the current count value.
 	Count() int
 
-	// IsPrimed indicates whether an instance is primed.
-	IsPrimed() bool
+	// Primed indicates whether an instance is primed.
+	Primed() bool
 
 	// MinPeriod returns the minimal cycle period.
 	MinPeriod() int
@@ -47,5 +47,5 @@ type CycleEstimator interface { //nolint:interfacebloat
 	WarmUpPeriod() int
 
 	// Update updates the estimator given the next sample value.
-	Update(sample float64) float64
+	Update(sample float64)
 }
