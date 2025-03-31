@@ -238,20 +238,14 @@ func (s *DualDifferentiatorEstimator) Update(sample float64) { //nolint:funlen, 
 		smoothedInPhase := s.emaQuadratureInPhase(s.inPhase[0]-s.jQuadrature[0], s.smoothedInPhasePrevious)
 		smoothedQuadrature := s.emaQuadratureInPhase(s.quadrature[0]+s.jInPhase[0], s.smoothedQuadraturePrevious)
 
-		// Homodyne discriminator. Calculate the real and imaginary components of the signal
-		// of the current sample multiplied with the complex conjugate of the signal 1 sample ago.
-		re := smoothedInPhase*s.smoothedInPhasePrevious + smoothedQuadrature*s.smoothedQuadraturePrevious
-		im := smoothedInPhase*s.smoothedQuadraturePrevious - smoothedQuadrature*s.smoothedInPhasePrevious
+		// Dual Differential discriminator.
+		discriminator := smoothedQuadrature*(smoothedInPhase-s.smoothedInPhasePrevious) -
+			smoothedInPhase*(smoothedQuadrature-s.smoothedQuadraturePrevious)
 		s.smoothedInPhasePrevious = smoothedInPhase
 		s.smoothedQuadraturePrevious = smoothedQuadrature
 
-		// Exponential moving average smoothing of the real and imaginary components.
-		re = s.emaQuadratureInPhase(re, s.rePrevious)
-		im = s.emaQuadratureInPhase(im, s.imPrevious)
-		s.rePrevious = re
-		s.imPrevious = im
 		periodPrevious := s.period
-		periodNew := twoPi / math.Atan2(im, re)
+		periodNew := twoPi * (smoothedInPhase*smoothedInPhase + smoothedQuadrature*smoothedQuadrature) / discriminator
 
 		if !math.IsNaN(periodNew) && !math.IsInf(periodNew, 0) {
 			s.period = periodNew
@@ -302,36 +296,26 @@ func (s *DualDifferentiatorEstimator) Update(sample float64) { //nolint:funlen, 
 		smoothedInPhase := s.emaQuadratureInPhase(s.inPhase[0]-s.jQuadrature[0], s.smoothedInPhasePrevious) // count >= 23
 		smoothedQuadrature := s.emaQuadratureInPhase(s.quadrature[0]+s.jInPhase[0], s.smoothedQuadraturePrevious)
 
-		re := smoothedInPhase*s.smoothedInPhasePrevious + smoothedQuadrature*s.smoothedQuadraturePrevious
-		im := smoothedInPhase*s.smoothedQuadraturePrevious - smoothedQuadrature*s.smoothedInPhasePrevious
+		discriminator := smoothedQuadrature*(smoothedInPhase-s.smoothedInPhasePrevious) -
+			smoothedInPhase*(smoothedQuadrature-s.smoothedQuadraturePrevious)
 		s.smoothedInPhasePrevious = smoothedInPhase
 		s.smoothedQuadraturePrevious = smoothedQuadrature
 
 		if s.smoothingLengthPlus3HtLengthMin2 == s.count { // count == 23
-			s.rePrevious = re
-			s.imPrevious = im
-
-			return
-		}
-
-		re = s.emaQuadratureInPhase(re, s.rePrevious) // count >= 24
-		im = s.emaQuadratureInPhase(im, s.imPrevious)
-		s.rePrevious = re
-		s.imPrevious = im
-		periodPrevious := s.period
-
-		if s.smoothingLengthPlus3HtLengthMin1 == s.count { // count == 24
-			periodNew := twoPi / math.Atan2(im, re)
-			if !math.IsNaN(periodNew) && !math.IsInf(periodNew, 0) {
-				s.period = periodNew
+			s.period = twoPi * (smoothedInPhase*smoothedInPhase +
+				smoothedQuadrature*smoothedQuadrature) / discriminator
+			if math.IsNaN(s.period) || math.IsInf(s.period, 0) {
+				s.period = float64(s.minPeriod)
 			}
 
-			s.period = adjustPeriod(s.period, periodPrevious)
+			s.period = adjustPeriod(s.period, s.period)
 
 			return
 		}
 
-		periodNew := twoPi / math.Atan2(im, re)
+		periodPrevious := s.period
+		periodNew := twoPi * (smoothedInPhase*smoothedInPhase + smoothedQuadrature*smoothedQuadrature) / discriminator
+
 		if !math.IsNaN(periodNew) && !math.IsInf(periodNew, 0) {
 			s.period = periodNew
 		}

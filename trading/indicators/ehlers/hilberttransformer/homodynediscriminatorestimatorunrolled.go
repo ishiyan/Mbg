@@ -161,7 +161,7 @@ func NewHomodyneDiscriminatorEstimatorUnrolled(
 		oneMinAlphaEmaPeriod:            1 - alphaPeriod,
 		smoothingMultiplier:             smoothingMultiplier,
 		count:                           0,
-		period:                          0,
+		period:                          defaultMinPeriod,
 		isPrimed:                        false,
 		isWarmedUp:                      false,
 	}, nil

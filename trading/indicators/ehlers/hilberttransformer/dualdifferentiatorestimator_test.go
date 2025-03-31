@@ -10,7 +10,7 @@ import (
 // test_ht_hd.xsl, price, D5…D256, 252 entries.
 
 //nolint:dupl
-func testPhaseAccumulatorEstimatorInput() []float64 {
+func testDualDifferentiatorEstimatorInput() []float64 {
 	return []float64{
 		92.0000, 93.1725, 95.3125, 94.8450, 94.4075, 94.1100, 93.5000, 91.7350, 90.9550, 91.6875,
 		94.5000, 97.9700, 97.5775, 90.7825, 89.0325, 92.0950, 91.1550, 89.7175, 90.6100, 91.0000,
@@ -45,7 +45,7 @@ func testPhaseAccumulatorEstimatorInput() []float64 {
 // test_ht_hd.xsl model (smooth, E5 … E256, 252 entries).
 
 //nolint:dupl
-func testPhaseAccumulatorEstimatorExpectedSmoothed() []float64 {
+func testDualDifferentiatorEstimatorExpectedSmoothed() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), 94.36625, 94.59625,
 		94.46650, 93.99900, 93.00675, 92.01350, 91.65850,
@@ -104,7 +104,7 @@ func testPhaseAccumulatorEstimatorExpectedSmoothed() []float64 {
 // Expected detrended data is taken from TA-Lib (http://ta-lib.org/) tests,
 //  test_ht_hd.xsl model (detrender, F5 … F256, 252 entries).
 
-func testPhaseAccumulatorEstimatorExpectedDetrended() []float64 {
+func testDualDifferentiatorEstimatorExpectedDetrended() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), -1.0915891717499900,
@@ -163,7 +163,7 @@ func testPhaseAccumulatorEstimatorExpectedDetrended() []float64 {
 // Expected quadrature data is taken from TA-Lib (http://ta-lib.org/) tests,
 // test_ht_hd.xsl model (Q1, G5 … G256, 252 entries).
 
-func testPhaseAccumulatorEstimatorExpectedQuadrature() []float64 {
+func testDualDifferentiatorEstimatorExpectedQuadrature() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -222,7 +222,7 @@ func testPhaseAccumulatorEstimatorExpectedQuadrature() []float64 {
 // Expected in-phase data is taken from TA-Lib (http://ta-lib.org/) tests,
 // test_ht_hd.xsl model (I1, H5 … H256, 252 entries).
 
-func testPhaseAccumulatorEstimatorExpectedInPhase() []float64 {
+func testDualDifferentiatorEstimatorExpectedInPhase() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -281,7 +281,7 @@ func testPhaseAccumulatorEstimatorExpectedInPhase() []float64 {
 // Expected period data is taken from TA-Lib (http://ta-lib.org/) tests,
 // test_ht_hd.xsl model (period adjustment, X5 … X256, 252 entries).
 
-func testPhaseAccumulatorEstimatorExpectedPeriod() []float64 {
+func testDualDifferentiatorEstimatorExpectedPeriod() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -338,7 +338,7 @@ func testPhaseAccumulatorEstimatorExpectedPeriod() []float64 {
 }
 
 //nolint:funlen, cyclop
-func TestPhaseAccumulatorEstimatorUpdate(t *testing.T) {
+func TestDualDifferentiatorEstimatorUpdate(t *testing.T) {
 	t.Parallel()
 
 	check := func(index int, exp, act float64) {
@@ -349,13 +349,13 @@ func TestPhaseAccumulatorEstimatorUpdate(t *testing.T) {
 		}
 	}
 
-	input := testPhaseAccumulatorEstimatorInput()
+	input := testDualDifferentiatorEstimatorInput()
 
 	t.Run("reference implementation: wma smoothed (test_ht_hd.xsl)", func(t *testing.T) {
 		t.Parallel()
 
-		pae := testPhaseAccumulatorEstimatorCreateDefault()
-		exp := testPhaseAccumulatorEstimatorExpectedSmoothed()
+		dde := testDualDifferentiatorEstimatorCreateDefault()
+		exp := testDualDifferentiatorEstimatorExpectedSmoothed()
 
 		const (
 			lprimed        = 3
@@ -364,151 +364,151 @@ func TestPhaseAccumulatorEstimatorUpdate(t *testing.T) {
 		)
 
 		for i := range lprimed {
-			pae.Update(input[i])
-			check(i, notPrimedValue, pae.Smoothed())
+			dde.Update(input[i])
+			check(i, notPrimedValue, dde.Smoothed())
 		}
 
 		for i := lprimed; i < len(input); i++ {
-			pae.Update(input[i])
-			check(i, exp[i], pae.Smoothed())
+			dde.Update(input[i])
+			check(i, exp[i], dde.Smoothed())
 		}
 
-		prev := pae.Smoothed()
-		pae.Update(math.NaN())
-		check(idx, prev, pae.Smoothed())
+		prev := dde.Smoothed()
+		dde.Update(math.NaN())
+		check(idx, prev, dde.Smoothed())
 	})
 
 	t.Run("reference implementation: detrended (test_ht_hd.xsl)", func(t *testing.T) {
 		t.Parallel()
 
-		pae := testPhaseAccumulatorEstimatorCreateDefault()
-		exp := testPhaseAccumulatorEstimatorExpectedDetrended()
+		dde := testDualDifferentiatorEstimatorCreateDefault()
+		exp := testDualDifferentiatorEstimatorExpectedDetrended()
 
 		const (
 			lprimed        = 9
 			notPrimedValue = 0
 			idx            = 99999
 
-			// This should have been len(input), but after 24, the calculated
+			// This should have been len(input), but after 23, the calculated
 			// period is different from the expected data produced by homodyne
 			// discriminator. This makes the detrended data also different.
-			last = 24
+			last = 23
 		)
 
 		for i := range lprimed {
-			pae.Update(input[i])
-			check(i, notPrimedValue, pae.Detrended())
+			dde.Update(input[i])
+			check(i, notPrimedValue, dde.Detrended())
 		}
 
 		for i := lprimed; i < last; i++ {
-			pae.Update(input[i])
-			check(i, exp[i], pae.Detrended())
+			dde.Update(input[i])
+			check(i, exp[i], dde.Detrended())
 		}
 
-		prev := pae.Detrended()
-		pae.Update(math.NaN())
-		check(idx, prev, pae.Detrended())
+		prev := dde.Detrended()
+		dde.Update(math.NaN())
+		check(idx, prev, dde.Detrended())
 	})
 
 	t.Run("reference implementation: quadrature (test_ht_hd.xsl)", func(t *testing.T) {
 		t.Parallel()
 
-		pae := testPhaseAccumulatorEstimatorCreateDefault()
-		exp := testPhaseAccumulatorEstimatorExpectedQuadrature()
+		dde := testDualDifferentiatorEstimatorCreateDefault()
+		exp := testDualDifferentiatorEstimatorExpectedQuadrature()
 
 		const (
 			lprimed        = 15
 			notPrimedValue = 0
 			idx            = 99999
 
-			// This should have been len(input), but after 24, the calculated
+			// This should have been len(input), but after 23, the calculated
 			// period is different from the expected data produced by homodyne
 			// discriminator. This makes the quadrature data also different.
-			last = 24
+			last = 23
 		)
 
 		for i := range lprimed {
-			pae.Update(input[i])
-			check(i, notPrimedValue, pae.Quadrature())
+			dde.Update(input[i])
+			check(i, notPrimedValue, dde.Quadrature())
 		}
 
 		for i := lprimed; i < last; i++ {
-			pae.Update(input[i])
-			check(i, exp[i], pae.Quadrature())
+			dde.Update(input[i])
+			check(i, exp[i], dde.Quadrature())
 		}
 
-		prev := pae.Quadrature()
-		pae.Update(math.NaN())
-		check(idx, prev, pae.Quadrature())
+		prev := dde.Quadrature()
+		dde.Update(math.NaN())
+		check(idx, prev, dde.Quadrature())
 	})
 
 	t.Run("reference implementation: in-phase (test_ht_hd.xsl)", func(t *testing.T) {
 		t.Parallel()
 
-		pae := testPhaseAccumulatorEstimatorCreateDefault()
-		exp := testPhaseAccumulatorEstimatorExpectedInPhase()
+		dde := testDualDifferentiatorEstimatorCreateDefault()
+		exp := testDualDifferentiatorEstimatorExpectedInPhase()
 
 		const (
 			lprimed        = 15
 			notPrimedValue = 0
 			idx            = 99999
 
-			// This should have been len(input), but after 24, the calculated
+			// This should have been len(input), but after 23, the calculated
 			// period is different from the expected data produced by homodyne
 			// discriminator. This makes the in-phase data also different.
-			last = 24
+			last = 23
 		)
 
 		for i := range lprimed {
-			pae.Update(input[i])
-			check(i, notPrimedValue, pae.InPhase())
+			dde.Update(input[i])
+			check(i, notPrimedValue, dde.InPhase())
 		}
 
 		for i := lprimed; i < last; i++ {
-			pae.Update(input[i])
-			check(i, exp[i], pae.InPhase())
+			dde.Update(input[i])
+			check(i, exp[i], dde.InPhase())
 		}
 
-		prev := pae.InPhase()
-		pae.Update(math.NaN())
-		check(idx, prev, pae.InPhase())
+		prev := dde.InPhase()
+		dde.Update(math.NaN())
+		check(idx, prev, dde.InPhase())
 	})
 
 	t.Run("reference implementation: period (test_ht_hd.xsl)", func(t *testing.T) {
 		t.Parallel()
 
-		pae := testPhaseAccumulatorEstimatorCreateDefault()
-		exp := testPhaseAccumulatorEstimatorExpectedPeriod()
+		dde := testDualDifferentiatorEstimatorCreateDefault()
+		exp := testDualDifferentiatorEstimatorExpectedPeriod()
 
 		const (
 			lprimed        = 18
 			notPrimedValue = 6
 			idx            = 99999
 
-			// This should have been len(input), but after 18, the calculated
+			// This should have been len(input), but after 23, the calculated
 			// period is different from the expected data produced by homodyne
 			// discriminator.
-			last = 18
+			last = 23
 		)
 
 		for i := range lprimed {
-			pae.Update(input[i])
-			check(i, notPrimedValue, pae.Period())
+			dde.Update(input[i])
+			check(i, notPrimedValue, dde.Period())
 		}
 
 		for i := lprimed; i < last; i++ {
-			pae.Update(input[i])
-			check(i, exp[i], pae.Period())
+			dde.Update(input[i])
+			check(i, exp[i], dde.Period())
 		}
 
-		prev := pae.Period()
-		pae.Update(math.NaN())
-		check(idx, prev, pae.Period())
+		prev := dde.Period()
+		dde.Update(math.NaN())
+		check(idx, prev, dde.Period())
 	})
 }
 
 //nolint:dupl
-func TestPhaseAccumulatorEstimatorPeriod(t *testing.T) {
+func TestDualDifferentiatorEstimatorPeriod(t *testing.T) {
 	t.Parallel()
 
 	check := func(exp, act, epsilon float64) {
@@ -519,17 +519,17 @@ func TestPhaseAccumulatorEstimatorPeriod(t *testing.T) {
 		}
 	}
 
-	update := func(omega float64) *PhaseAccumulatorEstimator {
+	update := func(omega float64) *DualDifferentiatorEstimator {
 		t.Helper()
 
 		const updates = 512
 
-		pae := testPhaseAccumulatorEstimatorCreateDefault()
+		dde := testDualDifferentiatorEstimatorCreateDefault()
 		for i := range updates {
-			pae.Update(math.Sin(omega * float64(i)))
+			dde.Update(math.Sin(omega * float64(i)))
 		}
 
-		return pae
+		return dde
 	}
 
 	t.Run("period of sin input", func(t *testing.T) {
@@ -550,11 +550,11 @@ func TestPhaseAccumulatorEstimatorPeriod(t *testing.T) {
 		const (
 			period  = 3
 			omega   = 2 * math.Pi / period
-			epsilon = 1e-14
+			epsilon = 1.5e0
 		)
 
-		pae := update(omega)
-		check(float64(pae.MinPeriod()), float64(pae.Period()), epsilon)
+		dde := update(omega)
+		check(float64(dde.MinPeriod()), float64(dde.Period()), epsilon)
 	})
 
 	t.Run("max period of sin input", func(t *testing.T) {
@@ -563,16 +563,16 @@ func TestPhaseAccumulatorEstimatorPeriod(t *testing.T) {
 		const (
 			period  = 60
 			omega   = 2 * math.Pi / period
-			epsilon = 12.5e0
+			epsilon = 1e0
 		)
 
-		pae := update(omega)
-		check(float64(pae.MaxPeriod()), float64(pae.Period()), epsilon)
+		dde := update(omega)
+		check(float64(dde.MaxPeriod()), float64(dde.Period()), epsilon)
 	})
 }
 
 //nolint:dupl
-func TestPhaseAccumulatorEstimatorPrimed(t *testing.T) {
+func TestDualDifferentiatorEstimatorPrimed(t *testing.T) {
 	t.Parallel()
 
 	check := func(index int, exp, act bool) {
@@ -583,25 +583,25 @@ func TestPhaseAccumulatorEstimatorPrimed(t *testing.T) {
 		}
 	}
 
-	input := testPhaseAccumulatorEstimatorInput()
+	input := testDualDifferentiatorEstimatorInput()
 
 	t.Run("reference implementation: primed (test_ht_hd.xsl)", func(t *testing.T) {
 		t.Parallel()
 
-		pae := testPhaseAccumulatorEstimatorCreateDefault()
+		dde := testDualDifferentiatorEstimatorCreateDefault()
 
-		const lprimed = 4 + 7*2
+		const lprimed = 3 + 7*3
 
-		check(0, false, pae.Primed())
+		check(0, false, dde.Primed())
 
 		for i := range lprimed {
-			pae.Update(input[i])
-			check(i+1, false, pae.Primed())
+			dde.Update(input[i])
+			check(i+1, false, dde.Primed())
 		}
 
 		for i := lprimed; i < len(input); i++ {
-			pae.Update(input[i])
-			check(i+1, true, pae.Primed())
+			dde.Update(input[i])
+			check(i+1, true, dde.Primed())
 		}
 	})
 
@@ -610,23 +610,23 @@ func TestPhaseAccumulatorEstimatorPrimed(t *testing.T) {
 
 		const lprimed = 50
 
-		pae := testPhaseAccumulatorEstimatorCreateWarmUp(lprimed)
+		dde := testDualDifferentiatorEstimatorCreateWarmUp(lprimed)
 
-		check(0, false, pae.Primed())
+		check(0, false, dde.Primed())
 
 		for i := range lprimed {
-			pae.Update(input[i])
-			check(i+1, false, pae.Primed())
+			dde.Update(input[i])
+			check(i+1, false, dde.Primed())
 		}
 
 		for i := lprimed; i < len(input); i++ {
-			pae.Update(input[i])
-			check(i+1, true, pae.Primed())
+			dde.Update(input[i])
+			check(i+1, true, dde.Primed())
 		}
 	})
 }
 
-func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
+func TestNewDualDifferentiatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 	t.Parallel()
 
 	const (
@@ -643,7 +643,7 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 		}
 	}
 
-	checkInstance := func(pae *PhaseAccumulatorEstimator,
+	checkInstance := func(dde *DualDifferentiatorEstimator,
 		length int, alphaQuadratureInPhase, alphaPeriod float64, warmUp int,
 	) {
 		t.Helper()
@@ -667,37 +667,42 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 
 		smoothingLengthPlusHtLengthMin1 := length + htLength - 1
 		smoothingLengthPlus2HtLengthMin2 := smoothingLengthPlusHtLengthMin1 + htLength - 1
-		smoothingLengthPlus2HtLengthMin1 := smoothingLengthPlus2HtLengthMin2 + 1
-		smoothingLengthPlus2HtLength := smoothingLengthPlus2HtLengthMin1 + 1
-		warmUpPeriod := max(warmUp, smoothingLengthPlus2HtLength)
+		smoothingLengthPlus3HtLengthMin3 := smoothingLengthPlus2HtLengthMin2 + htLength - 1
+		smoothingLengthPlus3HtLengthMin2 := smoothingLengthPlus3HtLengthMin3 + 1
+		smoothingLengthPlus3HtLengthMin1 := smoothingLengthPlus3HtLengthMin2 + 1
+		warmUpPeriod := max(warmUp, smoothingLengthPlus3HtLengthMin1)
 
-		check("smoothingLength", length, pae.smoothingLength)
-		check("SmoothingLength()", length, pae.SmoothingLength())
-		check("minPeriod", defaultMinPeriod, pae.minPeriod)
-		check("MinPeriod()", defaultMinPeriod, pae.MinPeriod())
-		check("maxPeriod", defaultMaxPeriod, pae.maxPeriod)
-		check("MaxPeriod()", defaultMaxPeriod, pae.MaxPeriod())
-		check("warmUpPeriod", warmUpPeriod, pae.warmUpPeriod)
-		check("WarmUpPeriod()", warmUpPeriod, pae.WarmUpPeriod())
-		check("alphaEmaQuadratureInPhase", alphaQuadratureInPhase, pae.alphaEmaQuadratureInPhase)
-		check("AlphaEmaQuadratureInPhase()", alphaQuadratureInPhase, pae.AlphaEmaQuadratureInPhase())
-		check("oneMinAlphaEmaQuadratureInPhase", 1-alphaQuadratureInPhase, pae.oneMinAlphaEmaQuadratureInPhase)
-		check("alphaEmaPeriod", alphaPeriod, pae.alphaEmaPeriod)
-		check("AlphaEmaPeriod()", alphaPeriod, pae.AlphaEmaPeriod())
-		check("oneMinAlphaEmaPeriod", 1-alphaPeriod, pae.oneMinAlphaEmaPeriod)
-		check("smoothingLengthPlusHtLengthMin1", smoothingLengthPlusHtLengthMin1, pae.smoothingLengthPlusHtLengthMin1)
-		check("smoothingLengthPlus2HtLengthMin2", smoothingLengthPlus2HtLengthMin2, pae.smoothingLengthPlus2HtLengthMin2)
-		check("smoothingLengthPlus2HtLengthMin1", smoothingLengthPlus2HtLengthMin1, pae.smoothingLengthPlus2HtLengthMin1)
-		check("smoothingLengthPlus2HtLength", smoothingLengthPlus2HtLength, pae.smoothingLengthPlus2HtLength)
-		check("len(wmaSmoothed)", htLength, len(pae.wmaSmoothed))
-		check("len(detrended)", htLength, len(pae.detrended))
-		check("len(deltaPhase)", accumulationLength, len(pae.deltaPhase))
-		check("len(rawValues)", length, len(pae.rawValues))
-		check("len(wmaFactors)", length, len(pae.wmaFactors))
-		check("isPrimed", false, pae.isPrimed)
-		check("isWarmedUp", false, pae.isWarmedUp)
-		check("period", float64(defaultMinPeriod), pae.period)
-		check("Period()", float64(defaultMinPeriod), pae.Period())
+		check("smoothingLength", length, dde.smoothingLength)
+		check("SmoothingLength()", length, dde.SmoothingLength())
+		check("minPeriod", defaultMinPeriod, dde.minPeriod)
+		check("MinPeriod()", defaultMinPeriod, dde.MinPeriod())
+		check("maxPeriod", defaultMaxPeriod, dde.maxPeriod)
+		check("MaxPeriod()", defaultMaxPeriod, dde.MaxPeriod())
+		check("warmUpPeriod", warmUpPeriod, dde.warmUpPeriod)
+		check("WarmUpPeriod()", warmUpPeriod, dde.WarmUpPeriod())
+		check("alphaEmaQuadratureInPhase", alphaQuadratureInPhase, dde.alphaEmaQuadratureInPhase)
+		check("AlphaEmaQuadratureInPhase()", alphaQuadratureInPhase, dde.AlphaEmaQuadratureInPhase())
+		check("oneMinAlphaEmaQuadratureInPhase", 1-alphaQuadratureInPhase, dde.oneMinAlphaEmaQuadratureInPhase)
+		check("alphaEmaPeriod", alphaPeriod, dde.alphaEmaPeriod)
+		check("AlphaEmaPeriod()", alphaPeriod, dde.AlphaEmaPeriod())
+		check("oneMinAlphaEmaPeriod", 1-alphaPeriod, dde.oneMinAlphaEmaPeriod)
+		check("smoothingLengthPlusHtLengthMin1", smoothingLengthPlusHtLengthMin1, dde.smoothingLengthPlusHtLengthMin1)
+		check("smoothingLengthPlus2HtLengthMin2", smoothingLengthPlus2HtLengthMin2, dde.smoothingLengthPlus2HtLengthMin2)
+		check("smoothingLengthPlus3HtLengthMin3", smoothingLengthPlus3HtLengthMin3, dde.smoothingLengthPlus3HtLengthMin3)
+		check("smoothingLengthPlus3HtLengthMin2", smoothingLengthPlus3HtLengthMin2, dde.smoothingLengthPlus3HtLengthMin2)
+		check("smoothingLengthPlus3HtLengthMin1", smoothingLengthPlus3HtLengthMin1, dde.smoothingLengthPlus3HtLengthMin1)
+		check("len(wmaSmoothed)", htLength, len(dde.wmaSmoothed))
+		check("len(detrended)", htLength, len(dde.detrended))
+		check("len(inPhase)", htLength, len(dde.inPhase))
+		check("len(quadrature)", htLength, len(dde.quadrature))
+		check("len(jInPhase)", htLength, len(dde.jInPhase))
+		check("len(jQuadrature)", htLength, len(dde.jQuadrature))
+		check("len(rawValues)", length, len(dde.rawValues))
+		check("len(wmaFactors)", length, len(dde.wmaFactors))
+		check("isPrimed", false, dde.isPrimed)
+		check("isWarmedUp", false, dde.isWarmedUp)
+		check("period", float64(defaultMinPeriod), dde.period)
+		check("Period()", float64(defaultMinPeriod), dde.Period())
 	}
 
 	t.Run("dafault (4, 0.2, 0.2)", func(t *testing.T) {
@@ -714,9 +719,9 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 			AlphaEmaPeriod:            c02,
 		}
 
-		pae, err := NewPhaseAccumulatorEstimator(&params)
+		dde, err := NewDualDifferentiatorEstimator(&params)
 		check("err == nil", true, err == nil)
-		checkInstance(pae, params.SmoothingLength, params.AlphaEmaQuadratureInPhase,
+		checkInstance(dde, params.SmoothingLength, params.AlphaEmaQuadratureInPhase,
 			params.AlphaEmaPeriod, 0)
 	})
 
@@ -737,9 +742,9 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 			WarmUpPeriod:              c44,
 		}
 
-		pae, err := NewPhaseAccumulatorEstimator(&params)
+		dde, err := NewDualDifferentiatorEstimator(&params)
 		check("err == nil", true, err == nil)
-		checkInstance(pae, params.SmoothingLength, params.AlphaEmaQuadratureInPhase,
+		checkInstance(dde, params.SmoothingLength, params.AlphaEmaQuadratureInPhase,
 			params.AlphaEmaPeriod, params.WarmUpPeriod)
 	})
 
@@ -754,8 +759,8 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 			AlphaEmaPeriod:            c02,
 		}
 
-		pae, err := NewPhaseAccumulatorEstimator(&params)
-		check("pae == nil", true, pae == nil)
+		dde, err := NewDualDifferentiatorEstimator(&params)
+		check("dde == nil", true, dde == nil)
 		check("err", errle, err.Error())
 	})
 
@@ -770,8 +775,8 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 			AlphaEmaPeriod:            c02,
 		}
 
-		pae, err := NewPhaseAccumulatorEstimator(&params)
-		check("pae == nil", true, pae == nil)
+		dde, err := NewDualDifferentiatorEstimator(&params)
+		check("dde == nil", true, dde == nil)
 		check("err", errle, err.Error())
 	})
 
@@ -786,8 +791,8 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 			AlphaEmaPeriod:            c02,
 		}
 
-		pae, err := NewPhaseAccumulatorEstimator(&params)
-		check("pae == nil", true, pae == nil)
+		dde, err := NewDualDifferentiatorEstimator(&params)
+		check("dde == nil", true, dde == nil)
 		check("err", errle, err.Error())
 	})
 
@@ -805,8 +810,8 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 			AlphaEmaPeriod:            c02,
 		}
 
-		pae, err := NewPhaseAccumulatorEstimator(&params)
-		check("pae == nil", true, pae == nil)
+		dde, err := NewDualDifferentiatorEstimator(&params)
+		check("dde == nil", true, dde == nil)
 		check("err", errle, err.Error())
 	})
 
@@ -825,8 +830,8 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 			AlphaEmaPeriod:            c02,
 		}
 
-		pae, err := NewPhaseAccumulatorEstimator(&params)
-		check("pae == nil", true, pae == nil)
+		dde, err := NewDualDifferentiatorEstimator(&params)
+		check("dde == nil", true, dde == nil)
 		check("err", erraq, err.Error())
 	})
 
@@ -845,8 +850,8 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 			AlphaEmaPeriod:            c00,
 		}
 
-		pae, err := NewPhaseAccumulatorEstimator(&params)
-		check("pae == nil", true, pae == nil)
+		dde, err := NewDualDifferentiatorEstimator(&params)
+		check("dde == nil", true, dde == nil)
 		check("err", errap, err.Error())
 	})
 
@@ -865,8 +870,8 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 			AlphaEmaPeriod:            c02,
 		}
 
-		pae, err := NewPhaseAccumulatorEstimator(&params)
-		check("pae == nil", true, pae == nil)
+		dde, err := NewDualDifferentiatorEstimator(&params)
+		check("dde == nil", true, dde == nil)
 		check("err", erraq, err.Error())
 	})
 
@@ -885,8 +890,8 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 			AlphaEmaPeriod:            cneg,
 		}
 
-		pae, err := NewPhaseAccumulatorEstimator(&params)
-		check("pae == nil", true, pae == nil)
+		dde, err := NewDualDifferentiatorEstimator(&params)
+		check("dde == nil", true, dde == nil)
 		check("err", errap, err.Error())
 	})
 
@@ -905,8 +910,8 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 			AlphaEmaPeriod:            c02,
 		}
 
-		pae, err := NewPhaseAccumulatorEstimator(&params)
-		check("pae == nil", true, pae == nil)
+		dde, err := NewDualDifferentiatorEstimator(&params)
+		check("dde == nil", true, dde == nil)
 		check("err", erraq, err.Error())
 	})
 
@@ -925,8 +930,8 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 			AlphaEmaPeriod:            c10,
 		}
 
-		pae, err := NewPhaseAccumulatorEstimator(&params)
-		check("pae == nil", true, pae == nil)
+		dde, err := NewDualDifferentiatorEstimator(&params)
+		check("dde == nil", true, dde == nil)
 		check("err", errap, err.Error())
 	})
 
@@ -945,8 +950,8 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 			AlphaEmaPeriod:            c02,
 		}
 
-		pae, err := NewPhaseAccumulatorEstimator(&params)
-		check("pae == nil", true, pae == nil)
+		dde, err := NewDualDifferentiatorEstimator(&params)
+		check("dde == nil", true, dde == nil)
 		check("err", erraq, err.Error())
 	})
 
@@ -965,33 +970,33 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 			AlphaEmaPeriod:            c101,
 		}
 
-		pae, err := NewPhaseAccumulatorEstimator(&params)
-		check("pae == nil", true, pae == nil)
+		dde, err := NewDualDifferentiatorEstimator(&params)
+		check("dde == nil", true, dde == nil)
 		check("err", errap, err.Error())
 	})
 }
 
-func testPhaseAccumulatorEstimatorCreateDefault() *PhaseAccumulatorEstimator {
+func testDualDifferentiatorEstimatorCreateDefault() *DualDifferentiatorEstimator {
 	params := CycleEstimatorParams{
 		SmoothingLength:           4,
 		AlphaEmaQuadratureInPhase: 0.15,
-		AlphaEmaPeriod:            0.25,
+		AlphaEmaPeriod:            0.15,
 	}
 
-	pae, _ := NewPhaseAccumulatorEstimator(&params)
+	dde, _ := NewDualDifferentiatorEstimator(&params)
 
-	return pae
+	return dde
 }
 
-func testPhaseAccumulatorEstimatorCreateWarmUp(warmUp int) *PhaseAccumulatorEstimator {
+func testDualDifferentiatorEstimatorCreateWarmUp(warmUp int) *DualDifferentiatorEstimator {
 	params := CycleEstimatorParams{
 		SmoothingLength:           4,
 		AlphaEmaQuadratureInPhase: 0.15,
-		AlphaEmaPeriod:            0.25,
+		AlphaEmaPeriod:            0.15,
 		WarmUpPeriod:              warmUp,
 	}
 
-	pae, _ := NewPhaseAccumulatorEstimator(&params)
+	dde, _ := NewDualDifferentiatorEstimator(&params)
 
-	return pae
+	return dde
 }

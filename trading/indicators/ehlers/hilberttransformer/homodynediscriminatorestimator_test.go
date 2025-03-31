@@ -44,6 +44,7 @@ func testHomodyneDiscriminatorEstimatorInput() []float64 {
 // Expected smoothed data is taken from TA-Lib (http://ta-lib.org/) tests,
 // test_ht_hd.xsl model (smooth, E5 … E256, 252 entries).
 
+//nolint:dupl
 func testHomodyneDiscriminatorEstimatorExpectedSmoothed() []float64 {
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), 94.366250, 94.596250,
@@ -336,7 +337,7 @@ func testHomodyneDiscriminatorEstimatorExpectedPeriod() []float64 {
 	}
 }
 
-//nolint:funlen, cyclop
+//nolint:funlen, cyclop, dupl
 func TestHomodyneDiscriminatorEstimatorUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -483,6 +484,70 @@ func TestHomodyneDiscriminatorEstimatorUpdate(t *testing.T) {
 		prev := hde.Period()
 		hde.Update(math.NaN())
 		check(idx, prev, hde.Period())
+	})
+}
+
+//nolint:dupl
+func TestHomodyneDiscriminatorEstimatorPeriod(t *testing.T) {
+	t.Parallel()
+
+	check := func(exp, act, epsilon float64) {
+		t.Helper()
+
+		if math.Abs(exp-act) > epsilon {
+			t.Errorf("period is incorrect: expected %v, actual %v", exp, act)
+		}
+	}
+
+	update := func(omega float64) *HomodyneDiscriminatorEstimator {
+		t.Helper()
+
+		const updates = 512
+
+		hde := testHomodyneDiscriminatorEstimatorCreateDefault()
+		for i := range updates {
+			hde.Update(math.Sin(omega * float64(i)))
+		}
+
+		return hde
+	}
+
+	t.Run("period of sin input", func(t *testing.T) {
+		t.Parallel()
+
+		const (
+			period  = 30
+			omega   = 2 * math.Pi / period
+			epsilon = 1e-2
+		)
+
+		check(period, update(omega).Period(), epsilon)
+	})
+
+	t.Run("min period of sin input", func(t *testing.T) {
+		t.Parallel()
+
+		const (
+			period  = 3
+			omega   = 2 * math.Pi / period
+			epsilon = 1e-14
+		)
+
+		hde := update(omega)
+		check(float64(hde.MinPeriod()), float64(hde.Period()), epsilon)
+	})
+
+	t.Run("max period of sin input", func(t *testing.T) {
+		t.Parallel()
+
+		const (
+			period  = 60
+			omega   = 2 * math.Pi / period
+			epsilon = 1e-14
+		)
+
+		hde := update(omega)
+		check(float64(hde.MaxPeriod()), float64(hde.Period()), epsilon)
 	})
 }
 
