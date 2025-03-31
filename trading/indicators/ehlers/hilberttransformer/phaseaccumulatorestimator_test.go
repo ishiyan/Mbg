@@ -909,8 +909,8 @@ func TestNewPhaseAccumulatorEstimator(t *testing.T) { //nolint: funlen, maintidx
 func testPhaseAccumulatorEstimatorCreateDefault() *PhaseAccumulatorEstimator {
 	params := CycleEstimatorParams{
 		SmoothingLength:           4,
-		AlphaEmaQuadratureInPhase: 0.2,
-		AlphaEmaPeriod:            0.2,
+		AlphaEmaQuadratureInPhase: 0.15,
+		AlphaEmaPeriod:            0.25,
 	}
 
 	pae, _ := NewPhaseAccumulatorEstimator(&params)
@@ -921,8 +921,8 @@ func testPhaseAccumulatorEstimatorCreateDefault() *PhaseAccumulatorEstimator {
 func testPhaseAccumulatorEstimatorCreateWarmUp(warmUp int) *PhaseAccumulatorEstimator {
 	params := CycleEstimatorParams{
 		SmoothingLength:           4,
-		AlphaEmaQuadratureInPhase: 0.2,
-		AlphaEmaPeriod:            0.2,
+		AlphaEmaQuadratureInPhase: 0.15,
+		AlphaEmaPeriod:            0.25,
 		WarmUpPeriod:              warmUp,
 	}
 
