@@ -326,6 +326,10 @@ func calculateDifferentialPhase(phase, phasePrevious float64) float64 {
 		deltaPhase += twoPi
 	}
 
+	/*for deltaPhase < 0 {
+		deltaPhase += twoPi
+	}*/
+
 	// Limit deltaPhase to be within [minDeltaPhase, maxDeltaPhase],
 	// i.e. within the bounds of [minPeriod, maxPeriod] sample cycles.
 	if deltaPhase < minDeltaPhase {

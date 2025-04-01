@@ -552,7 +552,6 @@ func TestHomodyneDiscriminatorEstimatorUnrolledPeriod(t *testing.T) {
 	})
 }
 
-//nolint:dupl
 func TestHomodyneDiscriminatorEstimatorUnrolledPrimed(t *testing.T) {
 	t.Parallel()
 
