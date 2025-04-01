@@ -96,14 +96,7 @@ func NewHomodyneDiscriminatorEstimator(p *CycleEstimatorParams) (*HomodyneDiscri
 		quadrature:                       quadrature,
 		jInPhase:                         jInPhase,
 		jQuadrature:                      jQuadrature,
-		count:                            0,
-		smoothedInPhasePrevious:          0,
-		smoothedQuadraturePrevious:       0,
-		rePrevious:                       0,
-		imPrevious:                       0,
 		period:                           defaultMinPeriod,
-		isPrimed:                         false,
-		isWarmedUp:                       false,
 	}, nil
 }
 

@@ -571,7 +571,6 @@ func TestDualDifferentiatorEstimatorPeriod(t *testing.T) {
 	})
 }
 
-//nolint:dupl
 func TestDualDifferentiatorEstimatorPrimed(t *testing.T) {
 	t.Parallel()
 

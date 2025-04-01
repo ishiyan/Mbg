@@ -571,7 +571,6 @@ func TestPhaseAccumulatorEstimatorPeriod(t *testing.T) {
 	})
 }
 
-//nolint:dupl
 func TestPhaseAccumulatorEstimatorPrimed(t *testing.T) {
 	t.Parallel()
 

@@ -85,15 +85,7 @@ func NewPhaseAccumulatorEstimator(p *CycleEstimatorParams) (*PhaseAccumulatorEst
 		wmaSmoothed:                      wmaSmoothed,
 		detrended:                        detrended,
 		deltaPhase:                       deltaPhase,
-		quadrature:                       0,
-		inPhase:                          0,
-		count:                            0,
-		smoothedInPhasePrevious:          0,
-		smoothedQuadraturePrevious:       0,
-		phasePrevious:                    0,
 		period:                           defaultMinPeriod,
-		isPrimed:                         false,
-		isWarmedUp:                       false,
 	}, nil
 }
 

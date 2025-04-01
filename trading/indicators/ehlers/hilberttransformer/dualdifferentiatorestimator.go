@@ -93,12 +93,7 @@ func NewDualDifferentiatorEstimator(
 		quadrature:                       quadrature,
 		jInPhase:                         jInPhase,
 		jQuadrature:                      jQuadrature,
-		count:                            0,
-		smoothedInPhasePrevious:          0,
-		smoothedQuadraturePrevious:       0,
 		period:                           defaultMinPeriod,
-		isPrimed:                         false,
-		isWarmedUp:                       false,
 	}, nil
 }
 
