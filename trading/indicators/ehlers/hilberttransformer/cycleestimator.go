@@ -1,6 +1,6 @@
 package hilberttransformer
 
-// CycleEstimator describes a common cycle estimator functionality.
+// CycleEstimator describes a common Hilbert transformer cycle estimator functionality.
 type CycleEstimator interface { //nolint:interfacebloat
 	// SmoothingLength returns the underlying WMA smoothing length in samples.
 	SmoothingLength() int

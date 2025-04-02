@@ -318,25 +318,17 @@ func (s *HomodyneDiscriminatorEstimator) Update(sample float64) { //nolint:funle
 		s.imPrevious = im
 		periodPrevious := s.period
 
-		if s.smoothingLengthPlus3HtLengthMin1 == s.count { // count == 24
-			periodNew := twoPi / math.Atan2(im, re)
-			if !math.IsNaN(periodNew) && !math.IsInf(periodNew, 0) {
-				s.period = periodNew
-			}
-
-			s.period = adjustPeriod(s.period, periodPrevious)
-
-			return
-		}
-
 		periodNew := twoPi / math.Atan2(im, re)
 		if !math.IsNaN(periodNew) && !math.IsInf(periodNew, 0) {
 			s.period = periodNew
 		}
 
 		s.period = adjustPeriod(s.period, periodPrevious)
-		s.period = s.emaPeriod(s.period, periodPrevious)
-		s.isPrimed = true
+
+		if s.smoothingLengthPlus3HtLengthMin1 < s.count { // count > 24
+			s.period = s.emaPeriod(s.period, periodPrevious)
+			s.isPrimed = true
+		}
 	}
 }
 

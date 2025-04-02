@@ -275,12 +275,10 @@ func (s *PhaseAccumulatorEstimator) Update(sample float64) { //nolint:funlen
 		periodPrevious := s.period
 		s.period = instantaneousPeriod(s.deltaPhase, periodPrevious)
 
-		if s.smoothingLengthPlus2HtLengthMin1 == s.count { // count == 17
-			return
+		if s.smoothingLengthPlus2HtLengthMin1 < s.count { // count >= 18
+			s.period = s.emaPeriod(s.period, periodPrevious)
+			s.isPrimed = true
 		}
-
-		s.period = s.emaPeriod(s.period, periodPrevious) // count >= 18
-		s.isPrimed = true
 	}
 }
 

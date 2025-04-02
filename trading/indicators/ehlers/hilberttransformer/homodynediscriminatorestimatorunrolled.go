@@ -634,7 +634,7 @@ detrendLabel:
 	s.i2Previous = i2
 	temp = s.period
 
-	periodNew := c2 * math.Pi / math.Atan(s.im/s.re)
+	periodNew := c2 * math.Pi / math.Atan2(s.im, s.re)
 	if !math.IsNaN(periodNew) && !math.IsInf(periodNew, 0) {
 		s.period = periodNew
 	}
