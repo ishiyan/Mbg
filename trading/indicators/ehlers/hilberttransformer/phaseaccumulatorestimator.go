@@ -192,9 +192,8 @@ func (s *PhaseAccumulatorEstimator) Update(sample float64) { //nolint:funlen
 	push(s.rawValues, sample)
 
 	if s.isPrimed { //nolint:nestif
-		s.count++
 		if !s.isWarmedUp {
-			// s.count++
+			s.count++
 			if s.warmUpPeriod < s.count {
 				s.isWarmedUp = true
 			}
