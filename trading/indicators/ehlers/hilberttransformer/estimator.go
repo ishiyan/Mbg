@@ -9,6 +9,44 @@ const (
 	quadratureIndex  = htLength / 2
 )
 
+// NewCycleEstimator creates a new cycle estimator based on the specified type and parameters.
+func NewCycleEstimator(typ CycleEstimatorType, params *CycleEstimatorParams) (CycleEstimator, error) {
+	switch typ {
+	case HomodyneDiscriminator:
+		return NewHomodyneDiscriminatorEstimator(params)
+	case HomodyneDiscriminatorUnrolled:
+		return NewHomodyneDiscriminatorEstimatorUnrolled(params)
+	case PhaseAccumulator:
+		return NewPhaseAccumulatorEstimator(params)
+	case DualDifferentiator:
+		return NewDualDifferentiatorEstimator(params)
+	}
+
+	return nil, fmt.Errorf("invalid cycle estimator type: %s", typ)
+}
+
+// EstimatorMoniker returns the moniker of the cycle estimator.
+func EstimatorMoniker(typ CycleEstimatorType, estimator CycleEstimator) string {
+	namer := func(s string, e CycleEstimator) string {
+		const f = "%s(%d, %.3f, %.3f)"
+
+		return fmt.Sprintf(f, s, e.SmoothingLength(), e.AlphaEmaQuadratureInPhase(), e.AlphaEmaPeriod())
+	}
+
+	switch typ {
+	case HomodyneDiscriminator:
+		return namer("hd", estimator)
+	case HomodyneDiscriminatorUnrolled:
+		return namer("hdu", estimator)
+	case PhaseAccumulator:
+		return namer("pa", estimator)
+	case DualDifferentiator:
+		return namer("dd", estimator)
+	}
+
+	return ""
+}
+
 // Push shifts all elements to the right and place the new value at index zero.
 func push(array []float64, value float64) {
 	for i := len(array) - 1; i > 0; i-- {

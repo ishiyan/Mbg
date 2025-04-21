@@ -39,6 +39,9 @@ const (
 	// JurikMovingAverage identifies the Jurik Moving Average (JMA) indicator.
 	JurikMovingAverage
 
+	// MesaAdaptiveMovingAverage identifies the Ehlers MESA Adaptive Moving Average (MAMA) indicator.
+	MesaAdaptiveMovingAverage
+
 	// Momentum identifies the momentum (MOM) indicator.
 	Momentum
 
@@ -79,6 +82,7 @@ const (
 	t3ExponentialMovingAverage     = "t3ExponentialMovingAverage"
 	kaufmanAdaptiveMovingAverage   = "kaufmanAdaptiveMovingAverageMovingAverage"
 	jurikMovingAverage             = "jurikMovingAverage"
+	mesaAdaptiveMovingAverage      = "mesaAdaptiveMovingAverage"
 	momentum                       = "momentum"
 	rateOfChange                   = "rateOfChange"
 	rateOfChangePercent            = "rateOfChangePercent"
@@ -92,7 +96,7 @@ const (
 
 // String implements the Stringer interface.
 //
-//nolint:exhaustive,cyclop
+//nolint:exhaustive,cyclop,funlen
 func (t Type) String() string {
 	switch t {
 	case SimpleMovingAverage:
@@ -113,6 +117,8 @@ func (t Type) String() string {
 		return kaufmanAdaptiveMovingAverage
 	case JurikMovingAverage:
 		return jurikMovingAverage
+	case MesaAdaptiveMovingAverage:
+		return mesaAdaptiveMovingAverage
 	case Momentum:
 		return momentum
 	case RateOfChange:
@@ -164,7 +170,7 @@ func (t Type) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements the Unmarshaler interface.
 //
-//nolint:cyclop
+//nolint:cyclop,funlen
 func (t *Type) UnmarshalJSON(data []byte) error {
 	const (
 		errFmt = "cannot unmarshal '%s': unknown indicator type"
@@ -193,6 +199,8 @@ func (t *Type) UnmarshalJSON(data []byte) error {
 		*t = KaufmanAdaptiveMovingAverage
 	case jurikMovingAverage:
 		*t = JurikMovingAverage
+	case mesaAdaptiveMovingAverage:
+		*t = MesaAdaptiveMovingAverage
 	case momentum:
 		*t = Momentum
 	case rateOfChange:
