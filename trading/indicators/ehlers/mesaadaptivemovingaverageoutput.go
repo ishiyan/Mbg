@@ -11,12 +11,16 @@ type MesaAdaptiveMovingAverageOutput int
 const (
 	// The scalar value of the moving average.
 	MesaAdaptiveMovingAverageValue MesaAdaptiveMovingAverageOutput = iota + 1
+	MesaAdaptiveMovingAverageValueFama
+	MesaAdaptiveMovingAverageBand
 	mesaAdaptiveMovingAverageLast
 )
 
 const (
-	mesaAdaptiveMovingAverageValue   = "value"
-	mesaAdaptiveMovingAverageUnknown = "unknown"
+	mesaAdaptiveMovingAverageValue     = "value"
+	mesaAdaptiveMovingAverageValueFama = "fama"
+	mesaAdaptiveMovingAverageBand      = "band"
+	mesaAdaptiveMovingAverageUnknown   = "unknown"
 )
 
 // String implements the Stringer interface.
@@ -24,6 +28,10 @@ func (o MesaAdaptiveMovingAverageOutput) String() string {
 	switch o {
 	case MesaAdaptiveMovingAverageValue:
 		return mesaAdaptiveMovingAverageValue
+	case MesaAdaptiveMovingAverageValueFama:
+		return mesaAdaptiveMovingAverageValueFama
+	case MesaAdaptiveMovingAverageBand:
+		return mesaAdaptiveMovingAverageBand
 	default:
 		return mesaAdaptiveMovingAverageUnknown
 	}
@@ -68,6 +76,10 @@ func (o *MesaAdaptiveMovingAverageOutput) UnmarshalJSON(data []byte) error {
 	switch s {
 	case mesaAdaptiveMovingAverageValue:
 		*o = MesaAdaptiveMovingAverageValue
+	case mesaAdaptiveMovingAverageValueFama:
+		*o = MesaAdaptiveMovingAverageValueFama
+	case mesaAdaptiveMovingAverageBand:
+		*o = MesaAdaptiveMovingAverageBand
 	default:
 		return fmt.Errorf(errFmt, s)
 	}

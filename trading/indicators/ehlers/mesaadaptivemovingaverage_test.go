@@ -3,13 +3,15 @@ package ehlers
 
 import (
 	"math"
+	"strings"
 	"testing"
 	"time"
 
-	"mbg/trading/data"                                 //nolint:depguard
-	"mbg/trading/indicators/ehlers/hilberttransformer" //nolint:depguard
-	"mbg/trading/indicators/indicator"                 //nolint:depguard
-	"mbg/trading/indicators/indicator/output"          //nolint:depguard
+	"mbg/trading/data"                                        //nolint:depguard
+	"mbg/trading/indicators/ehlers/hilberttransformer"        //nolint:depguard
+	"mbg/trading/indicators/indicator"                        //nolint:depguard
+	"mbg/trading/indicators/indicator/output"                 //nolint:depguard
+	outputdata "mbg/trading/indicators/indicator/output/data" //nolint:depguard
 )
 
 func testMesaAdaptiveMovingAverageTime() time.Time {
@@ -49,9 +51,9 @@ func testMesaAdaptiveMovingAverageInput() []float64 {
 	}
 }
 
-// Expected data taken from TA-Lib (http://ta-lib.org/) tests, test_MAMA_new.xsl, MAMA, L5…AB256, 252 entries.
+// Expected data taken from TA-Lib (http://ta-lib.org/) tests, test_MAMA_new.xsl, MAMA, L5…L256, 252 entries.
 
-func testMesaAdaptiveMovingAverageExpected() []float64 {
+func testMesaAdaptiveMovingAverageExpected() []float64 { //nolint:dupl
 	return []float64{
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
 		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
@@ -107,6 +109,64 @@ func testMesaAdaptiveMovingAverageExpected() []float64 {
 	}
 }
 
+// Expected data taken from TA-Lib (http://ta-lib.org/) tests, test_MAMA_new.xsl, FAMA, M5…M256, 252 entries.
+
+func testMesaAdaptiveMovingAverageExpectedFama() []float64 { //nolint:dupl
+	return []float64{
+		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
+		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
+		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
+		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
+		math.NaN(), math.NaN(), math.NaN(), math.NaN(), math.NaN(),
+		math.NaN(), 82.81254062500000, 82.81748132812500, 82.82711080273440, 82.84193059008790,
+		82.85933000488650, 82.87958767533760, 83.42308285936940, 83.46659053765740, 83.51372816149970,
+		83.56325347538170, 83.61193785552060, 83.97215697675810, 83.99742926792530, 84.02140969103400,
+		84.04296979582470, 84.49051658220110, 84.52700677000270, 84.56672829799140, 84.61138695291840,
+		84.66046592335350, 85.79966766380500, 85.88653620323240, 85.97196501762300, 86.05728162568030,
+		86.14060953186120, 86.21970686804650, 86.29332114210310, 86.40083808536590, 86.40413199496660,
+		86.15092330489960, 86.13230290660120, 86.11565288404400, 86.10293935954540, 86.09545040827910,
+		86.09276945415840, 86.09278900858640, 86.65941071034940, 86.70675199321210, 86.75680904147210,
+		86.81046899612120, 86.86792719286970, 87.68610750290990, 87.74852646562170, 87.80962824675140,
+		87.86677423621430, 87.91850661615910, 87.96164122481280, 87.57515478889780, 87.52253616703480,
+		87.50510706318110, 87.50442572190750, 87.52349534740050, 87.56417609382920, 87.62177641509140,
+		89.83860592935840, 90.01376927483820, 90.19429711199540, 90.38228689977220, 90.57462520707570,
+		90.77143528270680, 92.91910507498220, 96.13433431666780, 99.05387849271640, 99.27680991714400,
+		102.95399937158500, 106.44807049555300, 107.08410724792500, 107.33614354406100, 109.89186504471300,
+		110.10131335782500, 110.28491961312300, 110.45851625757700, 110.62092450418000, 110.77622586196600,
+		112.02941674842700, 112.12300732815200, 112.21020434346200, 112.29074532346400, 112.36677672453600,
+		112.43951733887300, 113.68856316640800, 113.78290322766200, 114.85932312281700, 114.93623138644300,
+		115.26038024831600, 115.28315037941400, 115.30579977536900, 115.33287777865400, 115.36441768197300,
+		116.17199750040500, 116.23955381559300, 116.31354716026600, 117.50632132051500, 117.59817357778200,
+		117.69179776410400, 118.86674095190700, 118.95690972784900, 119.05196366940400, 119.15326117818300,
+		121.11230388620900, 123.25103191594200, 125.15480093760000, 125.30126972922100, 125.44988486029800,
+		125.60202101938300, 125.75777211046200, 125.91652059343500, 127.99022937375100, 129.82409149465000,
+		129.96283030639600, 130.09025234289200, 130.20605168876900, 130.30805326827600, 130.02055430983800,
+		129.66255158452500, 129.60796445673800, 129.55445567405500, 129.49997509450100, 129.44454998882200,
+		129.38628804720000, 129.32140881371400, 127.83557144875600, 127.72088607219200, 126.69668410241700,
+		126.61881385694300, 126.53931302475100, 126.45972623765200, 126.38094056830500, 126.30405166636200,
+		125.91433681109300, 125.88862670664100, 125.84783660910900, 125.48406074639600, 125.44902541479700,
+		125.41926864763300, 125.38781985623900, 125.35503688838900, 125.02146530907300, 124.99638400241000,
+		124.97210071211100, 124.94893693858100, 124.93004532217600, 124.90919302692900, 124.91266455960900,
+		124.92290798605400, 125.89685619171800, 125.97646018113200, 126.06276655110000, 127.44816428580800,
+		127.55350116904800, 127.65846508068900, 127.75982732249500, 127.85350806481400, 127.94101296730700,
+		128.02206311703200, 128.14067470731000, 128.14473118973400, 128.14170759259100, 128.13384235124700,
+		128.00905845287200, 127.04457852661200, 126.36580270681000, 126.22473574995300, 126.13096884168100,
+		125.05185905864700, 124.12883550767900, 123.95812797494200, 123.72589462615000, 123.62617228268600,
+		123.51981549669900, 123.32757791079300, 120.55400038758100, 120.33865298856800, 120.12232039399600,
+		117.42365894621000, 117.22213724437200, 117.00270009648900, 116.77014306314300, 116.42916456020000,
+		112.57847491805700, 108.83528193749700, 108.55101033521000, 108.27404625067300, 108.00415320955700,
+		107.73822208871100, 107.47563061041700, 104.28854332743100, 104.04555892935900, 103.80571268198400,
+		103.57106045449900, 101.42949828870000, 101.27035636152600, 101.11464445602900, 100.96292299799300,
+		100.81368734373900, 99.20257761128420, 99.08366407083270, 98.97684707390100, 98.88723677165060,
+		99.58135695172350, 99.63559256836400, 100.57804212844100, 100.64966285693600, 100.71932697813300,
+		100.78713546167000, 100.85500915021800, 100.92981464279800, 102.99076458877700, 103.15551256669200,
+		103.32697849052700, 105.89512755790900, 106.08292676951300, 106.26134088079900, 106.42943277527600,
+		106.58486610156700, 106.73025513741700, 107.82774479500800, 107.90752500211700, 107.98289951270000,
+		108.05418027873600, 108.12178011292900, 108.18556723420900, 108.71145854617200, 108.75007022896600,
+		108.78680921236900, 108.81993018423000,
+	}
+}
+
 func TestMesaAdaptiveMovingAverageUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -134,13 +194,13 @@ func TestMesaAdaptiveMovingAverageUpdate(t *testing.T) {
 		s       = 39
 	)
 
-	t.Run("reference implementation test_mama_new.xls", func(t *testing.T) {
+	t.Run("reference implementation: MAMA from test_mama_new.xls", func(t *testing.T) {
 		t.Parallel()
 
 		mama := testMesaAdaptiveMovingAverageCreateLength(f, s)
 		exp := testMesaAdaptiveMovingAverageExpected()
 
-		for i := 0; i < lprimed; i++ {
+		for i := range lprimed {
 			checkNaN(i, mama.Update(input[i]))
 		}
 
@@ -151,38 +211,94 @@ func TestMesaAdaptiveMovingAverageUpdate(t *testing.T) {
 
 		checkNaN(0, mama.Update(math.NaN()))
 	})
+
+	t.Run("reference implementation: FAMA from test_mama_new.xls", func(t *testing.T) {
+		t.Parallel()
+
+		mama := testMesaAdaptiveMovingAverageCreateLength(f, s)
+		exp := testMesaAdaptiveMovingAverageExpectedFama()
+
+		for i := range lprimed {
+			checkNaN(i, mama.Update(input[i]))
+		}
+
+		for i := lprimed; i < len(input); i++ {
+			mama.Update(input[i])
+			act := mama.fama
+			check(i, exp[i], act)
+		}
+	})
 }
 
-func TestMesaAdaptiveMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen
+func TestMesaAdaptiveMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen,cyclop
 	t.Parallel()
 
 	const (
-		lprimed  = 26
-		fast     = 3
-		slow     = 39
-		inp      = 3.
-		expected = 1.5
+		lprimed      = 26
+		fast         = 3
+		slow         = 39
+		inp          = 3.
+		expectedMama = 1.5
+		expectedFama = 0.375
 	)
 
 	time := testMesaAdaptiveMovingAverageTime()
-	check := func(exp float64, act indicator.Output) {
+	check := func(expMama, expFama float64, act indicator.Output) {
 		t.Helper()
 
-		if len(act) != 1 {
-			t.Errorf("len(output) is incorrect: expected 1, actual %v", len(act))
+		const outputLen = 3
+
+		if len(act) != outputLen {
+			t.Errorf("len(output) is incorrect: expected %v, actual %v", outputLen, len(act))
 		}
 
-		s, ok := act[0].(data.Scalar)
+		i := 0
+
+		s0, ok := act[i].(data.Scalar)
 		if !ok {
-			t.Error("output is not scalar")
+			t.Error("output[0] is not a scalar")
 		}
 
-		if s.Time != time {
-			t.Errorf("time is incorrect: expected %v, actual %v", time, s.Time)
+		i++
+
+		s1, ok := act[i].(data.Scalar)
+		if !ok {
+			t.Error("output[1] is not a scalar")
 		}
 
-		if s.Value != exp {
-			t.Errorf("value is incorrect: expected %v, actual %v", exp, s.Value)
+		i++
+
+		s2, ok := act[i].(outputdata.Band)
+		if !ok {
+			t.Error("output[2] is not a band")
+		}
+
+		if s0.Time != time {
+			t.Errorf("output[0] time is incorrect: expected %v, actual %v", time, s0.Time)
+		}
+
+		if s0.Value != expMama {
+			t.Errorf("output[0] value is incorrect: expected %v, actual %v", expMama, s0.Value)
+		}
+
+		if s1.Time != time {
+			t.Errorf("output[1] time is incorrect: expected %v, actual %v", time, s1.Time)
+		}
+
+		if s1.Value != expFama {
+			t.Errorf("output[1] value is incorrect: expected %v, actual %v", expFama, s1.Value)
+		}
+
+		if s2.Time != time {
+			t.Errorf("output[2] time is incorrect: expected %v, actual %v", time, s2.Time)
+		}
+
+		if s2.Upper != expMama {
+			t.Errorf("output[2] upper value is incorrect: expected %v, actual %v", expMama, s2.Upper)
+		}
+
+		if s2.Lower != expFama {
+			t.Errorf("output[2] lower value is incorrect: expected %v, actual %v", expFama, s2.Lower)
 		}
 	}
 
@@ -196,7 +312,7 @@ func TestMesaAdaptiveMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen
 			mama.Update(0.)
 		}
 
-		check(expected, mama.UpdateScalar(&s))
+		check(expectedMama, expectedFama, mama.UpdateScalar(&s))
 	})
 
 	t.Run("update bar", func(t *testing.T) {
@@ -209,7 +325,7 @@ func TestMesaAdaptiveMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen
 			mama.Update(0.)
 		}
 
-		check(expected, mama.UpdateBar(&b))
+		check(expectedMama, expectedFama, mama.UpdateBar(&b))
 	})
 
 	t.Run("update quote", func(t *testing.T) {
@@ -222,7 +338,7 @@ func TestMesaAdaptiveMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen
 			mama.Update(0.)
 		}
 
-		check(expected, mama.UpdateQuote(&q))
+		check(expectedMama, expectedFama, mama.UpdateQuote(&q))
 	})
 
 	t.Run("update trade", func(t *testing.T) {
@@ -235,7 +351,7 @@ func TestMesaAdaptiveMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen
 			mama.Update(0.)
 		}
 
-		check(expected, mama.UpdateTrade(&r))
+		check(expectedMama, expectedFama, mama.UpdateTrade(&r))
 	})
 }
 
@@ -276,7 +392,7 @@ func TestMesaAdaptiveMovingAverageIsPrimed(t *testing.T) {
 	})
 }
 
-func TestMesaAdaptiveMovingAverageMetadata(t *testing.T) {
+func TestMesaAdaptiveMovingAverageMetadata(t *testing.T) { //nolint: funlen
 	t.Parallel()
 
 	check := func(what string, exp, act any) {
@@ -288,12 +404,31 @@ func TestMesaAdaptiveMovingAverageMetadata(t *testing.T) {
 	}
 
 	checkInstance := func(act indicator.Metadata, name string) {
+		const (
+			outputLen = 3
+			descr     = "Mesa adaptive moving average "
+		)
+
+		name1 := strings.ReplaceAll(name, "mama", "fama")
+		name2 := strings.ReplaceAll(name, "mama", "mama-fama")
+
 		check("Type", indicator.MesaAdaptiveMovingAverage, act.Type)
-		check("len(Outputs)", 1, len(act.Outputs))
+		check("len(Outputs)", outputLen, len(act.Outputs))
+
 		check("Outputs[0].Kind", int(MesaAdaptiveMovingAverageValue), act.Outputs[0].Kind)
 		check("Outputs[0].Type", output.Scalar, act.Outputs[0].Type)
 		check("Outputs[0].Name", name, act.Outputs[0].Name)
-		check("Outputs[0].Description", "Mesa adaptive moving average "+name, act.Outputs[0].Description)
+		check("Outputs[0].Description", descr+name, act.Outputs[0].Description)
+
+		check("Outputs[1].Kind", int(MesaAdaptiveMovingAverageValueFama), act.Outputs[1].Kind)
+		check("Outputs[1].Type", output.Scalar, act.Outputs[1].Type)
+		check("Outputs[1].Name", name1, act.Outputs[1].Name)
+		check("Outputs[1].Description", descr+name1, act.Outputs[1].Description)
+
+		check("Outputs[2].Kind", int(MesaAdaptiveMovingAverageBand), act.Outputs[2].Kind)
+		check("Outputs[2].Type", output.Band, act.Outputs[2].Type)
+		check("Outputs[2].Name", name2, act.Outputs[2].Name)
+		check("Outputs[2].Description", descr+name2, act.Outputs[2].Description)
 	}
 
 	t.Run("(fast, slow) limit length = (2, 40)", func(t *testing.T) {
@@ -323,7 +458,7 @@ func TestMesaAdaptiveMovingAverageMetadata(t *testing.T) {
 	})
 }
 
-func TestNewMesaAdaptiveMovingAverage(t *testing.T) { //nolint: funlen, maintidx
+func TestNewMesaAdaptiveMovingAverage(t *testing.T) { //nolint: funlen,maintidx
 	t.Parallel()
 
 	const (
@@ -360,13 +495,23 @@ func TestNewMesaAdaptiveMovingAverage(t *testing.T) { //nolint: funlen, maintidx
 			aSlow = two / float64(lenSlow+1)
 		}
 
+		const descr = "Mesa adaptive moving average "
+
+		nameFama := strings.ReplaceAll(name, "mama", "fama")
+		nameBand := strings.ReplaceAll(name, "mama", "mama-fama")
+
 		check("name", name, mama.name)
-		check("description", "Mesa adaptive moving average "+name, mama.description)
+		check("description", descr+name, mama.description)
+		check("nameFama", nameFama, mama.nameFama)
+		check("descriptionFama", descr+nameFama, mama.descriptionFama)
+		check("nameBand", nameBand, mama.nameBand)
+		check("descriptionBand", descr+nameBand, mama.descriptionBand)
 		check("primed", false, mama.primed)
 		check("alphaFastLimit", aFast, mama.alphaFastLimit)
 		check("alphaSlowLimit", aSlow, mama.alphaSlowLimit)
 		check("previousPhase", 0., mama.previousPhase)
-		check("value", 0., mama.value)
+		check("mama", 0., mama.mama)
+		check("fama", 0., mama.fama)
 		check("htce != nil", true, mama.htce != nil)
 		check("isPhaseCached", false, mama.isPhaseCached)
 		check("primed", false, mama.primed)

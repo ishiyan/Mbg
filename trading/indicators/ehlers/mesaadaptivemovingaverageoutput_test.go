@@ -13,6 +13,8 @@ func TestMesaAdaptiveMovingAverageOutputString(t *testing.T) {
 		text string
 	}{
 		{MesaAdaptiveMovingAverageValue, mesaAdaptiveMovingAverageValue},
+		{MesaAdaptiveMovingAverageValueFama, mesaAdaptiveMovingAverageValueFama},
+		{MesaAdaptiveMovingAverageBand, mesaAdaptiveMovingAverageBand},
 		{mesaAdaptiveMovingAverageLast, mesaAdaptiveMovingAverageUnknown},
 		{MesaAdaptiveMovingAverageOutput(0), mesaAdaptiveMovingAverageUnknown},
 		{MesaAdaptiveMovingAverageOutput(9999), mesaAdaptiveMovingAverageUnknown},
@@ -37,6 +39,8 @@ func TestMesaAdaptiveMovingAverageOutputIsKnown(t *testing.T) {
 		boolean bool
 	}{
 		{MesaAdaptiveMovingAverageValue, true},
+		{MesaAdaptiveMovingAverageValueFama, true},
+		{MesaAdaptiveMovingAverageBand, true},
 		{mesaAdaptiveMovingAverageLast, false},
 		{MesaAdaptiveMovingAverageOutput(0), false},
 		{MesaAdaptiveMovingAverageOutput(9999), false},
@@ -65,6 +69,8 @@ func TestMesaAdaptiveMovingAverageOutputMarshalJSON(t *testing.T) {
 		succeeded bool
 	}{
 		{MesaAdaptiveMovingAverageValue, dqs + mesaAdaptiveMovingAverageValue + dqs, true},
+		{MesaAdaptiveMovingAverageValueFama, dqs + mesaAdaptiveMovingAverageValueFama + dqs, true},
+		{MesaAdaptiveMovingAverageBand, dqs + mesaAdaptiveMovingAverageBand + dqs, true},
 		{mesaAdaptiveMovingAverageLast, nilstr, false},
 		{MesaAdaptiveMovingAverageOutput(9999), nilstr, false},
 		{MesaAdaptiveMovingAverageOutput(-9999), nilstr, false},
@@ -106,6 +112,8 @@ func TestMesaAdaptiveMovingAverageOutputUnmarshalJSON(t *testing.T) {
 		succeeded bool
 	}{
 		{MesaAdaptiveMovingAverageValue, dqs + mesaAdaptiveMovingAverageValue + dqs, true},
+		{MesaAdaptiveMovingAverageValueFama, dqs + mesaAdaptiveMovingAverageValueFama + dqs, true},
+		{MesaAdaptiveMovingAverageBand, dqs + mesaAdaptiveMovingAverageBand + dqs, true},
 		{zero, dqs + mesaAdaptiveMovingAverageUnknown + dqs, false},
 		{zero, dqs + "foobar" + dqs, false},
 	}

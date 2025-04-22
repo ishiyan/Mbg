@@ -5,10 +5,11 @@ import (
 	"math"
 	"sync"
 
-	"mbg/trading/data"                                 //nolint:depguard
-	"mbg/trading/indicators/ehlers/hilberttransformer" //nolint:depguard
-	"mbg/trading/indicators/indicator"                 //nolint:depguard
-	"mbg/trading/indicators/indicator/output"          //nolint:depguard
+	"mbg/trading/data"                                        //nolint:depguard
+	"mbg/trading/indicators/ehlers/hilberttransformer"        //nolint:depguard
+	"mbg/trading/indicators/indicator"                        //nolint:depguard
+	"mbg/trading/indicators/indicator/output"                 //nolint:depguard
+	outputdata "mbg/trading/indicators/indicator/output/data" //nolint:depguard
 )
 
 // MesaAdaptiveMovingAverage (Ehler's Mesa adaptive moving average, or Mother of All Moving Averages, MAMA)
@@ -30,22 +31,37 @@ import (
 // Any time there is a negative phase rate of change the value of α is set to the fast limit αf;
 // if the phase rate of change is large, the α is bounded at the slow limit αs.
 //
+// The Following Adaptive Moving Average (FAMA) is produced by applying the MAMA to the first
+// MAMA indicator.
+//
+// By using an α in FAMA that is the half the value of the α in MAMA, the FAMA has steps in
+// time synchronization with MAMA, but the vertical movement is not as great.
+//
+// As a result, MAMA and FAMA do not cross unless there has been a major change in the
+// market direction. This suggests an adaptive moving average crossover system that is
+// virtually free of whipsaw trades.
+//
 // Reference:
 // John Ehlers, Rocket Science for Traders, Wiley, 2001, 0471405671, pp 177-184.
 type MesaAdaptiveMovingAverage struct {
-	mu             sync.RWMutex
-	name           string
-	description    string
-	alphaFastLimit float64
-	alphaSlowLimit float64
-	previousPhase  float64
-	value          float64
-	htce           hilberttransformer.CycleEstimator
-	isPhaseCached  bool
-	primed         bool
-	barFunc        data.BarFunc
-	quoteFunc      data.QuoteFunc
-	tradeFunc      data.TradeFunc
+	mu              sync.RWMutex
+	name            string
+	description     string
+	nameFama        string
+	descriptionFama string
+	nameBand        string
+	descriptionBand string
+	alphaFastLimit  float64
+	alphaSlowLimit  float64
+	previousPhase   float64
+	mama            float64
+	fama            float64
+	htce            hilberttransformer.CycleEstimator
+	isPhaseCached   bool
+	primed          bool
+	barFunc         data.BarFunc
+	quoteFunc       data.QuoteFunc
+	tradeFunc       data.TradeFunc
 }
 
 // NewAMesadaptiveMovingAverageDefault returns an instnce of the indicator
@@ -113,16 +129,23 @@ func newMesaAdaptiveMovingAverage(
 		fmtw    = "%s: %w"
 		fmtnl   = "mama(%d, %d%s)"
 		fmtna   = "mama(%.4f, %.4f%s)"
+		fmtnlf  = "fama(%d, %d%s)"
+		fmtnaf  = "fama(%.4f, %.4f%s)"
+		fmtnlb  = "mama-fama(%d, %d%s)"
+		fmtnab  = "mama-fama(%.4f, %.4f%s)"
 		two     = 2
 		four    = 4
 		alpha   = 0.2
 		epsilon = 0.00000001
 		flim    = "fast limit"
 		slim    = "slow limit"
+		descr   = "Mesa adaptive moving average "
 	)
 
 	var (
 		name      string
+		nameFama  string
+		nameBand  string
 		err       error
 		barFunc   data.BarFunc
 		quoteFunc data.QuoteFunc
@@ -159,6 +182,10 @@ func newMesaAdaptiveMovingAverage(
 
 		name = fmt.Sprintf(fmtnl,
 			fastLimitLength, slowLimitLength, estimmatorMoniker)
+		nameFama = fmt.Sprintf(fmtnlf,
+			fastLimitLength, slowLimitLength, estimmatorMoniker)
+		nameBand = fmt.Sprintf(fmtnlb,
+			fastLimitLength, slowLimitLength, estimmatorMoniker)
 	} else {
 		if fastLimitSmoothingFactor < 0. || fastLimitSmoothingFactor > 1. {
 			return nil, fmt.Errorf(fmta, invalid, flim)
@@ -178,6 +205,10 @@ func newMesaAdaptiveMovingAverage(
 
 		name = fmt.Sprintf(fmtna,
 			fastLimitSmoothingFactor, slowLimitSmoothingFactor, estimmatorMoniker)
+		nameFama = fmt.Sprintf(fmtnaf,
+			fastLimitSmoothingFactor, slowLimitSmoothingFactor, estimmatorMoniker)
+		nameBand = fmt.Sprintf(fmtnab,
+			fastLimitSmoothingFactor, slowLimitSmoothingFactor, estimmatorMoniker)
 	}
 
 	if barFunc, err = data.BarComponentFunc(bc); err != nil {
@@ -192,17 +223,19 @@ func newMesaAdaptiveMovingAverage(
 		return nil, fmt.Errorf(fmtw, invalid, err)
 	}
 
-	desc := "Mesa adaptive moving average " + name
-
 	return &MesaAdaptiveMovingAverage{
-		name:           name,
-		description:    desc,
-		alphaFastLimit: fastLimitSmoothingFactor,
-		alphaSlowLimit: slowLimitSmoothingFactor,
-		htce:           estimator,
-		barFunc:        barFunc,
-		quoteFunc:      quoteFunc,
-		tradeFunc:      tradeFunc,
+		name:            name,
+		description:     descr + name,
+		nameFama:        nameFama,
+		descriptionFama: descr + nameFama,
+		nameBand:        nameBand,
+		descriptionBand: descr + nameBand,
+		alphaFastLimit:  fastLimitSmoothingFactor,
+		alphaSlowLimit:  slowLimitSmoothingFactor,
+		htce:            estimator,
+		barFunc:         barFunc,
+		quoteFunc:       quoteFunc,
+		tradeFunc:       tradeFunc,
 	}, nil
 }
 
@@ -225,6 +258,18 @@ func (s *MesaAdaptiveMovingAverage) Metadata() indicator.Metadata {
 				Type:        output.Scalar,
 				Name:        s.name,
 				Description: s.description,
+			},
+			{
+				Kind:        int(MesaAdaptiveMovingAverageValueFama),
+				Type:        output.Scalar,
+				Name:        s.nameFama,
+				Description: s.descriptionFama,
+			},
+			{
+				Kind:        int(MesaAdaptiveMovingAverageBand),
+				Type:        output.Band,
+				Name:        s.nameBand,
+				Description: s.descriptionBand,
 			},
 		},
 	}
@@ -254,7 +299,19 @@ func (s *MesaAdaptiveMovingAverage) Update(sample float64) float64 {
 
 		s.isPhaseCached = true
 		s.previousPhase = s.calculatePhase()
-		s.value = sample
+		s.mama = sample
+		s.fama = sample
+
+		/*if s.isValueCached {
+			s.isPhaseCached = true
+			s.previousPhase = s.calculatePhase()
+			s.mama = sample
+		} else {
+			s.isValueCached = true
+			s.previousPhase = s.calculatePhase()
+			s.mama = sample
+			s.fama = sample
+		}*/
 	}
 
 	return math.NaN()
@@ -262,8 +319,22 @@ func (s *MesaAdaptiveMovingAverage) Update(sample float64) float64 {
 
 // UpdateScalar updates the indicator given the next scalar sample.
 func (s *MesaAdaptiveMovingAverage) UpdateScalar(sample *data.Scalar) indicator.Output {
-	output := make([]any, 1)
-	output[0] = data.Scalar{Time: sample.Time, Value: s.Update(sample.Value)}
+	const length = 3
+
+	output := make([]any, length)
+	mama := s.Update(sample.Value)
+
+	fama := s.fama
+	if math.IsNaN(mama) {
+		fama = math.NaN()
+	}
+
+	i := 0
+	output[i] = data.Scalar{Time: sample.Time, Value: mama}
+	i++
+	output[i] = data.Scalar{Time: sample.Time, Value: fama}
+	i++
+	output[i] = outputdata.Band{Time: sample.Time, Upper: mama, Lower: fama}
 
 	return output
 }
@@ -301,7 +372,7 @@ func (s *MesaAdaptiveMovingAverage) calculatePhase() float64 {
 	return s.previousPhase
 }
 
-func (s *MesaAdaptiveMovingAverage) calculate(sample float64) float64 {
+func (s *MesaAdaptiveMovingAverage) calculateMama(sample float64) float64 {
 	phase := s.calculatePhase()
 
 	// The phase rate of change is obtained by taking the
@@ -328,7 +399,16 @@ func (s *MesaAdaptiveMovingAverage) calculate(sample float64) float64 {
 		alpha = s.alphaFastLimit
 	}
 
-	s.value = alpha*sample + (1.0-alpha)*s.value
+	s.mama = alpha*sample + (1.0-alpha)*s.mama
 
-	return s.value
+	return alpha
+}
+
+func (s *MesaAdaptiveMovingAverage) calculate(sample float64) float64 {
+	const two = 2
+
+	alpha := s.calculateMama(sample) / two
+	s.fama = alpha*s.mama + (1.0-alpha)*s.fama
+
+	return s.mama
 }
