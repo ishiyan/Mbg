@@ -301,17 +301,6 @@ func (s *MesaAdaptiveMovingAverage) Update(sample float64) float64 {
 		s.previousPhase = s.calculatePhase()
 		s.mama = sample
 		s.fama = sample
-
-		/*if s.isValueCached {
-			s.isPhaseCached = true
-			s.previousPhase = s.calculatePhase()
-			s.mama = sample
-		} else {
-			s.isValueCached = true
-			s.previousPhase = s.calculatePhase()
-			s.mama = sample
-			s.fama = sample
-		}*/
 	}
 
 	return math.NaN()
