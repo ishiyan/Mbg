@@ -42,6 +42,9 @@ const (
 	// MesaAdaptiveMovingAverage identifies the Ehlers MESA Adaptive Moving Average (MAMA) indicator.
 	MesaAdaptiveMovingAverage
 
+	// FractalAdaptiveMovingAverage identifies the Ehlers Fractal Adaptive Moving Average (FRAMA) indicator.
+	FractalAdaptiveMovingAverage
+
 	// Momentum identifies the momentum (MOM) indicator.
 	Momentum
 
@@ -83,6 +86,7 @@ const (
 	kaufmanAdaptiveMovingAverage   = "kaufmanAdaptiveMovingAverageMovingAverage"
 	jurikMovingAverage             = "jurikMovingAverage"
 	mesaAdaptiveMovingAverage      = "mesaAdaptiveMovingAverage"
+	fractalAdaptiveMovingAverage   = "fractalAdaptiveMovingAverage"
 	momentum                       = "momentum"
 	rateOfChange                   = "rateOfChange"
 	rateOfChangePercent            = "rateOfChangePercent"
@@ -119,6 +123,8 @@ func (t Type) String() string {
 		return jurikMovingAverage
 	case MesaAdaptiveMovingAverage:
 		return mesaAdaptiveMovingAverage
+	case FractalAdaptiveMovingAverage:
+		return fractalAdaptiveMovingAverage
 	case Momentum:
 		return momentum
 	case RateOfChange:
@@ -201,6 +207,8 @@ func (t *Type) UnmarshalJSON(data []byte) error {
 		*t = JurikMovingAverage
 	case mesaAdaptiveMovingAverage:
 		*t = MesaAdaptiveMovingAverage
+	case fractalAdaptiveMovingAverage:
+		*t = FractalAdaptiveMovingAverage
 	case momentum:
 		*t = Momentum
 	case rateOfChange:

@@ -64,7 +64,7 @@ type MesaAdaptiveMovingAverage struct {
 	tradeFunc       data.TradeFunc
 }
 
-// NewAMesadaptiveMovingAverageDefault returns an instnce of the indicator
+// NewMesadaptiveMovingAverageDefault returns an instnce of the indicator
 // created using default values of the parameters.
 func NewMesaAdaptiveMovingAverageDefault() (*MesaAdaptiveMovingAverage, error) {
 	const (
@@ -89,7 +89,7 @@ func NewMesaAdaptiveMovingAverageDefault() (*MesaAdaptiveMovingAverage, error) {
 		data.BarMedianPrice, data.QuoteMidPrice, data.TradePrice)
 }
 
-// NewAMesadaptiveMovingAverageLength returns an instnce of the indicator
+// NewMesadaptiveMovingAverageLength returns an instnce of the indicator
 // created using supplied parameters based on length.
 func NewMesaAdaptiveMovingAverageLength(
 	p *MesaAdaptiveMovingAverageLengthParams,

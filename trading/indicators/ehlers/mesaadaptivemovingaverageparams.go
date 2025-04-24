@@ -35,6 +35,8 @@ type MesaAdaptiveMovingAverageLengthParams struct {
 	SlowLimitLength int
 
 	// BarComponent indicates the component of a bar to use when updating the indicator with a bar sample.
+	//
+	// The original MAMA indicator uses the median price (high+low)/2, which is the default.
 	BarComponent data.BarComponent
 
 	// QuoteComponent indicates the component of a quote to use when updating the indicator with a quote sample.
