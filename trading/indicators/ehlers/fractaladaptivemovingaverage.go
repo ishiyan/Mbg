@@ -11,10 +11,71 @@ import (
 	"mbg/trading/indicators/indicator/output" //nolint:depguard
 )
 
-// FractalAdaptiveMovingAverage (Ehler's FRAMA)
+// FractalAdaptiveMovingAverage (Ehler's fractal adaptive moving average, FRAMA)
+// is an EMA with the smoothing factor, α, being changed with each new sample:
+//
+// FRAMAᵢ = αᵢPᵢ + (1 - αᵢ)*FRAMAᵢ₋₁,  αs ≤ αᵢ ≤ 1
+//
+// Here the αs is the slowest α (default suggested value is 0.01 or equivalent
+// length of 199 samples).
+//
+// The concept of FRAMA is to relate the fractal dimension FDᵢ, calculated on a window
+// samples, to the EMA smoothing factor αᵢ, thus making the EMA adaptive.
+//
+// This dependency is defined as follows:
+//
+//	αᵢ = exp(-w(FDᵢ - 1)),  1 ≤ FDᵢ ≤ 2,
+//
+//	w = ln(αs)
+//
+//	or, given the length ℓs = 2/αs - 1,
+//
+//	w = ln(2/(ℓs + 1))
+//
+// The fractal dimension varies over the range from 1 to 2.
+//
+// When FDᵢ = 1 (series forms a straight line), the exponent is zero – which means that
+// αᵢ = 1, and the output of the exponential moving average is equal to the input.
+//
+// When FDᵢ = 2 (series fills all plane, excibiting extreme volatility), the exponent
+// is -w, which means that αᵢ = αs, and the output of the exponential moving average
+// is equal to the output of the slowest moving average with αs.
+//
+// The fractal dimension is estimated by using a "box count" method.
+// Since price samples are typically uniformly spaced, the box count is approximated
+// by the average slope of the price curve. This is calculated as the highest price
+// minus the lowest price within an interval, divided by the length of that interval.
+//
+// FDᵢ = (ln(N1+N2) − ln(N3)) / ln(2)
+//
+// N1 is calculated over the first half of the total lookback period ℓ as the
+// (highest price - lowest price) during the first ℓ/2 bars, divided by ℓ/2.
+//
+// N2 is calculated over the second half of the total lookback period ℓ as the
+// (lighest price - lowest price) during the second ℓ/2 bars (from ℓ/2 to ℓ-1 bars ago),
+// divided by ℓ/2.
+//
+// N3 is calculated over the entire lookback period ℓ as the
+// (highest price - lowest price) during the full ℓ bars, divided by ℓ.
+//
+// The box-counting method itself, often used to determine fractal dimension,
+// is also known as the Minkowski–Bouligand dimension, named after Hermann Minkowski
+// and Georges Bouligand. Here's how the box-counting method generally works.
+//
+//  1. Cover the pattern by overlaying it with a grid of square boxes,
+//     all of the same side length (s).
+//  2. Count the number of boxes (N) in the grid that contain at least
+//     some part of the pattern.
+//  3. Repeat steps 1 and 2 using grids with progressively smaller box sizes (s).
+//  4. Calculate dimension by examining the relationship between N(s) and s,
+//     typically as s approaches zero. Mathematically, it's defined as the limit:
+//     FD = lim(s→0) [ln(N(s)) / ln(1/s)]
 //
 // Reference:
-// S&C.
+//
+//	Falconer, K. (2014). Fractal geometry: Mathematical foundations and applications (3rd ed) Wiley.
+//	Ehlers, John F. (2005). Fractal Adaptive Moving Average. Technical Analysis of Stocks & Commodities, 23(10), 81–82.
+//	Ehlers, John F. (2006). FRAMA – Fractal Adaptive Moving Average, https://www.mesasoftware.com/papers/FRAMA.pdf.
 type FractalAdaptiveMovingAverage struct {
 	mu                  sync.RWMutex
 	name                string
@@ -23,6 +84,8 @@ type FractalAdaptiveMovingAverage struct {
 	descriptionFdim     string
 	nameBand            string
 	descriptionBand     string
+	alphaSlowest        float64
+	scalingFactor       float64
 	fractalDimension    float64
 	value               float64
 	length              int
@@ -47,6 +110,7 @@ func NewFractalAdaptiveMovingAverage( //nolint:funlen
 	const (
 		invalid = "invalid fractal adaptive moving average parameters"
 		fmtl    = "%s: length should be an even integer larger than 1"
+		fmta    = "%s: slowest smoothing factor should be in range [0, 1]"
 		fmts    = "%s: %s"
 		fmtw    = "%s: %w"
 		fmtnl   = "frama(%d)"
@@ -68,6 +132,10 @@ func NewFractalAdaptiveMovingAverage( //nolint:funlen
 
 	if params.Length < two {
 		return nil, fmt.Errorf(fmtl, invalid)
+	}
+
+	if params.SlowestSmoothingFactor < 0. || params.SlowestSmoothingFactor > 1. {
+		return nil, fmt.Errorf(fmta, invalid)
 	}
 
 	length := params.Length
@@ -111,6 +179,8 @@ func NewFractalAdaptiveMovingAverage( //nolint:funlen
 		lowCircularBuffer:   lowCircularBuffer,
 		circularBufferIndex: 0,
 		circularBufferCount: 0,
+		alphaSlowest:        params.SlowestSmoothingFactor,
+		scalingFactor:       math.Log(params.SlowestSmoothingFactor),
 		fractalDimension:    0,
 		value:               0,
 		primed:              false,
@@ -305,7 +375,7 @@ func (s *FractalAdaptiveMovingAverage) estimateFractalDimension(index int) float
 }
 
 func (s *FractalAdaptiveMovingAverage) estimateAlpha() float64 {
-	const epsilon = 0.01
+	factor := s.scalingFactor
 
 	// We use the fractal dimension to dynamically change the alpha of an exponential moving average.
 	// The fractal dimension varies over the range from 1 to 2.
@@ -314,16 +384,14 @@ func (s *FractalAdaptiveMovingAverage) estimateAlpha() float64 {
 
 	// An empirically chosen scaling in Ehlers’s method to map fractal dimension (1–2)
 	// to the exponential α.
-	const scalingFactor = -4.6
-
-	alpha := math.Exp(scalingFactor * (s.fractalDimension - 1))
+	alpha := math.Exp(factor * (s.fractalDimension - 1))
 
 	// When the fractal dimension is 1, the exponent is zero – which means that alpha is 1, and
 	// the output of the exponential moving average is equal to the input.
 
-	// Limit alpha to vary only from 0.01 to 1.
-	if alpha < epsilon {
-		alpha = epsilon
+	// Limit alpha to vary only from αs to 1.
+	if alpha < s.alphaSlowest {
+		alpha = s.alphaSlowest
 	} else if alpha > 1 {
 		alpha = 1
 	}

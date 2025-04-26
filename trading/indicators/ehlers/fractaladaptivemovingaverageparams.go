@@ -12,6 +12,14 @@ type FractalAdaptiveMovingAverageParams struct {
 	// The default value is 16.
 	Length int
 
+	// SlowestSmoothingFactor is the slowest boundary smoothing factor, αs in (0,1).
+	// The equivalent length ℓs is
+	//
+	//   ℓs = 2/αs - 1, 0 < αs ≤ 1, 1 ≤ ℓs
+	//
+	// The default value is 0.01 (equivalent ℓs = 199).
+	SlowestSmoothingFactor float64
+
 	// BarComponent indicates the component of a bar to use when updating the indicator with a bar sample.
 	//
 	// The original FRAMA indicator uses the median price (high+low)/2, which is the default.
