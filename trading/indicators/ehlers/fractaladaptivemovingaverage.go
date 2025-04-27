@@ -77,35 +77,32 @@ import (
 //	Ehlers, John F. (2005). Fractal Adaptive Moving Average. Technical Analysis of Stocks & Commodities, 23(10), 81–82.
 //	Ehlers, John F. (2006). FRAMA – Fractal Adaptive Moving Average, https://www.mesasoftware.com/papers/FRAMA.pdf.
 type FractalAdaptiveMovingAverage struct {
-	mu                  sync.RWMutex
-	name                string
-	description         string
-	nameFdim            string
-	descriptionFdim     string
-	nameBand            string
-	descriptionBand     string
-	alphaSlowest        float64
-	scalingFactor       float64
-	fractalDimension    float64
-	value               float64
-	length              int
-	lengthMinOne        int
-	halfLength          int
-	halfLengthMinOne    int
-	circularBufferIndex int
-	circularBufferCount int
-	highCircularBuffer  []float64
-	lowCircularBuffer   []float64
-	primed              bool
-	barFunc             data.BarFunc
-	quoteFunc           data.QuoteFunc
-	tradeFunc           data.TradeFunc
+	mu               sync.RWMutex
+	name             string
+	description      string
+	nameFdim         string
+	descriptionFdim  string
+	alphaSlowest     float64
+	scalingFactor    float64
+	fractalDimension float64
+	value            float64
+	length           int
+	lengthMinOne     int
+	halfLength       int
+	windowCount      int
+	windowHigh       []float64
+	windowLow        []float64
+	primed           bool
+	barFunc          data.BarFunc
+	quoteFunc        data.QuoteFunc
+	tradeFunc        data.TradeFunc
+	isLogging        bool
 }
 
 // NewFractaldaptiveMovingAverageLength returns an instnce of the indicator
 // created using supplied parameters.
 func NewFractalAdaptiveMovingAverage( //nolint:funlen
-	params FractalAdaptiveMovingAverageParams,
+	params *FractalAdaptiveMovingAverageParams,
 ) (*FractalAdaptiveMovingAverage, error) {
 	const (
 		invalid = "invalid fractal adaptive moving average parameters"
@@ -113,9 +110,8 @@ func NewFractalAdaptiveMovingAverage( //nolint:funlen
 		fmta    = "%s: slowest smoothing factor should be in range [0, 1]"
 		fmts    = "%s: %s"
 		fmtw    = "%s: %w"
-		fmtnl   = "frama(%d)"
-		fmtnld  = "framaDim(%d)"
-		fmtnlb  = "framaBand(%d)"
+		fmtnl   = "frama(%d, %.3f)"
+		fmtnld  = "framaDim(%d, %.3f)"
 		two     = 2
 		descr   = "Fractal adaptive moving average "
 	)
@@ -123,7 +119,6 @@ func NewFractalAdaptiveMovingAverage( //nolint:funlen
 	var (
 		name      string
 		nameFdim  string
-		nameBand  string
 		err       error
 		barFunc   data.BarFunc
 		quoteFunc data.QuoteFunc
@@ -145,12 +140,8 @@ func NewFractalAdaptiveMovingAverage( //nolint:funlen
 
 	halfLength := length / two
 
-	name = fmt.Sprintf(fmtnl, length)
-	nameFdim = fmt.Sprintf(fmtnld, length)
-	nameBand = fmt.Sprintf(fmtnlb, length)
-
-	highCircularBuffer := make([]float64, length)
-	lowCircularBuffer := make([]float64, length)
+	name = fmt.Sprintf(fmtnl, length, params.SlowestSmoothingFactor)
+	nameFdim = fmt.Sprintf(fmtnld, length, params.SlowestSmoothingFactor)
 
 	if barFunc, err = data.BarComponentFunc(params.BarComponent); err != nil {
 		return nil, fmt.Errorf(fmtw, invalid, err)
@@ -165,28 +156,24 @@ func NewFractalAdaptiveMovingAverage( //nolint:funlen
 	}
 
 	return &FractalAdaptiveMovingAverage{
-		name:                name,
-		description:         descr + name,
-		nameFdim:            nameFdim,
-		descriptionFdim:     descr + nameFdim,
-		nameBand:            nameBand,
-		descriptionBand:     descr + nameBand,
-		length:              length,
-		lengthMinOne:        length - 1,
-		halfLength:          halfLength,
-		halfLengthMinOne:    halfLength - 1,
-		highCircularBuffer:  highCircularBuffer,
-		lowCircularBuffer:   lowCircularBuffer,
-		circularBufferIndex: 0,
-		circularBufferCount: 0,
-		alphaSlowest:        params.SlowestSmoothingFactor,
-		scalingFactor:       math.Log(params.SlowestSmoothingFactor),
-		fractalDimension:    0,
-		value:               0,
-		primed:              false,
-		barFunc:             barFunc,
-		quoteFunc:           quoteFunc,
-		tradeFunc:           tradeFunc,
+		name:             name,
+		description:      descr + name,
+		nameFdim:         nameFdim,
+		descriptionFdim:  descr + nameFdim,
+		length:           length,
+		lengthMinOne:     length - 1,
+		halfLength:       halfLength,
+		windowHigh:       make([]float64, length),
+		windowLow:        make([]float64, length),
+		windowCount:      0,
+		alphaSlowest:     params.SlowestSmoothingFactor,
+		scalingFactor:    math.Log(params.SlowestSmoothingFactor),
+		fractalDimension: math.NaN(),
+		value:            math.NaN(),
+		primed:           false,
+		barFunc:          barFunc,
+		quoteFunc:        quoteFunc,
+		tradeFunc:        tradeFunc,
 	}, nil
 }
 
@@ -226,41 +213,68 @@ func (s *FractalAdaptiveMovingAverage) Update(sample, sampleHigh, sampleLow floa
 		return math.NaN()
 	}
 
-	if sampleHigh < sampleLow {
-		sampleLow, sampleHigh = sampleHigh, sampleLow
-	}
-
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	index := s.circularBufferIndex
-	s.circularBufferIndex++
-
-	if s.circularBufferIndex > s.lengthMinOne {
-		s.circularBufferIndex = 0
-	}
-
-	s.lowCircularBuffer[index] = sampleLow
-	s.highCircularBuffer[index] = sampleHigh
-
 	if s.primed {
-		s.fractalDimension = s.estimateFractalDimension(index)
+		s.windowCount++
+		if s.isLogging {
+			fmt.Println("windowCount", s.windowCount, "lows", s.windowLow)
+			fmt.Println("windowCount", s.windowCount, "highs", s.windowHigh)
+		}
+
+		for i := range s.lengthMinOne { // - 1
+			j := i + 1
+			if s.isLogging {
+				fmt.Println("i", i, "j", j, "low", s.windowLow[i], "<-", s.windowLow[j], "high", s.windowHigh[i], "<-", s.windowHigh[j])
+			}
+			s.windowHigh[i] = s.windowHigh[j]
+			s.windowLow[i] = s.windowLow[j]
+		}
+
+		if s.isLogging {
+			fmt.Println("i", s.lengthMinOne, "low", s.windowLow[s.lengthMinOne], "<-", sampleLow, "high", s.windowHigh[s.lengthMinOne], "<-", sampleHigh)
+		}
+		s.windowHigh[s.lengthMinOne] = sampleHigh
+		s.windowLow[s.lengthMinOne] = sampleLow
+
+		if s.isLogging {
+			fmt.Println("lows ->", s.windowLow)
+			fmt.Println("highs ->", s.windowHigh)
+		}
+
+		s.fractalDimension = s.estimateFractalDimension()
 		alpha := s.estimateAlpha()
+		// s.value += (sample - s.value) * alpha
+
+		if s.isLogging {
+			fmt.Println("windowCount", s.windowCount, "fdim", s.fractalDimension, "alpha", alpha, "sample", sample, "value", s.value, "-->", s.value+(sample-s.value)*alpha)
+		}
+
 		s.value += (sample - s.value) * alpha
 
 		return s.value
 	} else {
-		s.circularBufferCount++
-		if s.circularBufferCount == s.lengthMinOne {
-			s.fractalDimension = s.estimateFractalDimension(index)
+		s.windowHigh[s.windowCount] = sampleHigh
+		s.windowLow[s.windowCount] = sampleLow
+
+		s.windowCount++
+		if s.windowCount == s.lengthMinOne {
+			s.value = sample
+		} else if s.windowCount == s.length {
+			s.fractalDimension = s.estimateFractalDimension()
 			alpha := s.estimateAlpha()
-			s.value += (sample - s.value) * alpha
+			// s.value += (sample - s.value) * alpha
 			s.primed = true
+
+			if s.isLogging {
+				fmt.Println("windowCount", s.windowCount, "fdim", s.fractalDimension, "alpha", alpha, "sample", sample, "value", s.value, "-->", s.value+(sample-s.value)*alpha)
+			}
+
+			s.value += (sample - s.value) * alpha
 
 			return s.value
 		}
-
-		s.value = sample
 	}
 
 	return math.NaN()
@@ -316,62 +330,71 @@ func (s *FractalAdaptiveMovingAverage) updateEntity(
 }
 
 //nolint:cyclop
-func (s *FractalAdaptiveMovingAverage) estimateFractalDimension(index int) float64 {
-	minLow := s.lowCircularBuffer[index]
-	maxHigh := s.highCircularBuffer[index]
+func (s *FractalAdaptiveMovingAverage) estimateFractalDimension() float64 {
+	minLowHalf := math.MaxFloat64
+	maxHighHalf := math.SmallestNonzeroFloat64
 
-	for range s.halfLengthMinOne {
-		if index == 0 {
-			index = s.lengthMinOne
-		} else {
-			index--
+	for i := range s.halfLength {
+		l := s.windowLow[i]
+		if minLowHalf > l {
+			minLowHalf = l
 		}
 
-		temp := s.lowCircularBuffer[index]
-		if minLow > temp {
-			minLow = temp
+		h := s.windowHigh[i]
+		if maxHighHalf < h {
+			maxHighHalf = h
 		}
 
-		temp = s.highCircularBuffer[index]
-		if maxHigh < temp {
-			maxHigh = temp
+		if s.isLogging {
+			fmt.Println("i", i, "low", l, "high", h, "N1 minLow", minLowHalf, "maxHigh", maxHighHalf)
 		}
 	}
 
-	highLowRangeHalf := maxHigh - minLow
-	minLowSecondHalf := math.MaxFloat64
-	maxHighSecondHalf := math.SmallestNonzeroFloat64
+	rangeN1 := maxHighHalf - minLowHalf
+	minLowFull := minLowHalf
+	maxHighFull := maxHighHalf
+	minLowHalf = math.MaxFloat64
+	maxHighHalf = math.SmallestNonzeroFloat64
 
-	for range s.halfLength {
-		if index == 0 {
-			index = s.lengthMinOne
-		} else {
-			index--
+	// for i := s.halfLength; i < s.length; i++ {
+	for j := range s.halfLength {
+		i := j + s.halfLength
+		l := s.windowLow[i]
+		if minLowFull > l {
+			minLowFull = l
 		}
 
-		temp := s.lowCircularBuffer[index]
-		if minLow > temp {
-			minLow = temp
+		if minLowHalf > l {
+			minLowHalf = l
 		}
 
-		if minLowSecondHalf > temp {
-			minLowSecondHalf = temp
+		h := s.windowHigh[i]
+		if maxHighFull < h {
+			maxHighFull = h
 		}
 
-		temp = s.highCircularBuffer[index]
-		if maxHigh < temp {
-			maxHigh = temp
+		if maxHighHalf < h {
+			maxHighHalf = h
 		}
 
-		if maxHighSecondHalf < temp {
-			maxHighSecondHalf = temp
+		if s.isLogging {
+			fmt.Println("i", i, "low", l, s.windowLow[i], "high", h, s.windowHigh[i], "N2 minLow", minLowHalf, "maxHigh", maxHighHalf, "N3 minLow", minLowFull, "maxHigh", maxHighFull)
 		}
 	}
 
-	highLowRangeHalf += maxHighSecondHalf - minLowSecondHalf
+	rangeN2 := maxHighHalf - minLowHalf
+	rangeN3 := maxHighFull - minLowFull
 
-	return (math.Log(highLowRangeHalf/float64(s.halfLength)) -
-		math.Log((maxHigh-minLow)/float64(s.length))) * math.Log2E
+	if s.isLogging {
+		fmt.Println("range N1", rangeN1, "range N2", rangeN2, "range N3", rangeN3)
+	}
+
+	fdim := (math.Log((rangeN1+rangeN2)/float64(s.halfLength)) -
+		math.Log(rangeN3/float64(s.length))) * math.Log2E
+
+	const two = 2
+
+	return math.Min(math.Max(fdim, 1), two)
 }
 
 func (s *FractalAdaptiveMovingAverage) estimateAlpha() float64 {
@@ -390,11 +413,11 @@ func (s *FractalAdaptiveMovingAverage) estimateAlpha() float64 {
 	// the output of the exponential moving average is equal to the input.
 
 	// Limit alpha to vary only from αs to 1.
-	if alpha < s.alphaSlowest {
-		alpha = s.alphaSlowest
+	/*alpha = s.alphaSlowest
 	} else if alpha > 1 {
 		alpha = 1
 	}
+	return alpha*/
 
-	return alpha
+	return math.Min(math.Max(alpha, s.alphaSlowest), 1)
 }
