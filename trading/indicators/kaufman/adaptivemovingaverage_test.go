@@ -108,7 +108,7 @@ func testAdaptiveMovingAverageExpected() []float64 { //nolint:dupl
 	}
 }
 
-// Expected data is taken from TA-Lib (http://ta-lib.org/) tests, test_KAMA.xsl, KAMA, G5…G256, 252 entries.
+// Expected data is taken from TA-Lib (http://ta-lib.org/) tests, test_KAMA.xsl, ER, G5…G256, 252 entries.
 // Efficiency ratio length is 10.
 
 func testAdaptiveMovingAverageExpectedEr() []float64 { //nolint:dupl
