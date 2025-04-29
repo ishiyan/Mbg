@@ -13,6 +13,7 @@ func TestAdaptiveMovingAverageOutputString(t *testing.T) {
 		text string
 	}{
 		{AdaptiveMovingAverageValue, adaptiveMovingAverageValue},
+		{AdaptiveMovingAverageValueEr, adaptiveMovingAverageValueEr},
 		{adaptiveMovingAverageLast, adaptiveMovingAverageUnknown},
 		{AdaptiveMovingAverageOutput(0), adaptiveMovingAverageUnknown},
 		{AdaptiveMovingAverageOutput(9999), adaptiveMovingAverageUnknown},
@@ -37,6 +38,7 @@ func TestAdaptiveMovingAverageOutputIsKnown(t *testing.T) {
 		boolean bool
 	}{
 		{AdaptiveMovingAverageValue, true},
+		{AdaptiveMovingAverageValueEr, true},
 		{adaptiveMovingAverageLast, false},
 		{AdaptiveMovingAverageOutput(0), false},
 		{AdaptiveMovingAverageOutput(9999), false},
@@ -65,6 +67,7 @@ func TestAdaptiveMovingAverageOutputMarshalJSON(t *testing.T) {
 		succeeded bool
 	}{
 		{AdaptiveMovingAverageValue, dqs + adaptiveMovingAverageValue + dqs, true},
+		{AdaptiveMovingAverageValueEr, dqs + adaptiveMovingAverageValueEr + dqs, true},
 		{adaptiveMovingAverageLast, nilstr, false},
 		{AdaptiveMovingAverageOutput(9999), nilstr, false},
 		{AdaptiveMovingAverageOutput(-9999), nilstr, false},
@@ -106,6 +109,7 @@ func TestAdaptiveMovingAverageOutputUnmarshalJSON(t *testing.T) {
 		succeeded bool
 	}{
 		{AdaptiveMovingAverageValue, dqs + adaptiveMovingAverageValue + dqs, true},
+		{AdaptiveMovingAverageValueEr, dqs + adaptiveMovingAverageValueEr + dqs, true},
 		{zero, dqs + adaptiveMovingAverageUnknown + dqs, false},
 		{zero, dqs + "foobar" + dqs, false},
 	}

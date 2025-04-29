@@ -11,11 +11,13 @@ type AdaptiveMovingAverageOutput int
 const (
 	// The scalar value of the moving average.
 	AdaptiveMovingAverageValue AdaptiveMovingAverageOutput = iota + 1
+	AdaptiveMovingAverageValueEr
 	adaptiveMovingAverageLast
 )
 
 const (
 	adaptiveMovingAverageValue   = "value"
+	adaptiveMovingAverageValueEr = "er"
 	adaptiveMovingAverageUnknown = "unknown"
 )
 
@@ -24,6 +26,8 @@ func (o AdaptiveMovingAverageOutput) String() string {
 	switch o {
 	case AdaptiveMovingAverageValue:
 		return adaptiveMovingAverageValue
+	case AdaptiveMovingAverageValueEr:
+		return adaptiveMovingAverageValueEr
 	default:
 		return adaptiveMovingAverageUnknown
 	}
@@ -68,6 +72,8 @@ func (o *AdaptiveMovingAverageOutput) UnmarshalJSON(data []byte) error {
 	switch s {
 	case adaptiveMovingAverageValue:
 		*o = AdaptiveMovingAverageValue
+	case adaptiveMovingAverageValueEr:
+		*o = AdaptiveMovingAverageValueEr
 	default:
 		return fmt.Errorf(errFmt, s)
 	}

@@ -38,6 +38,8 @@ type AdaptiveMovingAverage struct {
 	mu                    sync.RWMutex
 	name                  string
 	description           string
+	nameEr                string
+	descriptionEr         string
 	efficiencyRatioLength int
 	windowCount           int
 	window                []float64
@@ -47,6 +49,7 @@ type AdaptiveMovingAverage struct {
 	alphaSlowest          float64
 	alphaDiff             float64
 	value                 float64
+	efficiencyRatio       float64
 	primed                bool
 	barFunc               data.BarFunc
 	quoteFunc             data.QuoteFunc
@@ -89,6 +92,7 @@ func newAdaptiveMovingAverage(efficiencyRatioLength int,
 		fmtw    = "%s: %w"
 		fmtnl   = "kama(%d, %d, %d)"
 		fmtna   = "kama(%d, %.4f, %.4f)"
+		fmter   = "er(%d)"
 		two     = 2
 		epsilon = 0.00000001
 	)
@@ -104,6 +108,8 @@ func newAdaptiveMovingAverage(efficiencyRatioLength int,
 	if efficiencyRatioLength < two {
 		return nil, fmt.Errorf(fmtl, invalid, "efficiency ratio")
 	}
+
+	nameEr := fmt.Sprintf(fmter, efficiencyRatioLength)
 
 	if math.IsNaN(fastestSmoothingFactor) { //nolint:nestif
 		if fastestSmoothingLength < two {
@@ -152,15 +158,19 @@ func newAdaptiveMovingAverage(efficiencyRatioLength int,
 		return nil, fmt.Errorf(fmtw, invalid, err)
 	}
 
-	desc := "Kaufman adaptive moving average " + name
+	const desc = "Kaufman adaptive moving average "
 
 	return &AdaptiveMovingAverage{
 		name:                  name,
-		description:           desc,
+		description:           desc + name,
+		nameEr:                nameEr,
+		descriptionEr:         desc + nameEr,
 		efficiencyRatioLength: efficiencyRatioLength,
 		alphaFastest:          fastestSmoothingFactor,
 		alphaSlowest:          slowestSmoothingFactor,
 		alphaDiff:             fastestSmoothingFactor - slowestSmoothingFactor,
+		value:                 math.NaN(),
+		efficiencyRatio:       math.NaN(),
 
 		// These slices will be automatically filled with zeroes.
 		window:        make([]float64, efficiencyRatioLength+1),
@@ -190,6 +200,12 @@ func (s *AdaptiveMovingAverage) Metadata() indicator.Metadata {
 				Type:        output.Scalar,
 				Name:        s.name,
 				Description: s.description,
+			},
+			{
+				Kind:        int(AdaptiveMovingAverageValueEr),
+				Type:        output.Scalar,
+				Name:        s.nameEr,
+				Description: s.descriptionEr,
 			},
 		},
 	}
@@ -228,6 +244,7 @@ func (s *AdaptiveMovingAverage) Update(sample float64) float64 { //nolint:funlen
 			temp = delta / s.absoluteDeltaSum
 		}
 
+		s.efficiencyRatio = temp
 		temp = s.alphaSlowest + temp*s.alphaDiff
 		s.value += (sample - s.value) * temp * temp
 
@@ -250,6 +267,7 @@ func (s *AdaptiveMovingAverage) Update(sample float64) float64 { //nolint:funlen
 				temp = delta / s.absoluteDeltaSum
 			}
 
+			s.efficiencyRatio = temp
 			temp = s.alphaSlowest + temp*s.alphaDiff
 			s.value = s.window[s.efficiencyRatioLength-1]
 			s.value += (sample - s.value) * temp * temp

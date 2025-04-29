@@ -20,7 +20,7 @@ func testMesaAdaptiveMovingAverageTime() time.Time {
 
 // Input data taken from TA-Lib (http://ta-lib.org/) tests, test_MAMA.xsl, Price, D5…D256, 252 entries.
 
-func testMesaAdaptiveMovingAverageInput() []float64 {
+func testMesaAdaptiveMovingAverageInput() []float64 { //nolint:dupl
 	return []float64{
 		92.0000, 93.1725, 95.3125, 94.8450, 94.4075, 94.1100, 93.5000, 91.7350, 90.9550, 91.6875,
 		94.5000, 97.9700, 97.5775, 90.7825, 89.0325, 92.0950, 91.1550, 89.7175, 90.6100, 91.0000,
@@ -308,7 +308,7 @@ func TestMesaAdaptiveMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen,
 		s := data.Scalar{Time: time, Value: inp}
 		mama := testMesaAdaptiveMovingAverageCreateLength(fast, slow)
 
-		for i := 0; i < lprimed; i++ {
+		for range lprimed {
 			mama.Update(0.)
 		}
 
@@ -321,7 +321,7 @@ func TestMesaAdaptiveMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen,
 		b := data.Bar{Time: time, Close: inp}
 		mama := testMesaAdaptiveMovingAverageCreateLength(fast, slow)
 
-		for i := 0; i < lprimed; i++ {
+		for range lprimed {
 			mama.Update(0.)
 		}
 
@@ -334,7 +334,7 @@ func TestMesaAdaptiveMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen,
 		q := data.Quote{Time: time, Bid: inp}
 		mama := testMesaAdaptiveMovingAverageCreateLength(fast, slow)
 
-		for i := 0; i < lprimed; i++ {
+		for range lprimed {
 			mama.Update(0.)
 		}
 
@@ -347,7 +347,7 @@ func TestMesaAdaptiveMovingAverageUpdateEntity(t *testing.T) { //nolint: funlen,
 		r := data.Trade{Time: time, Price: inp}
 		mama := testMesaAdaptiveMovingAverageCreateLength(fast, slow)
 
-		for i := 0; i < lprimed; i++ {
+		for range lprimed {
 			mama.Update(0.)
 		}
 

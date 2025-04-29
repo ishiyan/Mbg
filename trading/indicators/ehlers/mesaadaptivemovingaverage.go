@@ -379,14 +379,7 @@ func (s *MesaAdaptiveMovingAverage) calculateMama(sample float64) float64 {
 
 	// The α is computed as the fast limit divided
 	// by the phase rate of change.
-	alpha := s.alphaFastLimit / phaseRateOfChange
-	if alpha < s.alphaSlowLimit {
-		alpha = s.alphaSlowLimit
-	}
-
-	if alpha > s.alphaFastLimit {
-		alpha = s.alphaFastLimit
-	}
+	alpha := min(max(s.alphaFastLimit/phaseRateOfChange, s.alphaSlowLimit), s.alphaFastLimit)
 
 	s.mama = alpha*sample + (1.0-alpha)*s.mama
 
